@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <include file="db/changelog/001-organizations.xml"/>
+    <include file="db/changelog/002-tools.xml"/>
+    <include file="db/changelog/003-conversations.xml"/>
+    <include file="db/changelog/004-executions.xml"/>
+    <include file="db/changelog/005-knowledge.xml"/>
+    <include file="db/changelog/006-complaints.xml"/>
+    <include file="db/changelog/007-seed-data.xml"/>
+
+</databaseChangeLog>

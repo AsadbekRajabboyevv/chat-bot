@@ -1,0 +1,24 @@
+package com.olima.organization;
+
+import com.olima.common.BaseEntity;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Table(name = "organizations")
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class OrganizationEntity extends BaseEntity {
+    private String name;
+    private String slug;
+    private String description;
+    private boolean enabled;
+}

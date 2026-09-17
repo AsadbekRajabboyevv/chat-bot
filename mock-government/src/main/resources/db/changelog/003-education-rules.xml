@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="3" author="system">
+        <createTable tableName="transfer_rules">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(255)"/>
+            <column name="description" type="TEXT"/>
+            <column name="min_gpa" type="DECIMAL"/>
+            <column name="min_completed_years" type="INT"/>
+            <column name="application_period" type="VARCHAR(255)"/>
+            <column name="required_documents" type="TEXT"/>
+            <column name="additional_conditions" type="TEXT"/>
+        </createTable>
+
+        <createTable tableName="academic_leave_rules">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(255)"/>
+            <column name="description" type="TEXT"/>
+            <column name="valid_reasons" type="TEXT"/>
+            <column name="max_duration_years" type="INT"/>
+            <column name="required_documents" type="TEXT"/>
+            <column name="reinstatement_procedure" type="TEXT"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

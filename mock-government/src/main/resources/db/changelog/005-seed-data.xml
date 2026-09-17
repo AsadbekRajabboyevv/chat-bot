@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="5" author="system">
+        <!-- Students -->
+        <insert tableName="students">
+            <column name="first_name" value="Aziz"/>
+            <column name="last_name" value="Karimov"/>
+            <column name="student_id_number" value="STU-001"/>
+            <column name="university_name" value="Tashkent State University"/>
+            <column name="faculty" value="Computer Science"/>
+            <column name="course" valueNumeric="3"/>
+            <column name="gpa" valueNumeric="4.2"/>
+            <column name="enrollment_status" value="ACTIVE"/>
+        </insert>
+        <insert tableName="students">
+            <column name="first_name" value="Malika"/>
+            <column name="last_name" value="Rashidova"/>
+            <column name="student_id_number" value="STU-002"/>
+            <column name="university_name" value="National University of Uzbekistan"/>
+            <column name="faculty" value="Mathematics"/>
+            <column name="course" valueNumeric="2"/>
+            <column name="gpa" valueNumeric="4.8"/>
+            <column name="enrollment_status" value="ACTIVE"/>
+        </insert>
+        <insert tableName="students">
+            <column name="first_name" value="Bobur"/>
+            <column name="last_name" value="Alimov"/>
+            <column name="student_id_number" value="STU-003"/>
+            <column name="university_name" value="Samarkand State University"/>
+            <column name="faculty" value="Physics"/>
+            <column name="course" valueNumeric="4"/>
+            <column name="gpa" valueNumeric="3.1"/>
+            <column name="enrollment_status" value="ACTIVE"/>
+        </insert>
+        <insert tableName="students">
+            <column name="first_name" value="Nilufar"/>
+            <column name="last_name" value="Yusupova"/>
+            <column name="student_id_number" value="STU-004"/>
+            <column name="university_name" value="Bukhara State University"/>
+            <column name="faculty" value="Economics"/>
+            <column name="course" valueNumeric="1"/>
+            <column name="gpa" valueNumeric="3.9"/>
+            <column name="enrollment_status" value="ACTIVE"/>
+        </insert>
+        <insert tableName="students">
+            <column name="first_name" value="Jasur"/>
+            <column name="last_name" value="Toshmatov"/>
+            <column name="student_id_number" value="STU-005"/>
+            <column name="university_name" value="Tashkent University of Information Technologies"/>
+            <column name="faculty" value="Software Engineering"/>
+            <column name="course" valueNumeric="3"/>
+            <column name="gpa" valueNumeric="2.8"/>
+            <column name="enrollment_status" value="ACADEMIC_LEAVE"/>
+        </insert>
+
+        <!-- Contracts -->
+        <insert tableName="contracts">
+            <column name="student_id" valueComputed="(SELECT id FROM students WHERE student_id_number='STU-001')"/>
+            <column name="contract_type" value="GRANT"/>
+            <column name="tuition_amount" valueNumeric="0"/>
+            <column name="payment_status" value="PAID"/>
+        </insert>
+        <insert tableName="contracts">
+            <column name="student_id" valueComputed="(SELECT id FROM students WHERE student_id_number='STU-002')"/>
+            <column name="contract_type" value="GRANT"/>
+            <column name="tuition_amount" valueNumeric="0"/>
+            <column name="payment_status" value="PAID"/>
+        </insert>
+        <insert tableName="contracts">
+            <column name="student_id" valueComputed="(SELECT id FROM students WHERE student_id_number='STU-003')"/>
+            <column name="contract_type" value="CONTRACT"/>
+            <column name="tuition_amount" valueNumeric="12000000"/>
+            <column name="payment_status" value="PARTIAL"/>
+        </insert>
+        <insert tableName="contracts">
+            <column name="student_id" valueComputed="(SELECT id FROM students WHERE student_id_number='STU-004')"/>
+            <column name="contract_type" value="CONTRACT"/>
+            <column name="tuition_amount" valueNumeric="9500000"/>
+            <column name="payment_status" value="PAID"/>
+        </insert>
+        <insert tableName="contracts">
+            <column name="student_id" valueComputed="(SELECT id FROM students WHERE student_id_number='STU-005')"/>
+            <column name="contract_type" value="CONTRACT"/>
+            <column name="tuition_amount" valueNumeric="11000000"/>
+            <column name="payment_status" value="UNPAID"/>
+        </insert>
+
+        <!-- Scholarships -->
+        <insert tableName="scholarships">
+            <column name="student_id" valueComputed="(SELECT id FROM students WHERE student_id_number='STU-001')"/>
+            <column name="scholarship_type" value="ACADEMIC_EXCELLENCE"/>
+            <column name="amount" valueNumeric="1395000"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="scholarships">
+            <column name="student_id" valueComputed="(SELECT id FROM students WHERE student_id_number='STU-002')"/>
+            <column name="scholarship_type" value="PRESIDENTIAL"/>
+            <column name="amount" valueNumeric="2790000"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="scholarships">
+            <column name="student_id" valueComputed="(SELECT id FROM students WHERE student_id_number='STU-004')"/>
+            <column name="scholarship_type" value="NEED_BASED"/>
+            <column name="amount" valueNumeric="500000"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+
+        <!-- Universities -->
+        <insert tableName="universities">
+            <column name="name" value="Tashkent State University (NUUz)"/>
+            <column name="code" value="UNI-001"/>
+            <column name="location" value="Tashkent"/>
+            <column name="type" value="PUBLIC"/>
+            <column name="accreditation_status" value="ACCREDITED"/>
+        </insert>
+        <insert tableName="universities">
+            <column name="name" value="National University of Uzbekistan"/>
+            <column name="code" value="UNI-002"/>
+            <column name="location" value="Tashkent"/>
+            <column name="type" value="PUBLIC"/>
+            <column name="accreditation_status" value="ACCREDITED"/>
+        </insert>
+        <insert tableName="universities">
+            <column name="name" value="Samarkand State University"/>
+            <column name="code" value="UNI-003"/>
+            <column name="location" value="Samarkand"/>
+            <column name="type" value="PUBLIC"/>
+            <column name="accreditation_status" value="ACCREDITED"/>
+        </insert>
+        <insert tableName="universities">
+            <column name="name" value="Bukhara State University"/>
+            <column name="code" value="UNI-004"/>
+            <column name="location" value="Bukhara"/>
+            <column name="type" value="PUBLIC"/>
+            <column name="accreditation_status" value="ACCREDITED"/>
+        </insert>
+        <insert tableName="universities">
+            <column name="name" value="Tashkent University of Information Technologies (TUIT)"/>
+            <column name="code" value="UNI-005"/>
+            <column name="location" value="Tashkent"/>
+            <column name="type" value="PUBLIC"/>
+            <column name="accreditation_status" value="ACCREDITED"/>
+        </insert>
+        <insert tableName="universities">
+            <column name="name" value="Westminster International University in Tashkent (WIUT)"/>
+            <column name="code" value="UNI-006"/>
+            <column name="location" value="Tashkent"/>
+            <column name="type" value="PRIVATE"/>
+            <column name="accreditation_status" value="ACCREDITED"/>
+        </insert>
+        <insert tableName="universities">
+            <column name="name" value="INHA University in Tashkent"/>
+            <column name="code" value="UNI-007"/>
+            <column name="location" value="Tashkent"/>
+            <column name="type" value="PRIVATE"/>
+            <column name="accreditation_status" value="ACCREDITED"/>
+        </insert>
+        <insert tableName="universities">
+            <column name="name" value="Fergana State University"/>
+            <column name="code" value="UNI-008"/>
+            <column name="location" value="Fergana"/>
+            <column name="type" value="PUBLIC"/>
+            <column name="accreditation_status" value="ACCREDITED"/>
+        </insert>
+
+        <!-- Rules -->
+        <insert tableName="transfer_rules">
+            <column name="title" value="Domestic Transfer"/>
+            <column name="description" value="Transfer within Uzbekistan"/>
+            <column name="min_gpa" valueNumeric="3.0"/>
+            <column name="min_completed_years" valueNumeric="1"/>
+            <column name="application_period" value="July 15 - August 5"/>
+        </insert>
+        <insert tableName="transfer_rules">
+            <column name="title" value="International Transfer"/>
+            <column name="description" value="Transfer from foreign universities"/>
+            <column name="min_gpa" valueNumeric="3.5"/>
+            <column name="min_completed_years" valueNumeric="1"/>
+            <column name="application_period" value="July 15 - August 5"/>
+        </insert>
+
+        <insert tableName="academic_leave_rules">
+            <column name="title" value="Medical Leave"/>
+            <column name="description" value="Leave due to health issues"/>
+            <column name="max_duration_years" valueNumeric="2"/>
+        </insert>
+        <insert tableName="academic_leave_rules">
+            <column name="title" value="Military Service"/>
+            <column name="description" value="Leave for compulsory military service"/>
+            <column name="max_duration_years" valueNumeric="1"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

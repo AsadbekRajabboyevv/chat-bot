@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: olima-backend
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:olima}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:1234}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      chat:
+        options:
+          model: ${OPENAI_MODEL:gpt-4o-mini}
+          temperature: 0.3
+
+server:
+  port: 8080
+
+search:
+  tavily:
+    api-key: ${TAVILY_API_KEY:}
+  serpapi:
+    api-key: ${SERPAPI_API_KEY:}
+  google:
+    api-key: ${GOOGLE_SEARCH_API_KEY:}
+    cx: ${GOOGLE_SEARCH_CX:}
+
+logging:
+  level:
+    com.olima: DEBUG
+    org.springframework.ai: DEBUG

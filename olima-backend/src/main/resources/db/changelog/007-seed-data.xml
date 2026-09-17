@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="007-seed-higher-education-ministry" author="olima">
+        <insert tableName="organizations">
+            <column name="id" value="550e8400-e29b-41d4-a716-446655440001"/>
+            <column name="name" value="Higher Education Ministry"/>
+            <column name="slug" value="higher-education"/>
+            <column name="description" value="Ministry of Higher Education - manages universities, student affairs, and academic regulations"/>
+            <column name="enabled" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="007-seed-tools-student-profile" author="olima">
+        <insert tableName="tools">
+            <column name="id" value="660e8400-e29b-41d4-a716-446655440001"/>
+            <column name="organization_id" value="550e8400-e29b-41d4-a716-446655440001"/>
+            <column name="name" value="get_student_profile"/>
+            <column name="description" value="Retrieves a student's profile information including name, university, faculty, course, GPA, and enrollment status. Use this when the user asks about their personal academic information or student details."/>
+            <column name="type" value="REST_API"/>
+            <column name="configuration" value='{"endpoint": "http://mock-government:8081/api/students/{studentId}", "method": "GET"}'/>
+            <column name="enabled" valueBoolean="true"/>
+            <column name="requires_confirmation" valueBoolean="false"/>
+            <column name="access_level" value="READ"/>
+        </insert>
+        <insert tableName="tool_parameters">
+            <column name="id" value="770e8400-e29b-41d4-a716-446655440001"/>
+            <column name="tool_id" value="660e8400-e29b-41d4-a716-446655440001"/>
+            <column name="name" value="studentId"/>
+            <column name="type" value="string"/>
+            <column name="description" value="The unique identifier of the student"/>
+            <column name="required" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="007-seed-tools-student-contract" author="olima">
+        <insert tableName="tools">
+            <column name="id" value="660e8400-e29b-41d4-a716-446655440002"/>
+            <column name="organization_id" value="550e8400-e29b-41d4-a716-446655440001"/>
+            <column name="name" value="get_student_contract"/>
+            <column name="description" value="Retrieves the student's education contract details including contract type (grant/contract), tuition fees, payment status, and contract dates. Use when the user asks about their contract, tuition, or payment information."/>
+            <column name="type" value="REST_API"/>
+            <column name="configuration" value='{"endpoint": "http://mock-government:8081/api/students/{studentId}/contract", "method": "GET"}'/>
+            <column name="enabled" valueBoolean="true"/>
+            <column name="requires_confirmation" valueBoolean="false"/>
+            <column name="access_level" value="READ"/>
+        </insert>
+        <insert tableName="tool_parameters">
+            <column name="id" value="770e8400-e29b-41d4-a716-446655440002"/>
+            <column name="tool_id" value="660e8400-e29b-41d4-a716-446655440002"/>
+            <column name="name" value="studentId"/>
+            <column name="type" value="string"/>
+            <column name="description" value="The unique identifier of the student"/>
+            <column name="required" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="007-seed-tools-student-scholarship" author="olima">
+        <insert tableName="tools">
+            <column name="id" value="660e8400-e29b-41d4-a716-446655440003"/>
+            <column name="organization_id" value="550e8400-e29b-41d4-a716-446655440001"/>
+            <column name="name" value="get_student_scholarship"/>
+            <column name="description" value="Retrieves scholarship information for a student including scholarship type, amount, conditions, and duration. Use when the user asks about scholarships, financial aid, or stipends."/>
+            <column name="type" value="REST_API"/>
+            <column name="configuration" value='{"endpoint": "http://mock-government:8081/api/students/{studentId}/scholarship", "method": "GET"}'/>
+            <column name="enabled" valueBoolean="true"/>
+            <column name="requires_confirmation" valueBoolean="false"/>
+            <column name="access_level" value="READ"/>
+        </insert>
+        <insert tableName="tool_parameters">
+            <column name="id" value="770e8400-e29b-41d4-a716-446655440003"/>
+            <column name="tool_id" value="660e8400-e29b-41d4-a716-446655440003"/>
+            <column name="name" value="studentId"/>
+            <column name="type" value="string"/>
+            <column name="description" value="The unique identifier of the student"/>
+            <column name="required" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="007-seed-tools-search-universities" author="olima">
+        <insert tableName="tools">
+            <column name="id" value="660e8400-e29b-41d4-a716-446655440004"/>
+            <column name="organization_id" value="550e8400-e29b-41d4-a716-446655440001"/>
+            <column name="name" value="search_universities"/>
+            <column name="description" value="Searches and retrieves a list of universities with their details including name, location, type (public/private), accreditation status, and available faculties. Use when the user asks about universities, wants to compare institutions, or needs university information."/>
+            <column name="type" value="REST_API"/>
+            <column name="configuration" value='{"endpoint": "http://mock-government:8081/api/universities", "method": "GET"}'/>
+            <column name="enabled" valueBoolean="true"/>
+            <column name="requires_confirmation" valueBoolean="false"/>
+            <column name="access_level" value="READ"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="007-seed-tools-transfer-rules" author="olima">
+        <insert tableName="tools">
+            <column name="id" value="660e8400-e29b-41d4-a716-446655440005"/>
+            <column name="organization_id" value="550e8400-e29b-41d4-a716-446655440001"/>
+            <column name="name" value="get_transfer_rules"/>
+            <column name="description" value="Retrieves the official rules and procedures for transferring between universities. Includes eligibility requirements, GPA thresholds, required documents, deadlines, and step-by-step transfer process. Use when the user asks about transferring to another university or changing educational institution."/>
+            <column name="type" value="REST_API"/>
+            <column name="configuration" value='{"endpoint": "http://mock-government:8081/api/education/transfer-rules", "method": "GET"}'/>
+            <column name="enabled" valueBoolean="true"/>
+            <column name="requires_confirmation" valueBoolean="false"/>
+            <column name="access_level" value="READ"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="007-seed-tools-academic-leave" author="olima">
+        <insert tableName="tools">
+            <column name="id" value="660e8400-e29b-41d4-a716-446655440006"/>
+            <column name="organization_id" value="550e8400-e29b-41d4-a716-446655440001"/>
+            <column name="name" value="get_academic_leave_rules"/>
+            <column name="description" value="Retrieves rules and procedures for academic leave (akademik ta'til). Includes valid reasons, required documents, maximum duration, reinstatement process, and conditions. Use when the user asks about taking academic leave, pausing studies, or temporary withdrawal."/>
+            <column name="type" value="REST_API"/>
+            <column name="configuration" value='{"endpoint": "http://mock-government:8081/api/education/academic-leave-rules", "method": "GET"}'/>
+            <column name="enabled" valueBoolean="true"/>
+            <column name="requires_confirmation" valueBoolean="false"/>
+            <column name="access_level" value="READ"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="007-seed-tools-create-complaint" author="olima">
+        <insert tableName="tools">
+            <column name="id" value="660e8400-e29b-41d4-a716-446655440007"/>
+            <column name="organization_id" value="550e8400-e29b-41d4-a716-446655440001"/>
+            <column name="name" value="create_complaint_draft"/>
+            <column name="description" value="Creates a draft complaint/appeal to the Ministry of Higher Education. Collects the subject, description, category, and contact information. The complaint will NOT be submitted automatically - it requires human confirmation before submission. Use when the user wants to file a complaint, report an issue, or make a formal appeal."/>
+            <column name="type" value="REST_API"/>
+            <column name="configuration" value='{"endpoint": "http://mock-government:8081/api/complaints", "method": "POST"}'/>
+            <column name="enabled" valueBoolean="true"/>
+            <column name="requires_confirmation" valueBoolean="true"/>
+            <column name="access_level" value="WRITE"/>
+        </insert>
+        <insert tableName="tool_parameters">
+            <column name="id" value="770e8400-e29b-41d4-a716-446655440010"/>
+            <column name="tool_id" value="660e8400-e29b-41d4-a716-446655440007"/>
+            <column name="name" value="subject"/>
+            <column name="type" value="string"/>
+            <column name="description" value="Brief subject of the complaint"/>
+            <column name="required" valueBoolean="true"/>
+        </insert>
+        <insert tableName="tool_parameters">
+            <column name="id" value="770e8400-e29b-41d4-a716-446655440011"/>
+            <column name="tool_id" value="660e8400-e29b-41d4-a716-446655440007"/>
+            <column name="name" value="description"/>
+            <column name="type" value="string"/>
+            <column name="description" value="Detailed description of the complaint"/>
+            <column name="required" valueBoolean="true"/>
+        </insert>
+        <insert tableName="tool_parameters">
+            <column name="id" value="770e8400-e29b-41d4-a716-446655440012"/>
+            <column name="tool_id" value="660e8400-e29b-41d4-a716-446655440007"/>
+            <column name="name" value="category"/>
+            <column name="type" value="string"/>
+            <column name="description" value="Category of the complaint: ACADEMIC, FINANCIAL, ADMINISTRATIVE, DISCRIMINATION, OTHER"/>
+            <column name="required" valueBoolean="false"/>
+            <column name="default_value" value="OTHER"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="007-seed-knowledge-base" author="olima">
+        <insert tableName="knowledge_bases">
+            <column name="id" value="880e8400-e29b-41d4-a716-446655440001"/>
+            <column name="organization_id" value="550e8400-e29b-41d4-a716-446655440001"/>
+            <column name="name" value="Education Regulations"/>
+            <column name="description" value="Official regulations and legal documents related to higher education in Uzbekistan"/>
+        </insert>
+
+        <insert tableName="documents">
+            <column name="id" value="990e8400-e29b-41d4-a716-446655440001"/>
+            <column name="knowledge_base_id" value="880e8400-e29b-41d4-a716-446655440001"/>
+            <column name="title" value="Higher Education Law of the Republic of Uzbekistan"/>
+            <column name="source_url" value="https://lex.uz/docs/education"/>
+        </insert>
+
+        <insert tableName="document_chunks">
+            <column name="id" value="aa0e8400-e29b-41d4-a716-446655440001"/>
+            <column name="document_id" value="990e8400-e29b-41d4-a716-446655440001"/>
+            <column name="organization_id" value="550e8400-e29b-41d4-a716-446655440001"/>
+            <column name="content" value="Article 16. Transfer of students between higher education institutions. Students have the right to transfer from one higher education institution to another. Transfer is permitted after completing the first academic year. The student must have a GPA of at least 3.0 on a 5.0 scale. Transfer applications must be submitted during the summer period (June 1 - August 15). Required documents: application letter, transcript, certificate of enrollment, and recommendation letter from the current institution."/>
+            <column name="document_number" value="HE-LAW-2020"/>
+            <column name="article" value="16"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="source_url" value="https://lex.uz/docs/education#article16"/>
+        </insert>
+
+        <insert tableName="document_chunks">
+            <column name="id" value="aa0e8400-e29b-41d4-a716-446655440002"/>
+            <column name="document_id" value="990e8400-e29b-41d4-a716-446655440001"/>
+            <column name="organization_id" value="550e8400-e29b-41d4-a716-446655440001"/>
+            <column name="content" value="Article 22. Academic leave. A student may take academic leave for valid reasons including: medical conditions (confirmed by medical commission), family circumstances, military service obligation, or participation in international academic programs. Academic leave duration is 1 year, extendable to 2 years for medical reasons. The student retains their enrollment status during academic leave. Reinstatement must be requested within 30 days after the leave period ends."/>
+            <column name="document_number" value="HE-LAW-2020"/>
+            <column name="article" value="22"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="source_url" value="https://lex.uz/docs/education#article22"/>
+        </insert>
+
+        <insert tableName="document_chunks">
+            <column name="id" value="aa0e8400-e29b-41d4-a716-446655440003"/>
+            <column name="document_id" value="990e8400-e29b-41d4-a716-446655440001"/>
+            <column name="organization_id" value="550e8400-e29b-41d4-a716-446655440001"/>
+            <column name="content" value="Article 28. Scholarships and financial support. State-funded (grant) students receive a monthly stipend. The base stipend amount is 930,000 UZS per month. Students with a GPA of 4.5 or higher receive an increased stipend of 1,395,000 UZS (150% of base). Presidential scholarship recipients receive 2,790,000 UZS (300% of base). Scholarship payments are made on the 15th of each month. Students on academic leave do not receive stipend payments."/>
+            <column name="document_number" value="HE-LAW-2020"/>
+            <column name="article" value="28"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="source_url" value="https://lex.uz/docs/education#article28"/>
+        </insert>
+
+        <insert tableName="document_chunks">
+            <column name="id" value="aa0e8400-e29b-41d4-a716-446655440004"/>
+            <column name="document_id" value="990e8400-e29b-41d4-a716-446655440001"/>
+            <column name="organization_id" value="550e8400-e29b-41d4-a716-446655440001"/>
+            <column name="content" value="Article 35. Complaints and appeals procedure. Students and their legal representatives have the right to file complaints regarding academic decisions, grading disputes, and administrative actions. Complaints must be submitted in writing to the institution first. If the institutional response is unsatisfactory, an appeal can be made to the Ministry of Higher Education within 30 days. The Ministry must respond within 15 working days. Appeals regarding exam results must be filed within 3 working days of grade publication."/>
+            <column name="document_number" value="HE-LAW-2020"/>
+            <column name="article" value="35"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="source_url" value="https://lex.uz/docs/education#article35"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="007-seed-rag-tool" author="olima">
+        <insert tableName="tools">
+            <column name="id" value="660e8400-e29b-41d4-a716-446655440008"/>
+            <column name="organization_id" value="550e8400-e29b-41d4-a716-446655440001"/>
+            <column name="name" value="search_education_regulations"/>
+            <column name="description" value="Searches the official education regulations and legal documents for relevant information. Returns specific articles, paragraphs, and legal provisions. Use when the user asks about rules, regulations, laws, legal requirements, official procedures, or when you need authoritative legal references to support your answer. Always cite the source article and document number."/>
+            <column name="type" value="RAG"/>
+            <column name="configuration" value='{"knowledgeBaseId": "880e8400-e29b-41d4-a716-446655440001", "maxResults": 3}'/>
+            <column name="enabled" valueBoolean="true"/>
+            <column name="requires_confirmation" valueBoolean="false"/>
+            <column name="access_level" value="READ"/>
+        </insert>
+        <insert tableName="tool_parameters">
+            <column name="id" value="770e8400-e29b-41d4-a716-446655440020"/>
+            <column name="tool_id" value="660e8400-e29b-41d4-a716-446655440008"/>
+            <column name="name" value="query"/>
+            <column name="type" value="string"/>
+            <column name="description" value="Search query to find relevant regulations and legal provisions"/>
+            <column name="required" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

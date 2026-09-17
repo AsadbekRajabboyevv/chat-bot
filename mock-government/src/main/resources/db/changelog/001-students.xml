@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="1" author="system">
+        <createTable tableName="students">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="first_name" type="VARCHAR(255)"/>
+            <column name="last_name" type="VARCHAR(255)"/>
+            <column name="student_id_number" type="VARCHAR(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="university_name" type="VARCHAR(255)"/>
+            <column name="faculty" type="VARCHAR(255)"/>
+            <column name="course" type="INT"/>
+            <column name="gpa" type="DECIMAL"/>
+            <column name="enrollment_status" type="VARCHAR(50)"/>
+            <column name="enrollment_date" type="DATE"/>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="phone" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createTable tableName="contracts">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="student_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_contracts_student" referencedTableName="students" referencedColumnNames="id"/>
+            </column>
+            <column name="contract_type" type="VARCHAR(50)"/>
+            <column name="tuition_amount" type="DECIMAL"/>
+            <column name="payment_status" type="VARCHAR(50)"/>
+            <column name="start_date" type="DATE"/>
+            <column name="end_date" type="DATE"/>
+            <column name="academic_year" type="VARCHAR(50)"/>
+        </createTable>
+
+        <createTable tableName="scholarships">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="student_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_scholarships_student" referencedTableName="students" referencedColumnNames="id"/>
+            </column>
+            <column name="scholarship_type" type="VARCHAR(50)"/>
+            <column name="amount" type="DECIMAL"/>
+            <column name="currency" type="VARCHAR(10)" defaultValue="UZS"/>
+            <column name="conditions" type="VARCHAR(255)"/>
+            <column name="start_date" type="DATE"/>
+            <column name="end_date" type="DATE"/>
+            <column name="active" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>
