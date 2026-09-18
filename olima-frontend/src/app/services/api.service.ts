@@ -1,6 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { TOKEN_KEY } from './auth.service';
 import {
   Organization,
   Tool,
@@ -77,13 +78,18 @@ export class ApiService {
   chatStream(data: ChatRequest): Observable<ChatStreamEvent> {
     return new Observable<ChatStreamEvent>(observer => {
       const controller = new AbortController();
+      const token = localStorage.getItem(TOKEN_KEY);
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'Accept': 'text/event-stream, application/json, */*'
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
 
       fetch(`${this.baseUrl}/chat/stream`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'text/event-stream, application/json, */*'
-        },
+        headers,
         body: JSON.stringify(data),
         signal: controller.signal
       })
@@ -96,6 +102,11 @@ export class ApiService {
             message = errJson.message || message;
           } catch (e) {
             if (errText) message = errText;
+          }
+          if (response.status === 401) {
+            localStorage.removeItem(TOKEN_KEY);
+            localStorage.removeItem('auth_user');
+            window.location.href = '/login';
           }
           throw new Error(message);
         }

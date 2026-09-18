@@ -10,6 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ApiService } from './services/api.service';
 import { AuthService } from './services/auth.service';
 import { Organization } from './models';
@@ -31,7 +32,8 @@ import { FormsModule } from '@angular/forms';
     MatButtonModule,
     MatSelectModule,
     MatFormFieldModule,
-    MatMenuModule
+    MatMenuModule,
+    MatProgressSpinnerModule
   ],
   template: `
     <router-outlet *ngIf="isAuthPage"></router-outlet>
@@ -118,7 +120,11 @@ import { FormsModule } from '@angular/forms';
         </mat-toolbar>
 
         <div class="content-wrapper">
-          <router-outlet></router-outlet>
+          <div class="loading-screen" *ngIf="!orgsLoaded">
+            <mat-spinner diameter="40"></mat-spinner>
+            <span>Yuklanmoqda...</span>
+          </div>
+          <router-outlet *ngIf="orgsLoaded"></router-outlet>
         </div>
       </mat-sidenav-content>
     </mat-sidenav-container>
@@ -204,12 +210,23 @@ import { FormsModule } from '@angular/forms';
       height: calc(100vh - 64px - 48px);
       overflow-y: auto;
     }
+    .loading-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      height: 100%;
+      color: #64748b;
+      font-size: 14px;
+    }
   `]
 })
 export class AppComponent implements OnInit {
   organizations: Organization[] = [];
   selectedOrgId: string | null = null;
   isAuthPage = false;
+  orgsLoaded = false;
 
   constructor(
     private apiService: ApiService,
@@ -245,14 +262,21 @@ export class AppComponent implements OnInit {
   }
 
   loadOrganizations(resetSelection = true): void {
-    this.apiService.getOrganizations().subscribe(orgs => {
-      this.organizations = orgs;
-      const saved = localStorage.getItem('selectedOrgId');
-      if (saved && orgs.some(o => o.id === saved)) {
-        this.selectedOrgId = saved;
-      } else if (orgs.length > 0 && resetSelection) {
-        this.selectedOrgId = orgs[0].id;
-        localStorage.setItem('selectedOrgId', this.selectedOrgId);
+    this.apiService.getOrganizations().subscribe({
+      next: (orgs) => {
+        this.organizations = orgs;
+        const saved = localStorage.getItem('selectedOrgId');
+        if (saved && orgs.some(o => o.id === saved)) {
+          this.selectedOrgId = saved;
+        } else if (orgs.length > 0 && resetSelection) {
+          this.selectedOrgId = orgs[0].id;
+          localStorage.setItem('selectedOrgId', this.selectedOrgId);
+        }
+        this.orgsLoaded = true;
+      },
+      error: () => {
+        // Don't block the whole app behind a spinner forever if this call fails once.
+        this.orgsLoaded = true;
       }
     });
   }
