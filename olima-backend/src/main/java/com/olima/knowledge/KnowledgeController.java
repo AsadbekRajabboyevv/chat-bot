@@ -1,8 +1,11 @@
 package com.olima.knowledge;
 
 import com.olima.knowledge.dto.UrlIngestRequest;
+import com.olima.security.AuthenticatedUser;
+import com.olima.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +31,12 @@ public class KnowledgeController {
 
     @PostMapping("/bases")
     public ResponseEntity<KnowledgeBaseEntity> createKnowledgeBase(@RequestBody KnowledgeBaseEntity knowledgeBase) {
+        // organizationId arrives inside the JSON body here, which the org-scope filter can't see —
+        // an ORG_ADMIN's own org is enforced server-side rather than trusting whatever id they sent.
+        AuthenticatedUser principal = currentUser();
+        if (principal != null && principal.role() == UserRole.ORG_ADMIN) {
+            knowledgeBase.setOrganizationId(principal.organizationId());
+        }
         return ResponseEntity.ok(knowledgeService.createKnowledgeBase(knowledgeBase));
     }
 
@@ -60,5 +69,10 @@ public class KnowledgeController {
             @PathVariable UUID id,
             @RequestBody UrlIngestRequest request) {
         return ResponseEntity.ok(knowledgeService.uploadDocumentFromUrl(id, request.url(), request.title()));
+    }
+
+    private AuthenticatedUser currentUser() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth != null && auth.getPrincipal() instanceof AuthenticatedUser user ? user : null;
     }
 }

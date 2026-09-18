@@ -1,14 +1,18 @@
 package com.olima.common;
 
+import com.olima.auth.exception.InvalidCredentialsException;
 import com.olima.conversation.exception.ConversationNotFoundException;
 import com.olima.knowledge.exception.DocumentParseException;
 import com.olima.knowledge.exception.KnowledgeBaseNotFoundException;
 import com.olima.organization.exception.OrganizationNotFoundException;
 import com.olima.tool.exception.ToolNotFoundException;
+import com.olima.user.exception.DuplicateUsernameException;
+import com.olima.user.exception.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -54,6 +58,30 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException ex) {
         log.warn("Uploaded file exceeds the allowed size: {}", ex.getMessage());
         return buildResponse(HttpStatus.PAYLOAD_TOO_LARGE, "Yuklangan fayl hajmi ruxsat etilgan limitdan oshib ketdi");
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiError> handleUserNotFound(UserNotFoundException ex) {
+        log.warn("User not found: {}", ex.getMessage());
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(DuplicateUsernameException.class)
+    public ResponseEntity<ApiError> handleDuplicateUsername(DuplicateUsernameException ex) {
+        log.warn("Duplicate username: {}", ex.getMessage());
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ApiError> handleInvalidCredentials(InvalidCredentialsException ex) {
+        log.warn("Login failed: {}", ex.getMessage());
+        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiError> handleAccessDenied(AccessDeniedException ex) {
+        log.warn("Access denied: {}", ex.getMessage());
+        return buildResponse(HttpStatus.FORBIDDEN, "You do not have permission to perform this action");
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

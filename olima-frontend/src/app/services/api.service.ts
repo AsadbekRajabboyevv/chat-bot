@@ -11,7 +11,11 @@ import {
   Execution,
   Complaint,
   KnowledgeBase,
-  KnowledgeDocument
+  KnowledgeDocument,
+  LoginRequest,
+  LoginResponse,
+  AppUser,
+  CreateUserRequest
 } from '../models';
 
 @Injectable({
@@ -192,5 +196,25 @@ export class ApiService {
 
   uploadDocumentFromUrl(knowledgeBaseId: string, url: string, title?: string): Observable<KnowledgeDocument> {
     return this.http.post<KnowledgeDocument>(`${this.baseUrl}/knowledge/bases/${knowledgeBaseId}/documents/url`, { url, title });
+  }
+
+  login(data: LoginRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.baseUrl}/auth/login`, data);
+  }
+
+  me(): Observable<LoginResponse> {
+    return this.http.get<LoginResponse>(`${this.baseUrl}/auth/me`);
+  }
+
+  getUsers(): Observable<AppUser[]> {
+    return this.http.get<AppUser[]>(`${this.baseUrl}/users`);
+  }
+
+  createUser(data: CreateUserRequest): Observable<AppUser> {
+    return this.http.post<AppUser>(`${this.baseUrl}/users`, data);
+  }
+
+  deleteUser(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/users/${id}`);
   }
 }

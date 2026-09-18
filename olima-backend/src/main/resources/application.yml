@@ -30,6 +30,15 @@ spring:
 server:
   port: 8080
 
+jwt:
+  secret: ${JWT_SECRET:change-this-dev-only-secret-key-please-override-in-prod-0123456789}
+  expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+
+app:
+  default-super-admin:
+    username: ${SUPER_ADMIN_USERNAME:super}
+    password: ${SUPER_ADMIN_PASSWORD:1234a}
+
 search:
   tavily:
     api-key: ${TAVILY_API_KEY:}

@@ -21,9 +21,11 @@ import com.olima.knowledge.DocumentChunkEntity;
 import com.olima.knowledge.KnowledgeService;
 import com.olima.organization.OrganizationService;
 import com.olima.organization.dto.OrganizationResponse;
+import com.olima.security.AuthenticatedUser;
 import com.olima.tool.ToolEntity;
 import com.olima.tool.registry.DynamicToolCallbackFactory;
 import com.olima.tool.registry.ToolRegistry;
+import com.olima.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -32,6 +34,8 @@ import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.function.FunctionToolCallback;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -64,6 +68,7 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     public ChatResponse chat(ChatRequest request) {
+        assertOrganizationAccess(currentPrincipal(), request.organizationId());
         OrganizationResponse org = organizationService.findById(request.organizationId());
 
         UUID convId = request.conversationId();
@@ -159,9 +164,13 @@ public class AgentServiceImpl implements AgentService {
     @Override
     public SseEmitter chatStream(ChatRequest request) {
         SseEmitter emitter = new SseEmitter(180_000L);
+        // SecurityContextHolder is thread-local and CompletableFuture.runAsync hops off this
+        // request thread, so the principal must be captured here and passed in explicitly.
+        AuthenticatedUser principal = currentPrincipal();
 
         CompletableFuture.runAsync(() -> {
             try {
+                assertOrganizationAccess(principal, request.organizationId());
                 OrganizationResponse org = organizationService.findById(request.organizationId());
 
                 UUID convId = request.conversationId();
@@ -447,6 +456,17 @@ public class AgentServiceImpl implements AgentService {
                 .inputType(Map.class)
                 .inputSchema(inputSchema)
                 .build();
+    }
+
+    private AuthenticatedUser currentPrincipal() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth != null && auth.getPrincipal() instanceof AuthenticatedUser user ? user : null;
+    }
+
+    private void assertOrganizationAccess(AuthenticatedUser principal, UUID organizationId) {
+        if (principal != null && principal.role() == UserRole.ORG_ADMIN && !organizationId.equals(principal.organizationId())) {
+            throw new AccessDeniedException("You do not have access to this organization's data");
+        }
     }
 
     /**

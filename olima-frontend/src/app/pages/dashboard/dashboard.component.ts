@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -13,15 +14,25 @@ import { ApiService } from '../../services/api.service';
   template: `
     <div class="dashboard-container">
       <h1>Boshqaruv paneli</h1>
-      
+
       <div class="stats-grid">
-        <mat-card>
+        <mat-card *ngIf="isSuperAdmin">
           <mat-card-header>
             <mat-icon mat-card-avatar color="primary">business</mat-icon>
             <mat-card-title>Tashkilotlar</mat-card-title>
           </mat-card-header>
           <mat-card-content>
             <div class="stat-value">{{ orgCount }}</div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card *ngIf="!isSuperAdmin">
+          <mat-card-header>
+            <mat-icon mat-card-avatar color="primary">business</mat-icon>
+            <mat-card-title>Tashkilotingiz</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="stat-value org-name-value">{{ orgName || '—' }}</div>
           </mat-card-content>
         </mat-card>
 
@@ -52,8 +63,11 @@ import { ApiService } from '../../services/api.service';
           <button mat-raised-button color="primary" routerLink="/chat">
             <mat-icon>chat</mat-icon> Chatni boshlash
           </button>
-          <button mat-raised-button color="accent" routerLink="/organizations">
+          <button mat-raised-button color="accent" routerLink="/organizations" *ngIf="isSuperAdmin">
             <mat-icon>business</mat-icon> Tashkilotlarni boshqarish
+          </button>
+          <button mat-raised-button color="accent" routerLink="/knowledge" *ngIf="!isSuperAdmin">
+            <mat-icon>library_books</mat-icon> Bilimlar bazasi
           </button>
         </div>
       </div>
@@ -76,6 +90,11 @@ import { ApiService } from '../../services/api.service';
       text-align: center;
       padding: 16px 0;
     }
+    .org-name-value {
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: #1a237e;
+    }
     mat-icon[mat-card-avatar] {
       font-size: 40px;
       height: 40px;
@@ -92,12 +111,17 @@ import { ApiService } from '../../services/api.service';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   orgCount = 0;
+  orgName = '';
   toolCount = 0;
   convCount = 0;
 
   private orgChangeListener = () => this.loadStats();
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private authService: AuthService) {}
+
+  get isSuperAdmin(): boolean {
+    return this.authService.isSuperAdmin();
+  }
 
   ngOnInit() {
     this.loadStats();
@@ -113,9 +137,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.orgCount = orgs.length;
 
       const selectedOrgId = localStorage.getItem('selectedOrgId');
-      const activeOrgId = (selectedOrgId && orgs.some(o => o.id === selectedOrgId))
-        ? selectedOrgId
-        : orgs[0]?.id;
+      const activeOrg = (selectedOrgId && orgs.find(o => o.id === selectedOrgId)) || orgs[0];
+      this.orgName = activeOrg?.name || '';
+      const activeOrgId = activeOrg?.id;
 
       if (activeOrgId) {
         this.apiService.getTools(activeOrgId).subscribe(tools => this.toolCount = tools.length);
