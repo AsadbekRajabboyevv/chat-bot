@@ -8,7 +8,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, NavigationStart } from '@angular/router';
@@ -49,7 +48,6 @@ interface DisplayMessage {
     MatIconModule,
     MatProgressSpinnerModule,
     MatExpansionModule,
-    MatChipsModule,
     MatMenuModule,
     MatTooltipModule
   ],
@@ -198,12 +196,19 @@ interface DisplayMessage {
               </div>
             </div>
             
-            <mat-chip-set *ngIf="msg.sources && msg.sources.length > 0" class="sources-chips">
-              <mat-chip *ngFor="let source of msg.sources" color="accent">
-                <mat-icon matChipAvatar>description</mat-icon>
-                {{ source }}
-              </mat-chip>
-            </mat-chip-set>
+            <div class="sources-list" *ngIf="msg.sources && msg.sources.length > 0">
+              <span class="sources-label">Manbalar:</span>
+              <ng-container *ngFor="let source of msg.sources">
+                <a *ngIf="isLink(source)" class="source-chip" [href]="source" target="_blank" rel="noopener noreferrer" [matTooltip]="source">
+                  <mat-icon>link</mat-icon>
+                  {{ sourceLabel(source) }}
+                </a>
+                <span *ngIf="!isLink(source)" class="source-chip source-chip-static" [matTooltip]="source">
+                  <mat-icon>description</mat-icon>
+                  {{ sourceLabel(source) }}
+                </span>
+              </ng-container>
+            </div>
 
             <mat-card *ngIf="msg.confirmationRequired" class="confirmation-card">
               <mat-card-header>
@@ -635,7 +640,49 @@ interface DisplayMessage {
       50% { opacity: 0; }
     }
 
-    .sources-chips { margin-top: 16px; }
+    .sources-list {
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+    .sources-label {
+      font-size: 12px;
+      color: #718096;
+      font-weight: 600;
+    }
+    .source-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px 4px 8px;
+      border-radius: 14px;
+      background: #eef2ff;
+      color: #3730a3;
+      font-size: 12px;
+      text-decoration: none;
+      max-width: 260px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      transition: background-color 0.15s ease;
+    }
+    a.source-chip:hover {
+      background: #e0e7ff;
+      text-decoration: underline;
+    }
+    .source-chip mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+    .source-chip-static {
+      background: #f1f5f9;
+      color: #475569;
+      cursor: default;
+    }
     
     .confirmation-card {
       margin-top: 16px;
@@ -932,6 +979,21 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     return locations;
+  }
+
+  isLink(source: string): boolean {
+    return !!source && /^https?:\/\//i.test(source);
+  }
+
+  sourceLabel(source: string): string {
+    if (this.isLink(source)) {
+      try {
+        return new URL(source).hostname.replace(/^www\./, '');
+      } catch {
+        return source;
+      }
+    }
+    return source;
   }
 
   renderMarkdown(text: string): string {
