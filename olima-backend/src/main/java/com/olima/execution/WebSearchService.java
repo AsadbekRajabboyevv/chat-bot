@@ -83,9 +83,9 @@ public class WebSearchService {
             Map<String, Object> body = new HashMap<>();
             body.put("api_key", tavilyApiKey);
             body.put("query", query);
-            body.put("search_depth", "basic");
-            body.put("include_answer", true);
-            body.put("max_results", 5);
+            body.put("search_depth", "advanced");
+            body.put("include_answer", false);
+            body.put("max_results", 8);
 
             String response = restClient.post()
                     .uri("https://api.tavily.com/search")
@@ -96,10 +96,6 @@ public class WebSearchService {
 
             if (response != null && !response.isBlank()) {
                 JsonNode root = objectMapper.readTree(response);
-                String answer = root.path("answer").asText();
-                if (!answer.isBlank()) {
-                    results.add(new SearchResult("Tavily Quick Answer", answer, "https://tavily.com"));
-                }
                 JsonNode items = root.path("results");
                 if (items.isArray()) {
                     for (JsonNode item : items) {
@@ -295,5 +291,58 @@ public class WebSearchService {
         return lower.contains("o'") || lower.contains("g'") || lower.contains("qachon")
                 || lower.contains("nima") || lower.contains("qanday") || lower.contains("haqida")
                 || lower.contains("universitet") || lower.contains("vazirlik");
+    }
+
+    public String fetchPage(String url) {
+        if (url == null || url.isBlank() || !url.startsWith("http")) {
+            return "Invalid URL";
+        }
+        try {
+            String html = restClient.get()
+                    .uri(url)
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
+                    .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                    .retrieve()
+                    .body(String.class);
+
+            if (html == null || html.isBlank()) {
+                return "Empty page response";
+            }
+
+            // Remove noise tags
+            String text = html.replaceAll("(?is)<script.*?</script>", " ")
+                    .replaceAll("(?is)<style.*?</style>", " ")
+                    .replaceAll("(?is)<svg.*?</svg>", " ")
+                    .replaceAll("(?is)<header.*?</header>", " ")
+                    .replaceAll("(?is)<footer.*?</footer>", " ")
+                    .replaceAll("(?is)<nav.*?</nav>", " ")
+                    // Preserve table structure
+                    .replaceAll("(?i)<tr[^>]*>", "\n")
+                    .replaceAll("(?i)<td[^>]*>", " | ")
+                    .replaceAll("(?i)<th[^>]*>", " | ")
+                    .replaceAll("(?i)</tr>", " |")
+                    .replaceAll("(?i)</th>", " |")
+                    .replaceAll("(?i)</td>", " |")
+                    .replaceAll("(?i)<br\\s*/?>", "\n")
+                    .replaceAll("(?i)</p>", "\n\n")
+                    .replaceAll("<[^>]*>", " ")
+                    .replace("&quot;", "\"")
+                    .replace("&#x27;", "'")
+                    .replace("&amp;", "&")
+                    .replace("&lt;", "<")
+                    .replace("&gt;", ">")
+                    .replace("&nbsp;", " ")
+                    .replaceAll("[ \t]+", " ")
+                    .replaceAll("\n{3,}", "\n\n")
+                    .trim();
+
+            if (text.length() > 6000) {
+                return text.substring(0, 6000) + "\n... [Content truncated]";
+            }
+            return text;
+        } catch (Exception e) {
+            log.warn("Failed to fetch web page {}: {}", url, e.getMessage());
+            return "Could not fetch webpage content: " + e.getMessage();
+        }
     }
 }

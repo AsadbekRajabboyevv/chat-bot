@@ -27,6 +27,7 @@ public class ConversationEntity extends BaseEntity {
     private String title;
 
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, orphanRemoval = true)
+    @jakarta.persistence.OrderBy("createdAt ASC")
     @Builder.Default
     private List<MessageEntity> messages = new ArrayList<>();
 }

@@ -1,7 +1,10 @@
 package com.olima.knowledge;
 
 import com.olima.common.BaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,4 +26,20 @@ public class DocumentEntity extends BaseEntity {
     private String title;
     private String content;
     private String sourceUrl;
+
+    @Column(name = "file_name")
+    private String fileName;
+
+    @Column(name = "file_type")
+    private String fileType;
+
+    @Column(name = "file_size")
+    private Long fileSize;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private DocumentProcessingStatus status = DocumentProcessingStatus.PENDING;
+
+    @Column(name = "error_message")
+    private String errorMessage;
 }

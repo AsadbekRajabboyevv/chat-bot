@@ -12,5 +12,6 @@
     <include file="db/changelog/005-knowledge.xml"/>
     <include file="db/changelog/006-complaints.xml"/>
     <include file="db/changelog/007-seed-data.xml"/>
+    <include file="db/changelog/008-document-upload.xml"/>
 
 </databaseChangeLog>

@@ -10,7 +10,8 @@ import {
   Conversation,
   Execution,
   Complaint,
-  KnowledgeBase
+  KnowledgeBase,
+  KnowledgeDocument
 } from '../models';
 
 @Injectable({
@@ -166,5 +167,30 @@ export class ApiService {
 
   getKnowledgeBases(orgId: string): Observable<KnowledgeBase[]> {
     return this.http.get<KnowledgeBase[]>(`${this.baseUrl}/knowledge/bases?organizationId=${orgId}`);
+  }
+
+  getKnowledgeBase(id: string): Observable<KnowledgeBase> {
+    return this.http.get<KnowledgeBase>(`${this.baseUrl}/knowledge/bases/${id}`);
+  }
+
+  createKnowledgeBase(data: { organizationId: string; name: string; description: string }): Observable<KnowledgeBase> {
+    return this.http.post<KnowledgeBase>(`${this.baseUrl}/knowledge/bases`, data);
+  }
+
+  getDocuments(knowledgeBaseId: string): Observable<KnowledgeDocument[]> {
+    return this.http.get<KnowledgeDocument[]>(`${this.baseUrl}/knowledge/bases/${knowledgeBaseId}/documents`);
+  }
+
+  uploadDocument(knowledgeBaseId: string, file: File, title?: string): Observable<KnowledgeDocument> {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (title) {
+      formData.append('title', title);
+    }
+    return this.http.post<KnowledgeDocument>(`${this.baseUrl}/knowledge/bases/${knowledgeBaseId}/documents/upload`, formData);
+  }
+
+  uploadDocumentFromUrl(knowledgeBaseId: string, url: string, title?: string): Observable<KnowledgeDocument> {
+    return this.http.post<KnowledgeDocument>(`${this.baseUrl}/knowledge/bases/${knowledgeBaseId}/documents/url`, { url, title });
   }
 }

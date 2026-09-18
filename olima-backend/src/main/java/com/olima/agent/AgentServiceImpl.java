@@ -17,6 +17,8 @@ import com.olima.execution.ToolExecutionService;
 import com.olima.execution.ToolExecutorRegistry;
 import com.olima.execution.ToolResult;
 import com.olima.execution.WebSearchService;
+import com.olima.knowledge.DocumentChunkEntity;
+import com.olima.knowledge.KnowledgeService;
 import com.olima.organization.OrganizationService;
 import com.olima.organization.dto.OrganizationResponse;
 import com.olima.tool.ToolEntity;
@@ -34,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -55,6 +58,7 @@ public class AgentServiceImpl implements AgentService {
     private final ComplaintService complaintService;
     private final OrganizationService organizationService;
     private final WebSearchService webSearchService;
+    private final KnowledgeService knowledgeService;
     private final MessageRepository messageRepository;
     private final ObjectMapper objectMapper;
 
@@ -129,7 +133,9 @@ public class AgentServiceImpl implements AgentService {
             callbacks.add(callback);
         }
 
+        callbacks.add(createKnowledgeSearchCallback(org.id(), org.name(), allSources, toolCalls, null));
         callbacks.add(createWebSearchCallback(org.name(), allSources, toolCalls, null));
+        callbacks.add(createFetchWebPageCallback(allSources, toolCalls, null));
 
         List<Message> historyMessages = buildHistoryMessages(convId);
         String systemPrompt = buildSystemPrompt(org);
@@ -229,7 +235,9 @@ public class AgentServiceImpl implements AgentService {
                     callbacks.add(callback);
                 }
 
+                callbacks.add(createKnowledgeSearchCallback(org.id(), org.name(), allSources, null, emitter));
                 callbacks.add(createWebSearchCallback(org.name(), allSources, null, emitter));
+                callbacks.add(createFetchWebPageCallback(allSources, null, emitter));
 
                 List<Message> historyMessages = buildHistoryMessages(finalConvId);
                 String systemPrompt = buildSystemPrompt(org);
@@ -288,6 +296,66 @@ public class AgentServiceImpl implements AgentService {
         return emitter;
     }
 
+    private ToolCallback createKnowledgeSearchCallback(UUID orgId, String orgName, List<String> allSources, List<ToolCallInfo> toolCalls, SseEmitter sseEmitter) {
+        String inputSchema = "{\n"
+                + "  \"type\": \"object\",\n"
+                + "  \"properties\": {\n"
+                + "    \"query\": {\n"
+                + "      \"type\": \"string\",\n"
+                + "      \"description\": \"Keywords to search for in " + orgName + "'s internal knowledge base of uploaded official documents (decrees, laws, regulations, concepts, policies)\"\n"
+                + "    }\n"
+                + "  },\n"
+                + "  \"required\": [\"query\"]\n"
+                + "}";
+
+        Function<Map<String, Object>, String> searchFunc = params -> {
+            long startTime = System.currentTimeMillis();
+            String query = (String) params.getOrDefault("query", "");
+            log.info("Executing knowledge base search for query: {}", query);
+            List<DocumentChunkEntity> chunks = knowledgeService.search(orgId, query, 5);
+            long duration = System.currentTimeMillis() - startTime;
+
+            List<String> urls = chunks.stream()
+                    .map(DocumentChunkEntity::getSourceUrl)
+                    .filter(u -> u != null && !u.isBlank())
+                    .distinct()
+                    .toList();
+            allSources.addAll(urls);
+
+            List<Map<String, Object>> payload = chunks.stream().map(c -> {
+                Map<String, Object> item = new LinkedHashMap<>();
+                item.put("content", c.getContent());
+                item.put("source", c.getSourceUrl());
+                return item;
+            }).toList();
+
+            try {
+                String resultJson = payload.isEmpty()
+                        ? "{\"results\": [], \"message\": \"No matching documents found in the internal knowledge base for this query.\"}"
+                        : objectMapper.writeValueAsString(Map.of("results", payload));
+                ToolCallInfo info = new ToolCallInfo("search_knowledge_base",
+                        objectMapper.writeValueAsString(params), resultJson,
+                        ExecutionStatus.SUCCESS, duration);
+                if (toolCalls != null) {
+                    toolCalls.add(info);
+                }
+                if (sseEmitter != null) {
+                    sendSseEvent(sseEmitter, ChatStreamEvent.toolCall(info));
+                }
+                return resultJson;
+            } catch (Exception e) {
+                return "{\"error\": \"" + e.getMessage() + "\"}";
+            }
+        };
+
+        return FunctionToolCallback.builder("search_knowledge_base", searchFunc)
+                .description("Search " + orgName + "'s own internal knowledge base of uploaded official documents (decrees, laws, regulations, concepts, PDFs, policies). "
+                        + "ALWAYS call this FIRST for any question about official documents, regulations, decrees, or concepts specific to " + orgName + " before using search_internet.")
+                .inputType(Map.class)
+                .inputSchema(inputSchema)
+                .build();
+    }
+
     private ToolCallback createWebSearchCallback(String orgName, List<String> allSources, List<ToolCallInfo> toolCalls, SseEmitter sseEmitter) {
         String inputSchema = "{\n"
                 + "  \"type\": \"object\",\n"
@@ -329,6 +397,53 @@ public class AgentServiceImpl implements AgentService {
 
         return FunctionToolCallback.builder("search_internet", searchFunc)
                 .description("Search the public internet for official public regulations, decrees, news, or facts STRICTLY related to " + orgName + " when internal database tools do not contain the answer. NEVER use this tool for topics outside " + orgName + " (e.g. general programming, entertainment, sports, cooking, jokes), and NEVER use for private student/citizen data.")
+                .inputType(Map.class)
+                .inputSchema(inputSchema)
+                .build();
+    }
+
+    private ToolCallback createFetchWebPageCallback(List<String> allSources, List<ToolCallInfo> toolCalls, SseEmitter sseEmitter) {
+        String inputSchema = "{\n"
+                + "  \"type\": \"object\",\n"
+                + "  \"properties\": {\n"
+                + "    \"url\": {\n"
+                + "      \"type\": \"string\",\n"
+                + "      \"description\": \"The absolute HTTP/HTTPS URL of the webpage to fetch and read\"\n"
+                + "    }\n"
+                + "  },\n"
+                + "  \"required\": [\"url\"]\n"
+                + "}";
+
+        Function<Map<String, Object>, String> fetchFunc = params -> {
+            long startTime = System.currentTimeMillis();
+            String url = (String) params.getOrDefault("url", "");
+            log.info("Executing fetch_web_page for url: {}", url);
+            String content = webSearchService.fetchPage(url);
+            long duration = System.currentTimeMillis() - startTime;
+
+            if (url != null && !url.isBlank() && !allSources.contains(url)) {
+                allSources.add(url);
+            }
+
+            try {
+                String snippet = content.length() > 300 ? content.substring(0, 300) + "..." : content;
+                ToolCallInfo info = new ToolCallInfo("fetch_web_page",
+                        objectMapper.writeValueAsString(params), snippet,
+                        ExecutionStatus.SUCCESS, duration);
+                if (toolCalls != null) {
+                    toolCalls.add(info);
+                }
+                if (sseEmitter != null) {
+                    sendSseEvent(sseEmitter, ChatStreamEvent.toolCall(info));
+                }
+                return content;
+            } catch (Exception e) {
+                return content;
+            }
+        };
+
+        return FunctionToolCallback.builder("fetch_web_page", fetchFunc)
+                .description("Fetch and read the full text and tables of a webpage URL found in search results when the search snippet is truncated, incomplete, or lacks detailed tables (e.g. abt.uz or infoedu.uz).")
                 .inputType(Map.class)
                 .inputSchema(inputSchema)
                 .build();
@@ -393,10 +508,36 @@ public class AgentServiceImpl implements AgentService {
                 + "5. PUBLIC FACTS & LIVE INTERNET SEARCH:\n"
                 + "   - The 'search_internet' tool may ONLY be invoked for public inquiries that are STRICTLY relevant to " + org.name() + " (e.g. ministry leadership, university details, official education statistics) AND not found in local database tools.\n"
                 + "   - When search results are returned, synthesize an accurate, helpful answer and cite the source links (URLs).\n\n"
+                + "5a. INTERNAL KNOWLEDGE BASE (CRITICAL):\n"
+                + "   - " + org.name() + " has uploaded its own official documents, decrees, concepts, and regulations into an internal knowledge base.\n"
+                + "   - For ANY question that could be about an official document, decree, concept, law, or internal regulation of " + org.name() + ", ALWAYS call 'search_knowledge_base' FIRST, before 'search_internet' and before refusing.\n"
+                + "   - If 'search_knowledge_base' returns relevant results, answer strictly based on that content and cite the document as the source.\n"
+                + "   - Only fall back to 'search_internet' or the domain-refusal message if 'search_knowledge_base' returns no results AND the topic is unrelated to " + org.name() + ".\n\n"
                 + "6. MULTI-ORGANIZATION PLATFORM ROUTING:\n"
                 + "   - If the user asks about an entirely different government sphere (for example, Transport, Healthcare, or Taxation), explain politely: 'Men ayni paytda " + org.name() + " bo\\'yicha maslahatchiman. Bizning platformamizda ushbu soha tashkiloti ham alohida integratsiya qilingan bo\\'lib, yuqoridagi menyudan uni tanlab, tegishli savollaringizga to\\'liq javob olishingiz mumkin.'\n\n"
-                + "7. TONE & COMMUNICATION:\n"
+                + "7. CONCISENESS & DIRECTNESS (CRITICAL):\n"
+                + "   - NEVER produce overly lengthy, repetitive essays or wall-of-text explanations.\n"
+                + "   - Answer directly and concisely: state the core answer first, followed by clear, bulleted key points or requirements.\n"
+                + "   - Avoid long repetitive introductions, disclaimers, or excessive closing pleasantries.\n"
+                + "   - Keep total response length compact and focused (ideally 2-4 structured bullet points or short paragraphs).\n\n"
+                + "8. TONE & COMMUNICATION:\n"
                 + "   - Be friendly, respectful, and authoritative.\n"
-                + "   - Communicate fluently in the language of the user (Uzbek, Russian, or English).";
+                + "   - Communicate fluently in the language of the user (Uzbek, Russian, or English).\n\n"
+                + "9. TABULAR DATA (CRITICAL):\n"
+                + "   - Whenever presenting multi-field data, lists, university comparisons, course/faculty lists, fee schedules, or statistics, ALWAYS format them as a clear Markdown table (e.g. | Nomi | Joylashuvi | Yo'nalishlar |).\n\n"
+                + "10. GEOGRAPHIC LOCATIONS & MAP COORDINATES (CRITICAL):\n"
+                + "   - When giving addresses, campus locations, university offices, or physical places, ALWAYS provide exact or approximate geographic coordinates.\n"
+                + "   - Format the location either with a map block:\n"
+                + "     ```map\n"
+                + "     {\"lat\": 41.3409, \"lng\": 69.2867, \"title\": \"TATU Bosh binosi\", \"address\": \"Amir Temur shoh ko'chasi, 108\"}\n"
+                + "     ```\n"
+                + "     or specify coordinates in brackets, e.g. [41.3409, 69.2867]. The web UI will automatically render an interactive map with navigation buttons for the user.\n\n"
+                + "11. ENTRANCE EXAM SCORES (KIRISH BALLARI) DOMAIN LOGIC (CRITICAL):\n"
+                + "   - In Uzbekistan Higher Education (DTM / Bilimni baholash agentligi), the MAXIMUM possible entrance score is STRICTLY 189.0 points (majburiy fanlar: 33 ball + 2 ta mutaxassislik fani: 156 ball, jami 189.0 ball).\n"
+                + "   - 56.7 (kontrakt) and 68.0 (grant) are ONLY general minimal threshold barriers across the republic (minimal o'tish chegarasi). NEVER copy 68.0 and 56.7 as the actual passing scores for all faculties! Every faculty has its own competitive cutoff scores (e.g. Kiberxavfsizlik: Grant ~177, Kontrakt ~163; Infokommunikatsiya: Grant ~131, Kontrakt ~88; Dasturiy injiniring: Grant ~146, Kontrakt ~107).\n"
+                + "   - Entrance exams are conducted ONCE per academic year in the summer. If the user asks for '2026' or '2025/2026', explain clearly that 2026/2027 entrance exams have not yet taken place, and provide the latest available verified scores (2024/2025) as the abiturient reference guide.\n"
+                + "   - SEARCH QUERY STRATEGY: When searching the internet for university entrance scores, formulate effective queries like: 'TATU kirish ballari yo\\'nalishlar kesimida abt.uz' or 'TATU o\\'tish ballari grant kontrakt'.\n"
+                + "   - If search results include a page URL (e.g. from abt.uz, infoedu.uz, or edu.uz) but the snippet is truncated, invoke the 'fetch_web_page' tool on that URL to read the complete table of scores!\n"
+                + "   - ALWAYS present the university entrance scores formatted as a clean Markdown table: | Ta'lim yo'nalishi | Davlat granti | To'lov-kontrakt |.";
     }
 }

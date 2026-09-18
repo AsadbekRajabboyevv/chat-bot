@@ -1,6 +1,8 @@
 package com.olima.common;
 
 import com.olima.conversation.exception.ConversationNotFoundException;
+import com.olima.knowledge.exception.DocumentParseException;
+import com.olima.knowledge.exception.KnowledgeBaseNotFoundException;
 import com.olima.organization.exception.OrganizationNotFoundException;
 import com.olima.tool.exception.ToolNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.time.Instant;
 
@@ -33,6 +36,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleConversationNotFound(ConversationNotFoundException ex) {
         log.warn("Conversation not found: {}", ex.getMessage());
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(KnowledgeBaseNotFoundException.class)
+    public ResponseEntity<ApiError> handleKnowledgeBaseNotFound(KnowledgeBaseNotFoundException ex) {
+        log.warn("Knowledge base not found: {}", ex.getMessage());
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(DocumentParseException.class)
+    public ResponseEntity<ApiError> handleDocumentParseException(DocumentParseException ex) {
+        log.warn("Failed to parse uploaded document: {}", ex.getMessage());
+        return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiError> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException ex) {
+        log.warn("Uploaded file exceeds the allowed size: {}", ex.getMessage());
+        return buildResponse(HttpStatus.PAYLOAD_TOO_LARGE, "Uploaded file is too large");
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

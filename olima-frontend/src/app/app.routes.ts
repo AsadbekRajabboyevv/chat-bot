@@ -42,8 +42,12 @@ export const routes: Routes = [
     path: 'complaints', 
     loadComponent: () => import('./pages/complaints/complaints.component').then(m => m.ComplaintsComponent)
   },
-  { 
-    path: 'knowledge', 
+  {
+    path: 'knowledge',
     loadComponent: () => import('./pages/knowledge/knowledge.component').then(m => m.KnowledgeComponent)
+  },
+  {
+    path: 'knowledge/:id',
+    loadComponent: () => import('./pages/knowledge/knowledge-detail.component').then(m => m.KnowledgeDetailComponent)
   }
 ];
