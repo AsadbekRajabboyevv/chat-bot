@@ -53,7 +53,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ApiError> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException ex) {
         log.warn("Uploaded file exceeds the allowed size: {}", ex.getMessage());
-        return buildResponse(HttpStatus.PAYLOAD_TOO_LARGE, "Uploaded file is too large");
+        return buildResponse(HttpStatus.PAYLOAD_TOO_LARGE, "Yuklangan fayl hajmi ruxsat etilgan limitdan oshib ketdi");
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -65,13 +65,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidationException(MethodArgumentNotValidException ex) {
         log.warn("Validation error: {}", ex.getMessage());
-        return buildResponse(HttpStatus.BAD_REQUEST, "Validation error");
+        return buildResponse(HttpStatus.BAD_REQUEST, "Validatsiya xatoligi yuz berdi");
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGenericException(Exception ex) {
         log.error("Internal server error: ", ex);
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage() != null ? ex.getMessage() : "Internal server error");
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage() != null ? ex.getMessage() : "Ichki server xatoligi yuz berdi");
     }
 
     private ResponseEntity<ApiError> buildResponse(HttpStatus status, String message) {

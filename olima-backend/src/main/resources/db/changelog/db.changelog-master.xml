@@ -13,5 +13,6 @@
     <include file="db/changelog/006-complaints.xml"/>
     <include file="db/changelog/007-seed-data.xml"/>
     <include file="db/changelog/008-document-upload.xml"/>
+    <include file="db/changelog/009-localize-to-uzbek.xml"/>
 
 </databaseChangeLog>

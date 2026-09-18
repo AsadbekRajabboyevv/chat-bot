@@ -13,27 +13,27 @@ import { Conversation } from '../../models';
   imports: [CommonModule, MatTableModule, MatButtonModule, MatIconModule],
   template: `
     <div class="page-container">
-      <h2>Conversations</h2>
+      <h2>Suhbatlar tarixi</h2>
       <table mat-table [dataSource]="conversations" class="mat-elevation-z8">
         <ng-container matColumnDef="title">
-          <th mat-header-cell *matHeaderCellDef> Title </th>
-          <td mat-cell *matCellDef="let conv"> {{conv.title || 'New Conversation'}} </td>
+          <th mat-header-cell *matHeaderCellDef> Mavzu </th>
+          <td mat-cell *matCellDef="let conv"> {{conv.title || 'Yangi suhbat'}} </td>
         </ng-container>
 
         <ng-container matColumnDef="date">
-          <th mat-header-cell *matHeaderCellDef> Date </th>
+          <th mat-header-cell *matHeaderCellDef> Sana </th>
           <td mat-cell *matCellDef="let conv"> {{conv.createdAt | date:'short'}} </td>
         </ng-container>
 
         <ng-container matColumnDef="messages">
-          <th mat-header-cell *matHeaderCellDef> Messages </th>
+          <th mat-header-cell *matHeaderCellDef> Xabarlar soni </th>
           <td mat-cell *matCellDef="let conv"> {{conv.messages?.length || 0}} </td>
         </ng-container>
 
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef> Actions </th>
+          <th mat-header-cell *matHeaderCellDef> Amallar </th>
           <td mat-cell *matCellDef="let conv">
-            <button mat-icon-button color="primary" (click)="viewConversation(conv.id)">
+            <button mat-icon-button color="primary" (click)="viewConversation(conv.id)" title="Ko'rish">
               <mat-icon>visibility</mat-icon>
             </button>
           </td>

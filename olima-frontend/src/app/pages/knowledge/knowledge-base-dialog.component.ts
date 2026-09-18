@@ -18,24 +18,24 @@ import { MatButtonModule } from '@angular/material/button';
     MatButtonModule
   ],
   template: `
-    <h2 mat-dialog-title>New Knowledge Base</h2>
+    <h2 mat-dialog-title>Yangi bilimlar bazasi</h2>
     <form [formGroup]="kbForm" (ngSubmit)="onSubmit()">
       <mat-dialog-content class="dialog-content">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Name</mat-label>
-          <input matInput formControlName="name" placeholder="e.g. HR Policies" required>
+          <mat-label>Nomi</mat-label>
+          <input matInput formControlName="name" placeholder="masalan: Qabul nizomi" required>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Description</mat-label>
-          <textarea matInput formControlName="description" rows="3" placeholder="What kind of documents will live here?"></textarea>
+          <mat-label>Tavsif</mat-label>
+          <textarea matInput formControlName="description" rows="3" placeholder="Bu yerda qanday hujjatlar saqlanadi?"></textarea>
         </mat-form-field>
       </mat-dialog-content>
 
       <mat-dialog-actions align="end">
-        <button type="button" mat-button (click)="onCancel()">Cancel</button>
+        <button type="button" mat-button (click)="onCancel()">Bekor qilish</button>
         <button type="submit" mat-raised-button color="primary" [disabled]="kbForm.invalid">
-          Create
+          Yaratish
         </button>
       </mat-dialog-actions>
     </form>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="009-localize-organization-uzbek" author="olima">
+        <update tableName="organizations">
+            <column name="name" value="Oliy ta'lim, fan va innovatsiyalar vazirligi"/>
+            <column name="description" value="Oliy ta'lim vazirligi — oliygohlar, talabalar masalalari va akademik nizomlarni boshqaradi"/>
+            <where>id = '550e8400-e29b-41d4-a716-446655440001'</where>
+        </update>
+    </changeSet>
+
+    <changeSet id="009-localize-tools-uzbek" author="olima">
+        <update tableName="tools">
+            <column name="description" value="Talabaning profil ma'lumotlarini (ism-familiyasi, universiteti, fakulteti, kursi, GPA bali va o'qish holati) oladi. Foydalanuvchi o'zining shaxsiy akademik ma'lumotlari yoki talabalik holati haqida so'raganda foydalaning."/>
+            <where>id = '660e8400-e29b-41d4-a716-446655440001'</where>
+        </update>
+        <update tableName="tool_parameters">
+            <column name="description" value="Talabaning unikal identifikatori (talaba ID raqami)"/>
+            <where>id = '770e8400-e29b-41d4-a716-446655440001'</where>
+        </update>
+
+        <update tableName="tools">
+            <column name="description" value="Talabaning ta'lim shartnomasi ma'lumotlarini (shartnoma turi: grant/kontrakt, to'lov summasi, to'lov holati va sanalari) oladi. Foydalanuvchi kontrakt, o'qish to'lovi yoki to'lov holati haqida so'raganda foydalaning."/>
+            <where>id = '660e8400-e29b-41d4-a716-446655440002'</where>
+        </update>
+        <update tableName="tool_parameters">
+            <column name="description" value="Talabaning unikal identifikatori (talaba ID raqami)"/>
+            <where>id = '770e8400-e29b-41d4-a716-446655440002'</where>
+        </update>
+
+        <update tableName="tools">
+            <column name="description" value="Talabaning stipendiya ma'lumotlarini (stipendiya turi, miqdori, shartlari va muddati) oladi. Foydalanuvchi stipendiya, moddiy rag'batlantirish haqida so'raganda foydalaning."/>
+            <where>id = '660e8400-e29b-41d4-a716-446655440003'</where>
+        </update>
+        <update tableName="tool_parameters">
+            <column name="description" value="Talabaning unikal identifikatori (talaba ID raqami)"/>
+            <where>id = '770e8400-e29b-41d4-a716-446655440003'</where>
+        </update>
+
+        <update tableName="tools">
+            <column name="description" value="Universitetlar ro'yxatini va ularning ma'lumotlarini (nomi, joylashuvi, turi: davlat/xususiy, akkreditatsiya holati va mavjud fakultetlar) qidiradi va oladi. Foydalanuvchi oliygohlar haqida so'raganda yoki ularni solishtirmoqchi bo'lganda foydalaning."/>
+            <where>id = '660e8400-e29b-41d4-a716-446655440004'</where>
+        </update>
+
+        <update tableName="tools">
+            <column name="description" value="Universitetlar o'rtasida o'qishni ko'chirish (perevod) bo'yicha rasmiy qoidalar va tartiblarni oladi. Talablar, minimal GPA, kerakli hujjatlar, arizalar muddati va bosqichlarini o'z ichiga oladi."/>
+            <where>id = '660e8400-e29b-41d4-a716-446655440005'</where>
+        </update>
+
+        <update tableName="tools">
+            <column name="description" value="Akademik ta'til olish qoidalari va tartiblarini oladi. Asosli sabablar, talab qilinadigan hujjatlar, maksimal muddat va o'qishga qaytish shartlarini o'z ichiga oladi."/>
+            <where>id = '660e8400-e29b-41d4-a716-446655440006'</where>
+        </update>
+
+        <update tableName="tools">
+            <column name="description" value="Oliy ta'lim vazirligiga murojaat yoki shikoyat qoralamasini yaratadi. Mavzu, batafsil tavsif, toifa va aloqa ma'lumotlarini to'playdi. Murojaat avtomatik tarzda yuborilmaydi — uni yuborishdan oldin inson tasdiqlashi talab qilinadi."/>
+            <where>id = '660e8400-e29b-41d4-a716-446655440007'</where>
+        </update>
+        <update tableName="tool_parameters">
+            <column name="description" value="Murojaatning qisqacha mavzusi"/>
+            <where>id = '770e8400-e29b-41d4-a716-446655440010'</where>
+        </update>
+        <update tableName="tool_parameters">
+            <column name="description" value="Murojaatning batafsil bayoni"/>
+            <where>id = '770e8400-e29b-41d4-a716-446655440011'</where>
+        </update>
+        <update tableName="tool_parameters">
+            <column name="description" value="Murojaat toifasi: ACADEMIC (akademik), FINANCIAL (moliyaviy), ADMINISTRATIVE (ma'muriy), DISCRIMINATION (kamsitish), OTHER (boshqa)"/>
+            <where>id = '770e8400-e29b-41d4-a716-446655440012'</where>
+        </update>
+
+        <update tableName="tools">
+            <column name="description" value="Rasmiy ta'lim nizomlari va qonun hujjatlaridan tegishli ma'lumotlarni qidiradi. Moddalar, bandlar va huquqiy normalarni qaytaradi. Qoidalar, qonunlar, rasmiy tartiblar haqida so'ralganda foydalaning. Har doim manba moddasi va hujjat raqamini keltiring."/>
+            <where>id = '660e8400-e29b-41d4-a716-446655440008'</where>
+        </update>
+        <update tableName="tool_parameters">
+            <column name="description" value="Tegishli qoidalar va huquqiy normalarni topish uchun qidiruv so'rovi"/>
+            <where>id = '770e8400-e29b-41d4-a716-446655440020'</where>
+        </update>
+    </changeSet>
+
+    <changeSet id="009-localize-knowledge-base-uzbek" author="olima">
+        <update tableName="knowledge_bases">
+            <column name="name" value="Ta'lim qonunchiligi va nizomlar"/>
+            <column name="description" value="O'zbekiston Respublikasida oliy ta'lim sohasiga oid rasmiy normativ-huquqiy hujjatlar"/>
+            <where>id = '880e8400-e29b-41d4-a716-446655440001'</where>
+        </update>
+
+        <update tableName="documents">
+            <column name="title" value="O'zbekiston Respublikasining 'Ta'lim to'g'risida'gi Qonuni"/>
+            <where>id = '990e8400-e29b-41d4-a716-446655440001'</where>
+        </update>
+
+        <update tableName="document_chunks">
+            <column name="content" value="16-modda. Talabalarning oliy ta'lim muassasalari o'rtasida o'qishini ko'chirish. Talabalar bir oliy ta'lim muassasasidan boshqasiga o'qishini ko'chirish huquqiga ega. O'qishni ko'chirish birinchi o'quv yilini tamomlagandan so'ng amalga oshiriladi. Talabaning o'zlashtirish ko'rsatkichi (GPA) 5.0 ballik tizimda kamida 3.0 bo'lishi lozim. O'qishni ko'chirish bo'yicha arizalar yozgi davrda (1-iyundan 15-avgustgacha) topshiriladi. Kerakli hujjatlar: ariza, transkript (baholar varaqasi), o'qiyotganlik to'g'risida ma'lumotnoma va joriy oliygohdan tavsiyanoma."/>
+            <where>id = 'aa0e8400-e29b-41d4-a716-446655440001'</where>
+        </update>
+
+        <update tableName="document_chunks">
+            <column name="content" value="22-modda. Akademik ta'til. Talabaga quyidagi asosli sabablarga ko'ra akademik ta'til berilishi mumkin: salomatlik holati bo'yicha (tibbiy komissiya xulosasi asosida), oilaviy sharoitga ko'ra, muddatli harbiy xizmatni o'tash uchun yoki xalqaro akademik dasturlarda ishtirok etish uchun. Akademik ta'til muddati 1 yil qilib belgilanadi, tibbiy ko'rsatmalar bo'yicha 2 yilgacha uzaytirilishi mumkin. Akademik ta'til davrida talabalik maqomi saqlanib qoladi. O'qishga qaytish ta'til muddati tugagach 30 kun ichida talab qilinadi."/>
+            <where>id = 'aa0e8400-e29b-41d4-a716-446655440002'</where>
+        </update>
+
+        <update tableName="document_chunks">
+            <column name="content" value="28-modda. Stipendiyalar va moddiy yordam. Davlat granti asosida tahsil olayotgan talabalar har oylik stipendiya bilan ta'minlanadi. Bazaviy stipendiya miqdori oyiga 930 000 so'mni tashkil etadi. GPA ko'rsatkichi 4.5 yoki undan yuqori bo'lgan a'lochi talabalar oshirilgan stipendiya — 1 395 000 so'm (bazaviy stipendiyaning 150%i) oladilar. O'zbekiston Respublikasi Prezidenti stipendiyasi sohiblariga 2 790 000 so'm (300% miqdorida) to'lanadi. Stipendiya har oyning 15-sanasida to'lanadi. Akademik ta'tildagi talabalarga stipendiya to'lanmaydi."/>
+            <where>id = 'aa0e8400-e29b-41d4-a716-446655440003'</where>
+        </update>
+
+        <update tableName="document_chunks">
+            <column name="content" value="35-modda. Murojaatlar va shikoyatlarni ko'rib chiqish tartibi. Talabalar va ularning qonuniy vakillari akademik qarorlar, baholash nizolari va ma'muriy harakatlar yuzasidan shikoyat berish huquqiga ega. Shikoyat avval ta'lim muassasasining o'ziga yozma shaklda berilishi kerak. Agar muassasa javobidan qoniqish hosil qilinmasa, 30 kun ichida Oliy ta'lim vazirligiga apellyatsiya shikoyati yuborilishi mumkin. Vazirlik 15 ish kuni ichida javob berishi shart. Imtihon natijalari bo'yicha apellyatsiya baholar e'lon qilingan kundan boshlab 3 ish kuni ichida berilishi lozim."/>
+            <where>id = 'aa0e8400-e29b-41d4-a716-446655440004'</where>
+        </update>
+    </changeSet>
+
+</databaseChangeLog>

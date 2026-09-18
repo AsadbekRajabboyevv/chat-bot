@@ -24,17 +24,17 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
     <div class="page-container">
       <div class="header">
         <div>
-          <h1>Organizations</h1>
-          <p class="subtitle">Manage multi-tenant government organizations and their dynamic configurations</p>
+          <h1>Tashkilotlar</h1>
+          <p class="subtitle">Tashkilotlar va ularning dinamik konfiguratsiyalarini boshqarish</p>
         </div>
         <button mat-raised-button color="primary" (click)="addOrganization()">
-          <mat-icon>add</mat-icon> Add Organization
+          <mat-icon>add</mat-icon> Tashkilot qo'shish
         </button>
       </div>
       
       <table mat-table [dataSource]="organizations" class="mat-elevation-z8">
         <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef> Name </th>
+          <th mat-header-cell *matHeaderCellDef> Nomi </th>
           <td mat-cell *matCellDef="let org">
             <div class="org-name-cell">
               <strong>{{org.name}}</strong>
@@ -44,37 +44,37 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
         </ng-container>
 
         <ng-container matColumnDef="slug">
-          <th mat-header-cell *matHeaderCellDef> Slug </th>
+          <th mat-header-cell *matHeaderCellDef> Qisqa nom (Slug) </th>
           <td mat-cell *matCellDef="let org">
             <code>{{org.slug}}</code>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="enabled">
-          <th mat-header-cell *matHeaderCellDef> Status </th>
+          <th mat-header-cell *matHeaderCellDef> Holati </th>
           <td mat-cell *matCellDef="let org"> 
             <span class="status-chip" [class.enabled]="org.enabled">
-              {{org.enabled ? 'Active' : 'Inactive'}}
+              {{org.enabled ? 'Faol' : 'Nofaol'}}
             </span>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="createdAt">
-          <th mat-header-cell *matHeaderCellDef> Created </th>
+          <th mat-header-cell *matHeaderCellDef> Yaratilgan </th>
           <td mat-cell *matCellDef="let org"> {{org.createdAt | date:'mediumDate'}} </td>
         </ng-container>
 
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef> Actions </th>
+          <th mat-header-cell *matHeaderCellDef> Amallar </th>
           <td mat-cell *matCellDef="let org">
             <div class="action-buttons">
               <button mat-stroked-button color="primary" class="tools-btn" (click)="viewTools(org.id)">
-                <mat-icon>build</mat-icon> Manage Tools
+                <mat-icon>build</mat-icon> Vositalar
               </button>
-              <button mat-icon-button color="primary" (click)="editOrganization(org)" title="Edit">
+              <button mat-icon-button color="primary" (click)="editOrganization(org)" title="Tahrirlash">
                 <mat-icon>edit</mat-icon>
               </button>
-              <button mat-icon-button color="warn" (click)="deleteOrganization(org)" title="Delete">
+              <button mat-icon-button color="warn" (click)="deleteOrganization(org)" title="O'chirish">
                 <mat-icon>delete</mat-icon>
               </button>
             </div>
@@ -87,8 +87,8 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 
       <div class="empty-state" *ngIf="organizations.length === 0">
         <mat-icon class="empty-icon">business</mat-icon>
-        <h3>No organizations found</h3>
-        <p>Click "Add Organization" above to register your first ministry or company.</p>
+        <h3>Hech qanday tashkilot topilmadi</h3>
+        <p>Birinchi tashkilotni ro'yxatdan o'tkazish uchun yuqoridagi "Tashkilot qo'shish" tugmasini bosing.</p>
       </div>
     </div>
   `,
@@ -209,7 +209,7 @@ export class OrganizationsComponent implements OnInit {
             window.dispatchEvent(new Event('orgChanged'));
           },
           error: (err) => {
-            alert('Failed to create organization: ' + (err.error?.message || err.message));
+            alert('Tashkilotni yaratishda xatolik: ' + (err.error?.message || err.message));
           }
         });
       }
@@ -230,7 +230,7 @@ export class OrganizationsComponent implements OnInit {
             window.dispatchEvent(new Event('orgChanged'));
           },
           error: (err) => {
-            alert('Failed to update organization: ' + (err.error?.message || err.message));
+            alert('Tashkilotni tahrirlashda xatolik: ' + (err.error?.message || err.message));
           }
         });
       }
@@ -241,8 +241,8 @@ export class OrganizationsComponent implements OnInit {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
-        title: 'Delete Organization',
-        message: `Are you sure you want to delete "${org.name}"? This action cannot be undone.`
+        title: 'Tashkilotni o\'chirish',
+        message: `"${org.name}" tashkilotini o'chirishga ishonchingiz komilmi? Bu amalni ortga qaytarib bo'lmaydi.`
       }
     });
 
@@ -254,7 +254,7 @@ export class OrganizationsComponent implements OnInit {
             window.dispatchEvent(new Event('orgChanged'));
           },
           error: (err) => {
-            alert('Failed to delete organization: ' + (err.error?.message || err.message));
+            alert('Tashkilotni o\'chirishda xatolik: ' + (err.error?.message || err.message));
           }
         });
       }

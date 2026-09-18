@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,13 +12,13 @@ import { ApiService } from '../../services/api.service';
   imports: [CommonModule, MatCardModule, MatIconModule, MatButtonModule, RouterLink],
   template: `
     <div class="dashboard-container">
-      <h1>Dashboard</h1>
+      <h1>Boshqaruv paneli</h1>
       
       <div class="stats-grid">
         <mat-card>
           <mat-card-header>
             <mat-icon mat-card-avatar color="primary">business</mat-icon>
-            <mat-card-title>Organizations</mat-card-title>
+            <mat-card-title>Tashkilotlar</mat-card-title>
           </mat-card-header>
           <mat-card-content>
             <div class="stat-value">{{ orgCount }}</div>
@@ -28,7 +28,7 @@ import { ApiService } from '../../services/api.service';
         <mat-card>
           <mat-card-header>
             <mat-icon mat-card-avatar color="accent">build</mat-icon>
-            <mat-card-title>Tools</mat-card-title>
+            <mat-card-title>Vositalar</mat-card-title>
           </mat-card-header>
           <mat-card-content>
             <div class="stat-value">{{ toolCount }}</div>
@@ -38,7 +38,7 @@ import { ApiService } from '../../services/api.service';
         <mat-card>
           <mat-card-header>
             <mat-icon mat-card-avatar color="warn">forum</mat-icon>
-            <mat-card-title>Recent Conversations</mat-card-title>
+            <mat-card-title>So'nggi suhbatlar</mat-card-title>
           </mat-card-header>
           <mat-card-content>
             <div class="stat-value">{{ convCount }}</div>
@@ -47,13 +47,13 @@ import { ApiService } from '../../services/api.service';
       </div>
 
       <div class="actions-section">
-        <h2>Quick Actions</h2>
+        <h2>Tezkor amallar</h2>
         <div class="actions-grid">
           <button mat-raised-button color="primary" routerLink="/chat">
-            <mat-icon>chat</mat-icon> Start Chat
+            <mat-icon>chat</mat-icon> Chatni boshlash
           </button>
           <button mat-raised-button color="accent" routerLink="/organizations">
-            <mat-icon>business</mat-icon> Manage Organizations
+            <mat-icon>business</mat-icon> Tashkilotlarni boshqarish
           </button>
         </div>
       </div>
@@ -90,19 +90,39 @@ import { ApiService } from '../../services/api.service';
     }
   `]
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   orgCount = 0;
   toolCount = 0;
   convCount = 0;
 
+  private orgChangeListener = () => this.loadStats();
+
   constructor(private apiService: ApiService) {}
 
   ngOnInit() {
+    this.loadStats();
+    window.addEventListener('orgChanged', this.orgChangeListener);
+  }
+
+  ngOnDestroy() {
+    window.removeEventListener('orgChanged', this.orgChangeListener);
+  }
+
+  loadStats() {
     this.apiService.getOrganizations().subscribe(orgs => {
       this.orgCount = orgs.length;
-      if (orgs.length > 0) {
-        this.apiService.getTools(orgs[0].id).subscribe(tools => this.toolCount = tools.length);
-        this.apiService.getConversations(orgs[0].id).subscribe(convs => this.convCount = convs.length);
+
+      const selectedOrgId = localStorage.getItem('selectedOrgId');
+      const activeOrgId = (selectedOrgId && orgs.some(o => o.id === selectedOrgId))
+        ? selectedOrgId
+        : orgs[0]?.id;
+
+      if (activeOrgId) {
+        this.apiService.getTools(activeOrgId).subscribe(tools => this.toolCount = tools.length);
+        this.apiService.getConversations(activeOrgId).subscribe(convs => this.convCount = convs.length);
+      } else {
+        this.toolCount = 0;
+        this.convCount = 0;
       }
     });
   }

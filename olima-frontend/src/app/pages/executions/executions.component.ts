@@ -10,27 +10,29 @@ import { Execution } from '../../models';
   imports: [CommonModule, MatTableModule],
   template: `
     <div class="page-container">
-      <h2>Execution Audit Log</h2>
+      <h2>Bajarilgan amallar jurnali</h2>
       <table mat-table [dataSource]="executions" class="mat-elevation-z8">
         <ng-container matColumnDef="toolName">
-          <th mat-header-cell *matHeaderCellDef> Tool Name </th>
+          <th mat-header-cell *matHeaderCellDef> Vosita nomi </th>
           <td mat-cell *matCellDef="let exec"> {{exec.toolName}} </td>
         </ng-container>
 
         <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef> Status </th>
+          <th mat-header-cell *matHeaderCellDef> Holati </th>
           <td mat-cell *matCellDef="let exec">
-            <span class="status-chip" [ngClass]="exec.status.toLowerCase()">{{exec.status}}</span>
+            <span class="status-chip" [ngClass]="exec.status.toLowerCase()">
+              {{exec.status === 'SUCCESS' ? 'Muvaffaqiyatli' : (exec.status === 'FAILED' ? 'Xatolik' : (exec.status === 'PENDING' ? 'Kutilmoqda' : exec.status))}}
+            </span>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="duration">
-          <th mat-header-cell *matHeaderCellDef> Duration (ms) </th>
+          <th mat-header-cell *matHeaderCellDef> Davomiyligi (ms) </th>
           <td mat-cell *matCellDef="let exec"> {{exec.durationMs}} </td>
         </ng-container>
 
         <ng-container matColumnDef="date">
-          <th mat-header-cell *matHeaderCellDef> Date </th>
+          <th mat-header-cell *matHeaderCellDef> Sana </th>
           <td mat-cell *matCellDef="let exec"> {{exec.createdAt | date:'short'}} </td>
         </ng-container>
 

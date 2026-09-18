@@ -68,7 +68,7 @@ public class AgentServiceImpl implements AgentService {
 
         UUID convId = request.conversationId();
         if (convId == null) {
-            ConversationResponse conv = conversationService.createConversation(org.id(), "Chat with " + org.name());
+            ConversationResponse conv = conversationService.createConversation(org.id(), "Suhbat: " + org.name());
             convId = conv.id();
         }
 
@@ -86,7 +86,7 @@ public class AgentServiceImpl implements AgentService {
                 long startTime = System.currentTimeMillis();
                 try {
                     if (tool.isRequiresConfirmation()) {
-                        String subject = (String) params.getOrDefault("subject", "Complaint");
+                        String subject = (String) params.getOrDefault("subject", "Shikoyat");
                         String description = (String) params.getOrDefault("description", "");
                         String category = (String) params.getOrDefault("category", "OTHER");
 
@@ -98,12 +98,12 @@ public class AgentServiceImpl implements AgentService {
                         long duration = System.currentTimeMillis() - startTime;
                         toolCalls.add(new ToolCallInfo(tool.getName(),
                                 objectMapper.writeValueAsString(params),
-                                "Draft created, waiting for user confirmation",
+                                "Qoralama yaratildi, tasdiqlash kutilmoqda",
                                 ExecutionStatus.WAITING_CONFIRMATION, duration));
 
                         return "{\"status\": \"WAITING_CONFIRMATION\", \"complaintId\": \""
-                                + draft.getId() + "\", \"message\": \"Complaint draft created successfully. "
-                                + "Subject: " + subject + ". Please ask the user to confirm before submission.\"}";
+                                + draft.getId() + "\", \"message\": \"Murojaat qoralamasi muvaffaqiyatli yaratildi. "
+                                + "Mavzu: " + subject + ". Iltimos, yuborishdan oldin foydalanuvchidan tasdiqlashini so'rang.\"}";
                     }
 
                     ToolResult result = toolExecutorRegistry.execute(tool, params);
@@ -185,7 +185,7 @@ public class AgentServiceImpl implements AgentService {
                         long startTime = System.currentTimeMillis();
                         try {
                             if (tool.isRequiresConfirmation()) {
-                                String subject = (String) params.getOrDefault("subject", "Complaint");
+                                String subject = (String) params.getOrDefault("subject", "Shikoyat");
                                 String description = (String) params.getOrDefault("description", "");
                                 String category = (String) params.getOrDefault("category", "OTHER");
 
@@ -197,13 +197,13 @@ public class AgentServiceImpl implements AgentService {
                                 long duration = System.currentTimeMillis() - startTime;
                                 ToolCallInfo info = new ToolCallInfo(tool.getName(),
                                         objectMapper.writeValueAsString(params),
-                                        "Draft created, waiting for user confirmation",
+                                        "Qoralama yaratildi, tasdiqlash kutilmoqda",
                                         ExecutionStatus.WAITING_CONFIRMATION, duration);
                                 sendSseEvent(emitter, ChatStreamEvent.toolCall(info));
 
                                 return "{\"status\": \"WAITING_CONFIRMATION\", \"complaintId\": \""
-                                        + draft.getId() + "\", \"message\": \"Complaint draft created successfully. "
-                                        + "Subject: " + subject + ". Please ask the user to confirm before submission.\"}";
+                                        + draft.getId() + "\", \"message\": \"Murojaat qoralamasi muvaffaqiyatli yaratildi. "
+                                        + "Mavzu: " + subject + ". Iltimos, yuborishdan oldin foydalanuvchidan tasdiqlashini so'rang.\"}";
                             }
 
                             ToolResult result = toolExecutorRegistry.execute(tool, params);
@@ -331,7 +331,7 @@ public class AgentServiceImpl implements AgentService {
 
             try {
                 String resultJson = payload.isEmpty()
-                        ? "{\"results\": [], \"message\": \"No matching documents found in the internal knowledge base for this query.\"}"
+                        ? "{\"results\": [], \"message\": \"Ushbu so'rov bo'yicha ichki bilimlar bazasidan tegishli hujjatlar topilmadi.\"}"
                         : objectMapper.writeValueAsString(Map.of("results", payload));
                 ToolCallInfo info = new ToolCallInfo("search_knowledge_base",
                         objectMapper.writeValueAsString(params), resultJson,
@@ -461,8 +461,8 @@ public class AgentServiceImpl implements AgentService {
     @Override
     public ChatResponse confirmAction(UUID conversationId, UUID complaintId) {
         complaintService.confirm(complaintId);
-        String message = "Your complaint has been confirmed and submitted successfully. "
-                + "You will receive a response within 15 working days.";
+        String message = "Murojaatingiz muvaffaqiyatli tasdiqlandi va yuborildi. "
+                + "Sizga 15 ish kuni ichida javob beriladi.";
         conversationService.addMessage(conversationId, MessageRole.ASSISTANT, message, null, null);
         return new ChatResponse(conversationId, message, List.of(), List.of(), false, null);
     }

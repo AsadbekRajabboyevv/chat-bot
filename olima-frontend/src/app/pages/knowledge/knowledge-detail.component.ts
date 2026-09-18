@@ -30,7 +30,7 @@ import { KnowledgeBase, KnowledgeDocument } from '../../models';
   template: `
     <div class="page-container">
       <div class="breadcrumb">
-        <a routerLink="/knowledge">Knowledge Bases</a>
+        <a routerLink="/knowledge">Bilimlar bazalari</a>
         <mat-icon class="crumb-sep">chevron_right</mat-icon>
         <span>{{ knowledgeBase?.name || '...' }}</span>
       </div>
@@ -43,17 +43,17 @@ import { KnowledgeBase, KnowledgeDocument } from '../../models';
       </div>
 
       <div class="upload-card">
-        <h3>Upload a document</h3>
-        <p class="upload-hint">PDF, Word, TXT and other text formats are parsed automatically and split into searchable chunks for the chatbot.</p>
+        <h3>Hujjat yuklash</h3>
+        <p class="upload-hint">PDF, Word, TXT va boshqa matnli hujjatlar avtomatik tahlil qilinadi va chatbot qidiruvi uchun bo'laklarga ajratiladi.</p>
 
         <div class="upload-row">
           <input type="file" #fileInput (change)="onFileSelected($event)" [disabled]="uploading" />
           <mat-form-field appearance="outline" class="title-field">
-            <mat-label>Title (optional)</mat-label>
-            <input matInput [(ngModel)]="uploadTitle" [disabled]="uploading" placeholder="Defaults to file name">
+            <mat-label>Hujjat sarlavhasi (ixtiyoriy)</mat-label>
+            <input matInput [(ngModel)]="uploadTitle" [disabled]="uploading" placeholder="Standart: fayl nomi">
           </mat-form-field>
           <button mat-raised-button color="primary" (click)="upload()" [disabled]="!selectedFile || uploading">
-            <mat-icon>upload</mat-icon> Upload
+            <mat-icon>upload</mat-icon> Yuklash
           </button>
         </div>
 
@@ -62,20 +62,20 @@ import { KnowledgeBase, KnowledgeDocument } from '../../models';
       </div>
 
       <div class="upload-card">
-        <h3>Fetch from a web page</h3>
-        <p class="upload-hint">Give a URL and the page's text content is fetched, parsed and chunked just like an uploaded file.</p>
+        <h3>Veb-sahifadan ma'lumot olish</h3>
+        <p class="upload-hint">Veb-sahifa URL manzilini kiriting, uning matni avtomatik yuklab olinadi va bilimlar bazasiga qo'shiladi.</p>
 
         <div class="upload-row">
           <mat-form-field appearance="outline" class="url-field">
-            <mat-label>Web page URL</mat-label>
-            <input matInput [(ngModel)]="urlToFetch" [disabled]="fetchingUrl" placeholder="https://example.com/policy">
+            <mat-label>Veb-sahifa URL manzili</mat-label>
+            <input matInput [(ngModel)]="urlToFetch" [disabled]="fetchingUrl" placeholder="https://lex.uz/docs/...">
           </mat-form-field>
           <mat-form-field appearance="outline" class="title-field">
-            <mat-label>Title (optional)</mat-label>
-            <input matInput [(ngModel)]="urlTitle" [disabled]="fetchingUrl" placeholder="Defaults to the URL">
+            <mat-label>Hujjat sarlavhasi (ixtiyoriy)</mat-label>
+            <input matInput [(ngModel)]="urlTitle" [disabled]="fetchingUrl" placeholder="Standart: URL manzili">
           </mat-form-field>
           <button mat-raised-button color="primary" (click)="fetchFromUrl()" [disabled]="!urlToFetch || fetchingUrl">
-            <mat-icon>public</mat-icon> Fetch & Add
+            <mat-icon>public</mat-icon> Yuklab olish va qo'shish
           </button>
         </div>
 
@@ -85,7 +85,7 @@ import { KnowledgeBase, KnowledgeDocument } from '../../models';
 
       <table mat-table [dataSource]="documents" class="mat-elevation-z8" *ngIf="documents.length > 0">
         <ng-container matColumnDef="title">
-          <th mat-header-cell *matHeaderCellDef> Document </th>
+          <th mat-header-cell *matHeaderCellDef> Hujjat </th>
           <td mat-cell *matCellDef="let doc">
             <div class="doc-info-cell">
               <strong>{{ doc.title }}</strong>
@@ -98,17 +98,17 @@ import { KnowledgeBase, KnowledgeDocument } from '../../models';
         </ng-container>
 
         <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef> Status </th>
+          <th mat-header-cell *matHeaderCellDef> Holati </th>
           <td mat-cell *matCellDef="let doc">
             <span class="badge" [ngClass]="doc.status.toLowerCase()"
                   [matTooltip]="doc.status === 'FAILED' ? doc.errorMessage : ''">
-              {{ doc.status }}
+              {{ doc.status === 'READY' ? 'Tayyor' : (doc.status === 'PROCESSING' ? 'Qayta ishlanmoqda' : (doc.status === 'FAILED' ? 'Xatolik' : doc.status)) }}
             </span>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="createdAt">
-          <th mat-header-cell *matHeaderCellDef> Uploaded </th>
+          <th mat-header-cell *matHeaderCellDef> Yuklangan vaqti </th>
           <td mat-cell *matCellDef="let doc"> {{ doc.createdAt | date:'medium' }} </td>
         </ng-container>
 
@@ -118,8 +118,8 @@ import { KnowledgeBase, KnowledgeDocument } from '../../models';
 
       <div class="empty-state" *ngIf="documents.length === 0 && !loading">
         <mat-icon class="empty-icon">description</mat-icon>
-        <h3>No documents yet</h3>
-        <p>Upload your first file above to enrich this knowledge base.</p>
+        <h3>Hujjatlar mavjud emas</h3>
+        <p>Ushbu bilimlar bazasini to'ldirish uchun yuqorida birinchi faylni yuklang yoki havola kiriting.</p>
       </div>
     </div>
   `,
@@ -265,7 +265,7 @@ export class KnowledgeDetailComponent implements OnInit {
       },
       error: (err) => {
         this.uploading = false;
-        this.uploadError = err.error?.message || err.message || 'Failed to upload document';
+        this.uploadError = err.error?.message || err.message || 'Hujjatni yuklashda xatolik yuz berdi';
       }
     });
   }
@@ -286,7 +286,7 @@ export class KnowledgeDetailComponent implements OnInit {
       },
       error: (err) => {
         this.fetchingUrl = false;
-        this.urlError = err.error?.message || err.message || 'Failed to fetch web page';
+        this.urlError = err.error?.message || err.message || 'Veb-sahifani yuklab olishda xatolik yuz berdi';
       }
     });
   }

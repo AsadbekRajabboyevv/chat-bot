@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="6-localize-students-uzbek" author="system">
+        <update tableName="students">
+            <column name="university_name" value="O'zbekiston Milliy universiteti"/>
+            <column name="faculty" value="Kompyuter ilmlari"/>
+            <where>student_id_number = 'STU-001'</where>
+        </update>
+        <update tableName="students">
+            <column name="university_name" value="O'zbekiston Milliy universiteti"/>
+            <column name="faculty" value="Matematika"/>
+            <where>student_id_number = 'STU-002'</where>
+        </update>
+        <update tableName="students">
+            <column name="university_name" value="Samarqand davlat universiteti"/>
+            <column name="faculty" value="Fizika"/>
+            <where>student_id_number = 'STU-003'</where>
+        </update>
+        <update tableName="students">
+            <column name="university_name" value="Buxoro davlat universiteti"/>
+            <column name="faculty" value="Iqtisodiyot"/>
+            <where>student_id_number = 'STU-004'</where>
+        </update>
+        <update tableName="students">
+            <column name="university_name" value="Toshkent axborot texnologiyalari universiteti"/>
+            <column name="faculty" value="Dasturiy injiniring"/>
+            <where>student_id_number = 'STU-005'</where>
+        </update>
+    </changeSet>
+
+    <changeSet id="6-localize-universities-uzbek" author="system">
+        <update tableName="universities">
+            <column name="name" value="O'zbekiston Milliy universiteti (O'zMU)"/>
+            <column name="location" value="Toshkent"/>
+            <where>code = 'UNI-001'</where>
+        </update>
+        <update tableName="universities">
+            <column name="name" value="O'zbekiston Milliy universiteti"/>
+            <column name="location" value="Toshkent"/>
+            <where>code = 'UNI-002'</where>
+        </update>
+        <update tableName="universities">
+            <column name="name" value="Samarqand davlat universiteti"/>
+            <column name="location" value="Samarqand"/>
+            <where>code = 'UNI-003'</where>
+        </update>
+        <update tableName="universities">
+            <column name="name" value="Buxoro davlat universiteti"/>
+            <column name="location" value="Buxoro"/>
+            <where>code = 'UNI-004'</where>
+        </update>
+        <update tableName="universities">
+            <column name="name" value="Toshkent axborot texnologiyalari universiteti (TATU)"/>
+            <column name="location" value="Toshkent"/>
+            <where>code = 'UNI-005'</where>
+        </update>
+        <update tableName="universities">
+            <column name="name" value="Toshkentdagi Xalqaro Vestminster Universiteti (WIUT)"/>
+            <column name="location" value="Toshkent"/>
+            <where>code = 'UNI-006'</where>
+        </update>
+        <update tableName="universities">
+            <column name="name" value="Toshkent shahridagi Inha universiteti"/>
+            <column name="location" value="Toshkent"/>
+            <where>code = 'UNI-007'</where>
+        </update>
+        <update tableName="universities">
+            <column name="name" value="Farg'ona davlat universiteti"/>
+            <column name="location" value="Farg'ona"/>
+            <where>code = 'UNI-008'</where>
+        </update>
+    </changeSet>
+
+    <changeSet id="6-localize-rules-uzbek" author="system">
+        <update tableName="transfer_rules">
+            <column name="title" value="Ichki ko'chirish"/>
+            <column name="description" value="O'zbekiston oliy ta'lim muassasalari o'rtasida o'qishni ko'chirish"/>
+            <column name="application_period" value="15-iyuldan 5-avgustgacha"/>
+            <where>title = 'Domestic Transfer'</where>
+        </update>
+        <update tableName="transfer_rules">
+            <column name="title" value="Xorijdan ko'chirish"/>
+            <column name="description" value="Xorijiy oliy ta'lim muassasalaridan o'qishni ko'chirish"/>
+            <column name="application_period" value="15-iyuldan 5-avgustgacha"/>
+            <where>title = 'International Transfer'</where>
+        </update>
+
+        <update tableName="academic_leave_rules">
+            <column name="title" value="Tibbiy ta'til"/>
+            <column name="description" value="Salomatlik holati yuzasidan beriladigan akademik ta'til"/>
+            <where>title = 'Medical Leave'</where>
+        </update>
+        <update tableName="academic_leave_rules">
+            <column name="title" value="Harbiy xizmat"/>
+            <column name="description" value="Muddatli harbiy xizmatni o'tash uchun beriladigan akademik ta'til"/>
+            <where>title = 'Military Service'</where>
+        </update>
+    </changeSet>
+
+</databaseChangeLog>

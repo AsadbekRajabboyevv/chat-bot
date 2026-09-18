@@ -39,7 +39,7 @@ import { FormsModule } from '@angular/forms';
         <mat-nav-list>
           <a mat-list-item routerLink="/dashboard" routerLinkActive="active">
             <mat-icon matListItemIcon>dashboard</mat-icon>
-            <div matListItemTitle>Dashboard</div>
+            <div matListItemTitle>Boshqaruv paneli</div>
           </a>
           <a mat-list-item routerLink="/chat" routerLinkActive="active">
             <mat-icon matListItemIcon>chat</mat-icon>
@@ -47,27 +47,27 @@ import { FormsModule } from '@angular/forms';
           </a>
           <a mat-list-item routerLink="/organizations" routerLinkActive="active">
             <mat-icon matListItemIcon>business</mat-icon>
-            <div matListItemTitle>Organizations</div>
+            <div matListItemTitle>Tashkilotlar</div>
           </a>
           <a mat-list-item routerLink="/tools" routerLinkActive="active">
             <mat-icon matListItemIcon>build</mat-icon>
-            <div matListItemTitle>Tools Management</div>
+            <div matListItemTitle>Vositalar boshqaruvi</div>
           </a>
           <a mat-list-item routerLink="/conversations" routerLinkActive="active">
             <mat-icon matListItemIcon>forum</mat-icon>
-            <div matListItemTitle>Conversations</div>
+            <div matListItemTitle>Suhbatlar</div>
           </a>
           <a mat-list-item routerLink="/executions" routerLinkActive="active">
             <mat-icon matListItemIcon>history</mat-icon>
-            <div matListItemTitle>Executions</div>
+            <div matListItemTitle>Bajarilgan amallar</div>
           </a>
           <a mat-list-item routerLink="/complaints" routerLinkActive="active">
             <mat-icon matListItemIcon>report_problem</mat-icon>
-            <div matListItemTitle>Complaints</div>
+            <div matListItemTitle>Murojaatlar</div>
           </a>
           <a mat-list-item routerLink="/knowledge" routerLinkActive="active">
             <mat-icon matListItemIcon>library_books</mat-icon>
-            <div matListItemTitle>Knowledge Base</div>
+            <div matListItemTitle>Bilimlar bazasi</div>
           </a>
         </mat-nav-list>
       </mat-sidenav>
@@ -76,11 +76,11 @@ import { FormsModule } from '@angular/forms';
           <button mat-icon-button (click)="sidenav.toggle()">
             <mat-icon>menu</mat-icon>
           </button>
-          <span>OLIMA Admin Panel</span>
+          <span>OLIMA Boshqaruv Paneli</span>
           <span class="spacer"></span>
           
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="org-selector" *ngIf="organizations.length > 0">
-            <mat-select [(ngModel)]="selectedOrgId" (selectionChange)="onOrgChange($event.value)" placeholder="Select Organization">
+            <mat-select [(ngModel)]="selectedOrgId" (selectionChange)="onOrgChange($event.value)" placeholder="Tashkilotni tanlang">
               <mat-option *ngFor="let org of organizations" [value]="org.id">
                 {{ org.name }}
               </mat-option>

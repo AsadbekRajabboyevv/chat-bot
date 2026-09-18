@@ -10,5 +10,6 @@
     <include file="db/changelog/003-education-rules.xml"/>
     <include file="db/changelog/004-complaints.xml"/>
     <include file="db/changelog/005-seed-data.xml"/>
+    <include file="db/changelog/006-localize-to-uzbek.xml"/>
 
 </databaseChangeLog>

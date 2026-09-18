@@ -58,7 +58,7 @@ interface DisplayMessage {
       <div class="chat-header">
         <mat-icon class="header-icon">chat_bubble</mat-icon>
         <div class="header-titles">
-          <h2>OLIMA Assistant</h2>
+          <h2>OLIMA Yordamchisi</h2>
           <span class="active-org-name" *ngIf="currentOrgName">{{ currentOrgName }}</span>
         </div>
         <span class="spacer"></span>
@@ -68,18 +68,18 @@ interface DisplayMessage {
                 class="header-btn debug-btn" 
                 [class.debug-active]="debugMode" 
                 (click)="toggleDebugMode()"
-                [matTooltip]="debugMode ? 'Debug Mode is ON: Tool executions visible' : 'Debug Mode is OFF: Tool executions hidden'">
+                [matTooltip]="debugTooltip">
           <mat-icon class="btn-icon">{{ debugMode ? 'bug_report' : 'check_circle' }}</mat-icon>
-          <span>Debug: {{ debugMode ? 'ON' : 'OFF' }}</span>
+          <span>Debug: {{ debugMode ? 'YOQ' : 'OʻCH' }}</span>
         </button>
 
         <!-- New Chat Button -->
         <button mat-stroked-button 
                 class="header-btn new-chat-btn" 
                 (click)="startNewChat()" 
-                matTooltip="Start a fresh conversation">
+                matTooltip="Yangi suhbat boshlash">
           <mat-icon class="btn-icon">add</mat-icon>
-          <span>New Chat</span>
+          <span>Yangi chat</span>
         </button>
 
         <!-- History Menu Button -->
@@ -87,32 +87,27 @@ interface DisplayMessage {
                 class="header-btn history-btn" 
                 [matMenuTriggerFor]="historyMenu" 
                 (click)="loadRecentConversations()"
-                matTooltip="View previous conversations">
+                matTooltip="Oldingi suhbatlar tarixini ko'rish">
           <mat-icon class="btn-icon">history</mat-icon>
-          <span>History</span>
+          <span>Tarix</span>
         </button>
         <mat-menu #historyMenu="matMenu" class="history-menu">
-          <div class="menu-title-header">Recent Conversations</div>
+          <div class="menu-title-header">So'nggi suhbatlar</div>
           <button mat-menu-item *ngFor="let c of recentConversations" (click)="selectConversation(c)">
             <mat-icon color="primary">forum</mat-icon>
-            <span class="history-item-title">{{ c.title || 'Conversation ' + (c.createdAt | date:'shortDate') }}</span>
+            <span class="history-item-title">{{ c.title || 'Suhbat ' + (c.createdAt | date:'shortDate') }}</span>
           </button>
           <div *ngIf="recentConversations.length === 0" class="empty-history-item">
-            No previous conversations.
+            Oldingi suhbatlar mavjud emas.
           </div>
         </mat-menu>
-
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="student-input">
-          <mat-label>Student ID (Optional)</mat-label>
-          <input matInput [(ngModel)]="studentId" placeholder="e.g. 12345">
-        </mat-form-field>
       </div>
 
       <div class="chat-messages" #scrollMe>
         <div class="welcome-message" *ngIf="messages.length === 0">
           <mat-icon class="large-icon">smart_toy</mat-icon>
-          <h3>How can I help you today?</h3>
-          <p>I can assist you with information, create complaints, and execute tools.</p>
+          <h3>Bugun sizga qanday yordam bera olaman?</h3>
+          <p>Men sizga oliy ta'limga oid ma'lumotlarni topish, qonunchilik normalarini ko'rish va arizalar yuborishda yordam beraman.</p>
         </div>
 
         <div *ngFor="let msg of messages; let i = index" class="message-wrapper" [ngClass]="msg.role.toLowerCase()">
@@ -127,7 +122,7 @@ interface DisplayMessage {
               <mat-expansion-panel-header>
                 <mat-panel-title>
                   <mat-icon class="tool-icon">build</mat-icon>
-                  <span class="tool-title">Tools Executed ({{msg.toolCalls?.length}})</span>
+                  <span class="tool-title">Ishlatilgan vositalar ({{msg.toolCalls?.length}})</span>
                 </mat-panel-title>
               </mat-expansion-panel-header>
               
@@ -138,9 +133,9 @@ interface DisplayMessage {
                   <mat-icon *ngIf="tc.status === 'SUCCESS'" color="primary" class="status-icon">check_circle</mat-icon>
                   <mat-icon *ngIf="tc.status === 'FAILED'" color="warn" class="status-icon">error</mat-icon>
                 </div>
-                <div class="code-block-title">Input:</div>
+                <div class="code-block-title">Kiruvchi parametrlar:</div>
                 <pre class="code-block">{{ tc.input }}</pre>
-                <div class="code-block-title">Output:</div>
+                <div class="code-block-title">Natija:</div>
                 <pre class="code-block">{{ tc.output }}</pre>
               </div>
             </mat-expansion-panel>
@@ -213,12 +208,12 @@ interface DisplayMessage {
             <mat-card *ngIf="msg.confirmationRequired" class="confirmation-card">
               <mat-card-header>
                 <mat-icon mat-card-avatar color="warn">warning</mat-icon>
-                <mat-card-title>Action Requires Confirmation</mat-card-title>
-                <mat-card-subtitle>A complaint draft has been created and needs your approval to proceed.</mat-card-subtitle>
+                <mat-card-title>Amalni tasdiqlash talab etiladi</mat-card-title>
+                <mat-card-subtitle>Murojaat qoralamasi yaratildi va uni yuborish uchun sizning tasdig'ingiz kerak.</mat-card-subtitle>
               </mat-card-header>
               <mat-card-actions align="end">
-                <button mat-button color="warn" (click)="cancelConfirmation()">Cancel</button>
-                <button mat-raised-button color="primary" (click)="confirmAction(msg.pendingComplaintId)">Confirm Action</button>
+                <button mat-button color="warn" (click)="cancelConfirmation()">Bekor qilish</button>
+                <button mat-raised-button color="primary" (click)="confirmAction(msg.pendingComplaintId)">Tasdiqlash</button>
               </mat-card-actions>
             </mat-card>
           </div>
@@ -226,7 +221,7 @@ interface DisplayMessage {
 
         <div class="loading-indicator" *ngIf="loading">
           <mat-spinner diameter="30"></mat-spinner>
-          <span>OLIMA is thinking...</span>
+          <span>OLIMA o'ylamoqda...</span>
         </div>
       </div>
 
@@ -234,7 +229,7 @@ interface DisplayMessage {
         <mat-form-field appearance="outline" class="input-field" subscriptSizing="dynamic">
           <textarea matInput 
                     [(ngModel)]="userInput" 
-                    placeholder="Type your message here... (Shift+Enter for new line)"
+                    placeholder="Xabaringizni yozing... (Yangi qator uchun Shift+Enter)"
                     rows="1" 
                     cdkTextareaAutosize
                     cdkAutosizeMinRows="1"
@@ -339,12 +334,6 @@ interface DisplayMessage {
       color: #a0aec0;
       font-style: italic;
     }
-
-    .student-input { width: 170px; }
-    ::ng-deep .student-input .mat-mdc-text-field-wrapper { background-color: rgba(255,255,255,0.1) !important; }
-    ::ng-deep .student-input input { color: white !important; font-size: 13px !important; }
-    ::ng-deep .student-input .mat-mdc-form-field-focus-overlay { background-color: transparent; }
-    ::ng-deep .student-input mat-label { color: rgba(255,255,255,0.7) !important; font-size: 12px !important; }
 
     .chat-messages {
       flex: 1;
@@ -680,7 +669,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   
   messages: DisplayMessage[] = [];
   userInput = '';
-  studentId = '';
   loading = false;
   conversationId?: string;
   currentOrgName = '';
@@ -754,6 +742,12 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       sessionStorage.removeItem('olima_active_chat_conv_id');
       sessionStorage.removeItem('olima_active_chat_messages');
     }
+  }
+
+  get debugTooltip(): string {
+    return this.debugMode
+      ? "Debug rejimi YOQILGAN: Vositalar bajarilishi ko'rsatiladi"
+      : "Debug rejimi O'CHIRILGAN: Vositalar bajarilishi yashiriladi";
   }
 
   toggleDebugMode(): void {
@@ -959,7 +953,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     const orgId = localStorage.getItem('selectedOrgId');
     if (!orgId) {
-      alert('Please select an organization first from the top bar.');
+      alert('Iltimos, avval yuqori paneldan tashkilotni tanlang.');
       return;
     }
 
@@ -973,8 +967,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     const request: ChatRequest = {
       organizationId: orgId,
       message: messageText,
-      conversationId: this.conversationId,
-      studentId: this.studentId || undefined
+      conversationId: this.conversationId
     };
 
     let toolInfoMsg: DisplayMessage | null = null;
@@ -1034,7 +1027,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           } else {
             this.messages.push({
               role: 'ASSISTANT',
-              content: 'Sorry, I encountered an error: ' + (event.content || 'Unknown error')
+              content: 'Kechirasiz, xatolik yuz berdi: ' + (event.content || 'Noma\'lum xatolik')
             });
           }
           this.saveChatState();
@@ -1050,7 +1043,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         } else {
           this.messages.push({
             role: 'ASSISTANT',
-            content: 'Sorry, I encountered an error: ' + (err.message || 'Communication failure')
+            content: 'Kechirasiz, aloqada xatolik yuz berdi: ' + (err.message || 'Server bilan bog\'lanishda muammo')
           });
         }
         this.saveChatState();
@@ -1075,7 +1068,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.loading = true;
     this.apiService.confirmAction(this.conversationId, complaintId).subscribe({
       next: (response: ChatResponse) => {
-        this.messages.push({ role: 'USER', content: 'Action Confirmed.' });
+        this.messages.push({ role: 'USER', content: 'Amal tasdiqlandi.' });
         
         if (response.toolCalls && response.toolCalls.length > 0) {
           this.messages.push({ role: 'TOOL_INFO', toolCalls: response.toolCalls });
@@ -1091,7 +1084,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.saveChatState();
       },
       error: () => {
-        this.messages.push({ role: 'ASSISTANT', content: 'Error confirming action.' });
+        this.messages.push({ role: 'ASSISTANT', content: 'Amalni tasdiqlashda xatolik yuz berdi.' });
         this.loading = false;
         this.saveChatState();
       }
@@ -1099,8 +1092,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   cancelConfirmation() {
-    this.messages.push({ role: 'USER', content: 'Action Cancelled.' });
-    this.messages.push({ role: 'ASSISTANT', content: 'The action has been cancelled.' });
+    this.messages.push({ role: 'USER', content: 'Amal bekor qilindi.' });
+    this.messages.push({ role: 'ASSISTANT', content: 'Amal bekor qilindi.' });
     this.saveChatState();
   }
 }

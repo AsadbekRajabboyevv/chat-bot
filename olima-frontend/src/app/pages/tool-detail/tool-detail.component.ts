@@ -31,56 +31,56 @@ import { Organization } from '../../models';
   template: `
     <div class="page-container">
       <div class="breadcrumb">
-        <a routerLink="/organizations">Organizations</a>
+        <a routerLink="/organizations">Tashkilotlar</a>
         <mat-icon class="crumb-sep">chevron_right</mat-icon>
-        <a [routerLink]="['/organizations', orgId, 'tools']" *ngIf="orgId">Tools</a>
+        <a [routerLink]="['/organizations', orgId, 'tools']" *ngIf="orgId">Vositalar</a>
         <mat-icon class="crumb-sep" *ngIf="orgId">chevron_right</mat-icon>
-        <span>{{ isNew ? 'Add Tool' : 'Edit Tool' }}</span>
+        <span>{{ isNew ? "Vosita qo'shish" : "Vositani tahrirlash" }}</span>
       </div>
 
       <div class="header-section">
-        <h2>{{ isNew ? 'Create New Tool' : 'Edit Tool: ' + (toolForm.get('name')?.value || '') }}</h2>
+        <h2>{{ isNew ? 'Yangi vosita yaratish' : 'Vositani tahrirlash: ' + (toolForm.get('name')?.value || '') }}</h2>
         <p class="subtitle">
-          Define tools dynamically. The AI Agent will discover and execute this tool automatically without modifying any backend code.
+          Vositalarni dinamik shaklda sozlang. AI yordamchi ushbu vositani backend kodini o'zgartirmasdan avtomatik ravishda aniqlaydi va ishlatadi.
         </p>
       </div>
       
       <form [formGroup]="toolForm" (ngSubmit)="save()">
         <mat-card class="form-section">
           <mat-card-header>
-            <mat-card-title>General Information</mat-card-title>
+            <mat-card-title>Umumiy ma'lumotlar</mat-card-title>
           </mat-card-header>
           <mat-card-content class="form-grid">
             <mat-form-field appearance="outline">
-              <mat-label>Tool Name (snake_case)</mat-label>
-              <input matInput formControlName="name" placeholder="e.g. get_student_attendance" required>
-              <mat-hint>Must be unique within the organization (e.g. get_transfer_rules)</mat-hint>
+              <mat-label>Vosita nomi (snake_case)</mat-label>
+              <input matInput formControlName="name" placeholder="masalan: get_student_attendance" required>
+              <mat-hint>Tashkilot doirasida unikal bo'lishi lozim (masalan: get_transfer_rules)</mat-hint>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Tool Type</mat-label>
+              <mat-label>Vosita turi</mat-label>
               <mat-select formControlName="type" required (selectionChange)="onTypeChange()">
                 <mat-option value="REST_API">REST API</mat-option>
-                <mat-option value="RAG">RAG (Knowledge Search)</mat-option>
+                <mat-option value="RAG">RAG (Bilimlar bazasi qidiruvi)</mat-option>
                 <mat-option value="DATABASE">DATABASE</mat-option>
                 <mat-option value="WORKFLOW">WORKFLOW</mat-option>
               </mat-select>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Description (Crucial for AI)</mat-label>
+              <mat-label>Tavsif (AI uchun muhim)</mat-label>
               <textarea matInput formControlName="description" rows="3" 
-                        placeholder="Detailed explanation of what this tool does and when the LLM should invoke it..." 
+                        placeholder="Vosita nima ish bajarishi va LLM uni qachon chaqirishi kerakligi haqida batafsil tavsif..." 
                         required></textarea>
-              <mat-hint>The LLM decides to call this tool based entirely on this description.</mat-hint>
+              <mat-hint>AI ushbu tavsifga asoslanib mazkur vositani ishga tushirish qarorini qabul qiladi.</mat-hint>
             </mat-form-field>
 
             <!-- REST API Specific Section -->
             <div *ngIf="toolForm.get('type')?.value === 'REST_API'" class="rest-config-section">
-              <h4>REST API Settings</h4>
+              <h4>REST API sozlamalari</h4>
               <div class="rest-inputs">
                 <mat-form-field appearance="outline" class="method-field">
-                  <mat-label>HTTP Method</mat-label>
+                  <mat-label>HTTP metodi</mat-label>
                   <mat-select [formControl]="httpMethodControl">
                     <mat-option value="GET">GET</mat-option>
                     <mat-option value="POST">POST</mat-option>
@@ -90,36 +90,36 @@ import { Organization } from '../../models';
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="url-field">
-                  <mat-label>Endpoint URL</mat-label>
+                  <mat-label>Endpoint URL manzili</mat-label>
                   <input matInput [formControl]="endpointUrlControl" 
-                         placeholder="e.g. http://mock-government:8081/api/students/{studentId}">
-                  <mat-hint>Path parameters like {{ '{' }}studentId{{ '}' }} will be automatically replaced with tool arguments.</mat-hint>
+                         placeholder="masalan: http://mock-government:8081/api/students/{studentId}">
+                  <mat-hint>{{ '{' }}studentId{{ '}' }} kabi yo'l parametrlari avtomatik tarzda vosita argumentlari bilan almashtiriladi.</mat-hint>
                 </mat-form-field>
               </div>
             </div>
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>JSON Configuration</mat-label>
+              <mat-label>JSON konfiguratsiyasi</mat-label>
               <textarea matInput formControlName="configuration" rows="5" required 
                         style="font-family: 'Consolas', monospace; font-size: 13px;"></textarea>
-              <mat-hint>JSON payload configuration passed to the generic executor.</mat-hint>
+              <mat-hint>Ijro mexanizmiga uzatiladigan JSON konfiguratsiyasi.</mat-hint>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Access Level</mat-label>
+              <mat-label>Ruxsat darajasi</mat-label>
               <mat-select formControlName="accessLevel" required>
-                <mat-option value="READ">READ (Safe / Read-only)</mat-option>
-                <mat-option value="WRITE">WRITE (Modifies Data)</mat-option>
-                <mat-option value="SENSITIVE">SENSITIVE (High Security)</mat-option>
+                <mat-option value="READ">READ (Xavfsiz / Faqat o'qish)</mat-option>
+                <mat-option value="WRITE">WRITE (Ma'lumotlarni o'zgartiradi)</mat-option>
+                <mat-option value="SENSITIVE">SENSITIVE (Yuqori xavfsizlik talab etiladi)</mat-option>
               </mat-select>
             </mat-form-field>
 
             <div class="checkbox-group">
               <mat-checkbox formControlName="requiresConfirmation" color="warn">
-                <strong>Requires Confirmation</strong> (Pauses execution until user confirms)
+                <strong>Tasdiqlash talab etiladi</strong> (Foydalanuvchi tasdiqlamaguncha to'xtatib turiladi)
               </mat-checkbox>
               <mat-checkbox formControlName="enabled" color="primary">
-                Enabled
+                Faol
               </mat-checkbox>
             </div>
           </mat-card-content>
@@ -128,25 +128,25 @@ import { Organization } from '../../models';
         <!-- Parameters Section -->
         <mat-card class="form-section parameters-section">
           <mat-card-header>
-            <mat-card-title>Tool Parameters (Schema for AI)</mat-card-title>
+            <mat-card-title>Vosita parametrlari (AI uchun sxema)</mat-card-title>
             <button type="button" mat-stroked-button color="primary" (click)="addParameter()">
-              <mat-icon>add</mat-icon> Add Parameter
+              <mat-icon>add</mat-icon> Parametr qo'shish
             </button>
           </mat-card-header>
           
           <mat-card-content formArrayName="parameters">
             <p class="param-help" *ngIf="parameters.length === 0">
-              No parameters configured. Click "Add Parameter" if this tool requires inputs (e.g. studentId, query).
+              Parametrlar belgilanmagan. Agar vosita kiruvchi ma'lumotlarni talab qilsa (masalan: studentId, query), "Parametr qo'shish" tugmasini bosing.
             </p>
 
             <div class="parameter-row" *ngFor="let param of parameters.controls; let i=index" [formGroupName]="i">
               <mat-form-field appearance="outline" class="param-name">
-                <mat-label>Parameter Name</mat-label>
-                <input matInput formControlName="name" placeholder="e.g. studentId" required>
+                <mat-label>Parametr nomi</mat-label>
+                <input matInput formControlName="name" placeholder="masalan: studentId" required>
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="param-type">
-                <mat-label>Type</mat-label>
+                <mat-label>Turi</mat-label>
                 <mat-select formControlName="type" required>
                   <mat-option value="string">string</mat-option>
                   <mat-option value="number">number</mat-option>
@@ -155,13 +155,13 @@ import { Organization } from '../../models';
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="param-desc">
-                <mat-label>Description for AI</mat-label>
-                <input matInput formControlName="description" placeholder="e.g. The unique ID of the student" required>
+                <mat-label>AI uchun tavsif</mat-label>
+                <input matInput formControlName="description" placeholder="masalan: Talabaning unikal ID raqami" required>
               </mat-form-field>
 
-              <mat-checkbox formControlName="required" class="param-req">Required</mat-checkbox>
+              <mat-checkbox formControlName="required" class="param-req">Majburiy</mat-checkbox>
               
-              <button type="button" mat-icon-button color="warn" (click)="removeParameter(i)" title="Remove parameter">
+              <button type="button" mat-icon-button color="warn" (click)="removeParameter(i)" title="Parametrni o'chirish">
                 <mat-icon>delete</mat-icon>
               </button>
             </div>
@@ -169,9 +169,9 @@ import { Organization } from '../../models';
         </mat-card>
 
         <div class="actions">
-          <button type="button" mat-button (click)="goBack()">Cancel</button>
+          <button type="button" mat-button (click)="goBack()">Bekor qilish</button>
           <button type="submit" mat-raised-button color="primary" [disabled]="toolForm.invalid">
-            <mat-icon>save</mat-icon> {{ isNew ? 'Create Tool' : 'Save Changes' }}
+            <mat-icon>save</mat-icon> {{ isNew ? "Vosita yaratish" : "O'zgarishlarni saqlash" }}
           </button>
         </div>
       </form>
@@ -464,14 +464,14 @@ export class ToolDetailComponent implements OnInit, OnDestroy {
         JSON.parse(formValue.configuration);
       }
     } catch (e) {
-      alert('Invalid JSON in Configuration field. Please verify syntax.');
+      alert('Konfiguratsiya maydonidagi JSON noto\'g\'ri. Iltimos, sintaksisini tekshiring.');
       return;
     }
 
     if (this.isNew) {
       const targetOrgId = this.orgId || localStorage.getItem('selectedOrgId');
       if (!targetOrgId) {
-        alert('Please select an organization before creating a tool.');
+        alert('Vosita yaratishdan oldin tashkilotni tanlang.');
         return;
       }
 
@@ -480,7 +480,7 @@ export class ToolDetailComponent implements OnInit, OnDestroy {
           this.router.navigate(['/organizations', targetOrgId, 'tools']);
         },
         error: (err) => {
-          alert('Failed to create tool: ' + (err.error?.message || err.message));
+          alert('Vositani yaratishda xatolik: ' + (err.error?.message || err.message));
         }
       });
     } else {
@@ -493,7 +493,7 @@ export class ToolDetailComponent implements OnInit, OnDestroy {
           }
         },
         error: (err) => {
-          alert('Failed to update tool: ' + (err.error?.message || err.message));
+          alert('Vositani yangilashda xatolik: ' + (err.error?.message || err.message));
         }
       });
     }

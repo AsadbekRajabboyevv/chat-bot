@@ -19,24 +19,24 @@ import { Organization } from '../../models';
     MatButtonModule
   ],
   template: `
-    <h2 mat-dialog-title>{{ data ? 'Edit Organization' : 'Add Organization' }}</h2>
+    <h2 mat-dialog-title>{{ data ? "Tashkilotni tahrirlash" : "Tashkilot qo'shish" }}</h2>
     <form [formGroup]="orgForm" (ngSubmit)="onSubmit()">
       <mat-dialog-content class="dialog-content">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Organization Name</mat-label>
-          <input matInput formControlName="name" placeholder="e.g. Transport Ministry" required>
+          <mat-label>Tashkilot nomi</mat-label>
+          <input matInput formControlName="name" placeholder="masalan: Transport vazirligi" required>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Description</mat-label>
-          <textarea matInput formControlName="description" rows="3" placeholder="Brief description of the organization"></textarea>
+          <mat-label>Tavsif</mat-label>
+          <textarea matInput formControlName="description" rows="3" placeholder="Tashkilot faoliyati haqida qisqacha ma'lumot"></textarea>
         </mat-form-field>
       </mat-dialog-content>
 
       <mat-dialog-actions align="end">
-        <button type="button" mat-button (click)="onCancel()">Cancel</button>
+        <button type="button" mat-button (click)="onCancel()">Bekor qilish</button>
         <button type="submit" mat-raised-button color="primary" [disabled]="orgForm.invalid">
-          {{ data ? 'Update' : 'Create' }}
+          {{ data ? 'Saqlash' : 'Yaratish' }}
         </button>
       </mat-dialog-actions>
     </form>

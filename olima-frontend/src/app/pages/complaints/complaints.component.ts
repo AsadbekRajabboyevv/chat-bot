@@ -11,34 +11,38 @@ import { Complaint } from '../../models';
   imports: [CommonModule, MatTableModule, MatButtonModule],
   template: `
     <div class="page-container">
-      <h2>Complaints</h2>
+      <h2>Murojaatlar va arizalar</h2>
       <table mat-table [dataSource]="complaints" class="mat-elevation-z8">
         <ng-container matColumnDef="subject">
-          <th mat-header-cell *matHeaderCellDef> Subject </th>
+          <th mat-header-cell *matHeaderCellDef> Mavzu </th>
           <td mat-cell *matCellDef="let comp"> {{comp.subject}} </td>
         </ng-container>
 
         <ng-container matColumnDef="category">
-          <th mat-header-cell *matHeaderCellDef> Category </th>
-          <td mat-cell *matCellDef="let comp"> {{comp.category}} </td>
+          <th mat-header-cell *matHeaderCellDef> Toifa </th>
+          <td mat-cell *matCellDef="let comp">
+            {{comp.category === 'ACADEMIC' ? 'Akademik' : (comp.category === 'FINANCIAL' ? 'Moliyaviy' : (comp.category === 'ADMINISTRATIVE' ? "Ma'muriy" : (comp.category === 'DISCRIMINATION' ? 'Kamsitish' : 'Boshqa')))}}
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef> Status </th>
+          <th mat-header-cell *matHeaderCellDef> Holati </th>
           <td mat-cell *matCellDef="let comp">
-            <span class="status-chip" [ngClass]="comp.status.toLowerCase()">{{comp.status}}</span>
+            <span class="status-chip" [ngClass]="comp.status.toLowerCase()">
+              {{comp.status === 'DRAFT' ? 'Qoralama' : (comp.status === 'SUBMITTED' ? 'Yuborilgan' : comp.status)}}
+            </span>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="date">
-          <th mat-header-cell *matHeaderCellDef> Date </th>
-          <td mat-cell *matCellDef="let comp"> {{comp.createdAt | date}} </td>
+          <th mat-header-cell *matHeaderCellDef> Sana </th>
+          <td mat-cell *matCellDef="let comp"> {{comp.createdAt | date:'mediumDate'}} </td>
         </ng-container>
 
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef> Actions </th>
+          <th mat-header-cell *matHeaderCellDef> Amallar </th>
           <td mat-cell *matCellDef="let comp">
-            <button *ngIf="comp.status === 'DRAFT'" mat-button color="primary" (click)="confirm(comp.id)">Confirm</button>
+            <button *ngIf="comp.status === 'DRAFT'" mat-raised-button color="primary" (click)="confirm(comp.id)">Tasdiqlash</button>
           </td>
         </ng-container>
 

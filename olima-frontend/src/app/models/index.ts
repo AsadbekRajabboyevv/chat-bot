@@ -36,7 +36,6 @@ export interface ChatRequest {
   organizationId: string;
   conversationId?: string;
   message: string;
-  studentId?: string;
 }
 
 export interface ChatResponse {

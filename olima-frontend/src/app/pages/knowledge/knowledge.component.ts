@@ -17,11 +17,11 @@ import { KnowledgeBaseDialogComponent } from './knowledge-base-dialog.component'
     <div class="page-container">
       <div class="header">
         <div>
-          <h1>Knowledge Bases</h1>
-          <p class="subtitle">Upload PDFs and other documents so the chatbot can answer from your own data</p>
+          <h1>Bilimlar bazalari</h1>
+          <p class="subtitle">AI chatbot tashkilotning o'z rasmiy ma'lumotlariga tayanib javob berishi uchun hujjatlarni (PDF, DOCX, TXT) yuklang</p>
         </div>
         <button mat-raised-button color="primary" (click)="addKnowledgeBase()" [disabled]="!orgId">
-          <mat-icon>add</mat-icon> New Knowledge Base
+          <mat-icon>add</mat-icon> Yangi bilimlar bazasi
         </button>
       </div>
 
@@ -32,18 +32,18 @@ import { KnowledgeBaseDialogComponent } from './knowledge-base-dialog.component'
           </mat-card-header>
           <mat-card-content>
             <p>{{ kb.description }}</p>
-            <p class="date">Created: {{ kb.createdAt | date }}</p>
+            <p class="date">Yaratilgan: {{ kb.createdAt | date:'mediumDate' }}</p>
           </mat-card-content>
         </mat-card>
       </div>
 
       <div class="empty-state" *ngIf="knowledgeBases.length === 0">
         <mat-icon class="empty-icon">library_books</mat-icon>
-        <h3>No knowledge bases yet</h3>
-        <p *ngIf="orgId">Create one, then upload documents (PDF, DOCX, TXT, ...) for the chatbot to use.</p>
-        <p *ngIf="!orgId">Please select an organization from the top menu first.</p>
+        <h3>Bilimlar bazasi mavjud emas</h3>
+        <p *ngIf="orgId">Yangi baza yarating va chatbot foydalanishi uchun hujjatlarni (PDF, DOCX, TXT va h.k.) yuklang.</p>
+        <p *ngIf="!orgId">Iltimos, avval yuqori menyudan tashkilotni tanlang.</p>
         <button mat-raised-button color="primary" (click)="addKnowledgeBase()" [disabled]="!orgId">
-          <mat-icon>add</mat-icon> New Knowledge Base
+          <mat-icon>add</mat-icon> Yangi bilimlar bazasi
         </button>
       </div>
     </div>
@@ -98,7 +98,7 @@ export class KnowledgeComponent implements OnInit {
 
   addKnowledgeBase() {
     if (!this.orgId) {
-      alert('Please select an organization first.');
+      alert('Iltimos, avval tashkilotni tanlang.');
       return;
     }
 
@@ -112,7 +112,7 @@ export class KnowledgeComponent implements OnInit {
             this.router.navigate(['/knowledge', kb.id]);
           },
           error: (err) => {
-            alert('Failed to create knowledge base: ' + (err.error?.message || err.message));
+            alert('Bilimlar bazasini yaratishda xatolik: ' + (err.error?.message || err.message));
           }
         });
       }

@@ -27,24 +27,24 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
       <div class="header">
         <div>
           <div class="breadcrumb">
-            <a routerLink="/organizations">Organizations</a>
+            <a routerLink="/organizations">Tashkilotlar</a>
             <mat-icon class="crumb-sep">chevron_right</mat-icon>
             <span *ngIf="currentOrg">{{ currentOrg.name }}</span>
-            <span *ngIf="!currentOrg">Tools</span>
+            <span *ngIf="!currentOrg">Vositalar</span>
           </div>
-          <h1>Tools Management</h1>
+          <h1>Vositalar boshqaruvi</h1>
           <p class="subtitle" *ngIf="currentOrg">
-            Dynamic tools and capabilities registered for <strong>{{ currentOrg.name }}</strong>
+            <strong>{{ currentOrg.name }}</strong> uchun biriktirilgan dinamik vositalar va imkoniyatlar
           </p>
         </div>
         <button mat-raised-button color="primary" (click)="addTool()" [disabled]="!orgId">
-          <mat-icon>add</mat-icon> Add Tool
+          <mat-icon>add</mat-icon> Vosita qo'shish
         </button>
       </div>
       
       <table mat-table [dataSource]="tools" class="mat-elevation-z8" *ngIf="tools.length > 0">
         <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef> Tool Name & Description </th>
+          <th mat-header-cell *matHeaderCellDef> Vosita nomi va tavsifi </th>
           <td mat-cell *matCellDef="let tool">
             <div class="tool-info-cell">
               <code>{{tool.name}}</code>
@@ -54,7 +54,7 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
         </ng-container>
 
         <ng-container matColumnDef="type">
-          <th mat-header-cell *matHeaderCellDef> Type </th>
+          <th mat-header-cell *matHeaderCellDef> Turi </th>
           <td mat-cell *matCellDef="let tool">
             <span class="badge badge-type" [ngClass]="tool.type.toLowerCase()">
               {{tool.type}}
@@ -63,7 +63,7 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
         </ng-container>
 
         <ng-container matColumnDef="accessLevel">
-          <th mat-header-cell *matHeaderCellDef> Access Level </th>
+          <th mat-header-cell *matHeaderCellDef> Ruxsat darajasi </th>
           <td mat-cell *matCellDef="let tool">
             <span class="badge badge-access" [ngClass]="tool.accessLevel.toLowerCase()">
               {{tool.accessLevel}}
@@ -72,32 +72,32 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
         </ng-container>
 
         <ng-container matColumnDef="requiresConfirmation">
-          <th mat-header-cell *matHeaderCellDef> Confirmation </th>
+          <th mat-header-cell *matHeaderCellDef> Tasdiqlash </th>
           <td mat-cell *matCellDef="let tool">
-            <span *ngIf="tool.requiresConfirmation" class="confirm-pill required" title="Requires human approval">
-              <mat-icon>verified_user</mat-icon> Required
+            <span *ngIf="tool.requiresConfirmation" class="confirm-pill required" title="Inson tasdiqlashi talab etiladi">
+              <mat-icon>verified_user</mat-icon> Majburiy
             </span>
-            <span *ngIf="!tool.requiresConfirmation" class="confirm-pill auto" title="Executes automatically">
-              Auto
+            <span *ngIf="!tool.requiresConfirmation" class="confirm-pill auto" title="Avtomatik bajariladi">
+              Avto
             </span>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="enabled">
-          <th mat-header-cell *matHeaderCellDef> Enabled </th>
+          <th mat-header-cell *matHeaderCellDef> Holati </th>
           <td mat-cell *matCellDef="let tool">
             <mat-slide-toggle [checked]="tool.enabled" (change)="toggleTool(tool)"></mat-slide-toggle>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef> Actions </th>
+          <th mat-header-cell *matHeaderCellDef> Amallar </th>
           <td mat-cell *matCellDef="let tool">
             <div class="actions-wrapper">
-              <button mat-icon-button color="primary" (click)="editTool(tool.id)" title="Edit tool">
+              <button mat-icon-button color="primary" (click)="editTool(tool.id)" title="Tahrirlash">
                 <mat-icon>edit</mat-icon>
               </button>
-              <button mat-icon-button color="warn" (click)="deleteTool(tool)" title="Delete tool">
+              <button mat-icon-button color="warn" (click)="deleteTool(tool)" title="O'chirish">
                 <mat-icon>delete</mat-icon>
               </button>
             </div>
@@ -110,15 +110,15 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 
       <div class="empty-state" *ngIf="tools.length === 0 && !loading">
         <mat-icon class="empty-icon">build</mat-icon>
-        <h3>No tools registered</h3>
+        <h3>Vositalar ro'yxatdan o'tmagan</h3>
         <p *ngIf="currentOrg">
-          There are no tools registered for <strong>{{ currentOrg.name }}</strong> yet.
+          Hozircha <strong>{{ currentOrg.name }}</strong> uchun vositalar mavjud emas.
         </p>
         <p *ngIf="!currentOrg">
-          Please select an organization from the top menu or the Organizations page.
+          Iltimos, yuqori menyudan yoki Tashkilotlar sahifasidan tashkilotni tanlang.
         </p>
         <button mat-raised-button color="primary" (click)="addTool()" [disabled]="!orgId">
-          <mat-icon>add</mat-icon> Add First Tool
+          <mat-icon>add</mat-icon> Birinchi vositani qo'shish
         </button>
       </div>
     </div>
@@ -323,7 +323,7 @@ export class ToolsComponent implements OnInit, OnDestroy {
 
   addTool() {
     if (!this.orgId) {
-      alert('Please select an organization first.');
+      alert('Iltimos, avval tashkilotni tanlang.');
       return;
     }
     this.router.navigate(['/tools', 'new'], { queryParams: { orgId: this.orgId } });
@@ -337,8 +337,8 @@ export class ToolsComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
-        title: 'Delete Tool',
-        message: `Are you sure you want to delete tool "${tool.name}"? AI Agent will no longer be able to use it.`
+        title: 'Vositani o\'chirish',
+        message: `"${tool.name}" vositasini o'chirishga ishonchingiz komilmi? AI yordamchi undan boshqa foydalana olmaydi.`
       }
     });
 
@@ -349,7 +349,7 @@ export class ToolsComponent implements OnInit, OnDestroy {
             this.loadOrgAndTools();
           },
           error: (err) => {
-            alert('Failed to delete tool: ' + (err.error?.message || err.message));
+            alert('Vositani o\'chirishda xatolik: ' + (err.error?.message || err.message));
           }
         });
       }
@@ -364,7 +364,7 @@ export class ToolsComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         tool.enabled = !newStatus; // revert switch
-        alert('Failed to toggle tool status: ' + (err.error?.message || err.message));
+        alert('Vosita holatini o\'zgartirishda xatolik: ' + (err.error?.message || err.message));
       }
     });
   }

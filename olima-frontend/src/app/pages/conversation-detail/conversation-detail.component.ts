@@ -12,11 +12,11 @@ import { Conversation } from '../../models';
   imports: [CommonModule, MatCardModule, MatIconModule],
   template: `
     <div class="page-container" *ngIf="conversation">
-      <h2>{{ conversation.title || 'Conversation Detail' }}</h2>
+      <h2>{{ conversation.title || 'Suhbat tafsilotlari' }}</h2>
       <div class="messages-container">
         <div *ngFor="let msg of conversation.messages" class="message-wrapper" [ngClass]="msg.role.toLowerCase()">
           <div class="message-bubble">
-            <div class="role-badge">{{ msg.role }}</div>
+            <div class="role-badge">{{ msg.role === 'USER' ? 'Foydalanuvchi' : (msg.role === 'ASSISTANT' ? 'OLIMA Yordamchisi' : msg.role) }}</div>
             <div class="content">{{ msg.content }}</div>
             <div class="time">{{ msg.createdAt | date:'shortTime' }}</div>
           </div>
