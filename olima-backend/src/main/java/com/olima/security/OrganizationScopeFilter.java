@@ -58,6 +58,15 @@ public class OrganizationScopeFilter extends OncePerRequestFilter {
     private final KnowledgeBaseRepository knowledgeBaseRepository;
     private final ObjectMapper objectMapper;
 
+    /**
+     * See JwtAuthenticationFilter — must also re-run on the async redispatch that SseEmitter
+     * endpoints (/chat/stream) trigger, or this filter silently no-ops on that pass.
+     */
+    @Override
+    protected boolean shouldNotFilterAsyncDispatch() {
+        return false;
+    }
+
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                      @NonNull HttpServletResponse response,

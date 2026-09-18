@@ -23,6 +23,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
 
+    /**
+     * OncePerRequestFilter skips async dispatches by default. /chat/stream uses SseEmitter,
+     * which re-enters the whole filter chain (including this one) when the container finalizes
+     * the async response — without this override the JWT never gets re-parsed on that pass and
+     * Spring Security's AuthorizationFilter rejects it as anonymous.
+     */
+    @Override
+    protected boolean shouldNotFilterAsyncDispatch() {
+        return false;
+    }
+
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                      @NonNull HttpServletResponse response,
