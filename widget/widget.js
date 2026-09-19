@@ -149,7 +149,7 @@
 
   /* ---------- salomlashish kartasi ----------
    * Sahifa ochilgach bir necha soniyada logo ustida chiqadi va o'zi yo'qolmaydi.
-   * Bosilsa chat ochiladi; × bosilsa shu saytda boshqa ko'rsatilmaydi (localStorage).
+   * Bosilsa chat ochiladi; × bosilsa shu saytda 24 soat ko'rsatilmaydi (localStorage).
    * Chat bir marta ochilgan bo'lsa ham ko'rsatilmaydi — mehmon widget'ni allaqachon topgan.
    */
   var GREET_KEY = "olima_greet_off";
@@ -162,11 +162,16 @@
   }
   var DEFAULT_GREETING = "Salom! 👋 Savolingiz bormi? Rasmiy hujjatlar asosida darhol javob beraman.";
 
+  // × dan keyin bir kun ko'rsatilmaydi — keyingi tashrifda yana chiqadi (abadiy yashirish juda qattiq edi)
+  var GREET_SNOOZE_MS = 24 * 60 * 60 * 1000;
   function greetingDismissed() {
-    try { return !!window.localStorage.getItem(GREET_KEY); } catch (e) { return false; }
+    try {
+      var at = parseInt(window.localStorage.getItem(GREET_KEY) || "0", 10);
+      return at > 0 && Date.now() - at < GREET_SNOOZE_MS;
+    } catch (e) { return false; }
   }
   function rememberDismiss() {
-    try { window.localStorage.setItem(GREET_KEY, "1"); } catch (e) {}
+    try { window.localStorage.setItem(GREET_KEY, String(Date.now())); } catch (e) {}
   }
 
   function showGreeting(force) {
