@@ -14,6 +14,7 @@ public class OrganizationMapper {
             entity.getSlug(),
             entity.getDescription(),
             entity.isEnabled(),
+            entity.getWidgetKey(),
             entity.getCreatedAt(),
             entity.getUpdatedAt()
         );
@@ -24,6 +25,12 @@ public class OrganizationMapper {
             .name(request.name())
             .description(request.description())
             .enabled(true)
+            .widgetKey(newWidgetKey())
             .build();
+    }
+
+    /** Har tashkilotga ochiq, lekin taxmin qilib bo'lmaydigan kalit: wk_ + 32 belgi. */
+    public static String newWidgetKey() {
+        return "wk_" + java.util.UUID.randomUUID().toString().replace("-", "");
     }
 }

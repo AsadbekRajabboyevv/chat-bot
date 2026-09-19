@@ -3,6 +3,7 @@ WORKDIR /app
 COPY .mvn .mvn
 COPY mvnw pom.xml ./
 COPY mock-government/pom.xml mock-government/
+COPY olima-backend/pom.xml olima-backend/
 RUN chmod +x mvnw && ./mvnw dependency:go-offline -pl mock-government -am -B
 COPY mock-government/src mock-government/src
 RUN ./mvnw package -pl mock-government -am -DskipTests -B

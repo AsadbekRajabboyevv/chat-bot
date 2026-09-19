@@ -1,8 +1,384 @@
-html, body {
-  height: 100%;
+@use '@angular/material' as mat;
+@use 'sass:map';
+
+/* ============================================================
+   OLIMA AI — boshqaruv paneli dizayn tizimi
+   Brend: indigo #6366F1 -> binafsha #A855F7 (landing va widget bilan bir xil)
+   ============================================================ */
+
+/* ---------- 1. Brend palitralari ---------- */
+
+$olima-indigo: (
+  50:  #eef2ff, 100: #e0e7ff, 200: #c7d2fe, 300: #a5b4fc, 400: #818cf8,
+  500: #6366f1, 600: #4f46e5, 700: #4338ca, 800: #3730a3, 900: #312e81,
+  A100: #c7d2fe, A200: #a5b4fc, A400: #6366f1, A700: #4338ca,
+  contrast: (
+    50: rgba(0,0,0,.87), 100: rgba(0,0,0,.87), 200: rgba(0,0,0,.87), 300: rgba(0,0,0,.87),
+    400: #fff, 500: #fff, 600: #fff, 700: #fff, 800: #fff, 900: #fff,
+    A100: rgba(0,0,0,.87), A200: rgba(0,0,0,.87), A400: #fff, A700: #fff,
+  )
+);
+
+$olima-violet: (
+  50:  #faf5ff, 100: #f3e8ff, 200: #e9d5ff, 300: #d8b4fe, 400: #c084fc,
+  500: #a855f7, 600: #9333ea, 700: #7e22ce, 800: #6b21a8, 900: #581c87,
+  A100: #e9d5ff, A200: #d8b4fe, A400: #a855f7, A700: #7e22ce,
+  contrast: (
+    50: rgba(0,0,0,.87), 100: rgba(0,0,0,.87), 200: rgba(0,0,0,.87), 300: rgba(0,0,0,.87),
+    400: #fff, 500: #fff, 600: #fff, 700: #fff, 800: #fff, 900: #fff,
+    A100: rgba(0,0,0,.87), A200: rgba(0,0,0,.87), A400: #fff, A700: #fff,
+  )
+);
+
+$olima-red: (
+  50:  #fef2f2, 100: #fee2e2, 200: #fecaca, 300: #fca5a5, 400: #f87171,
+  500: #ef4444, 600: #dc2626, 700: #b91c1c, 800: #991b1b, 900: #7f1d1d,
+  A100: #fecaca, A200: #fca5a5, A400: #ef4444, A700: #b91c1c,
+  contrast: (
+    50: rgba(0,0,0,.87), 100: rgba(0,0,0,.87), 200: rgba(0,0,0,.87), 300: rgba(0,0,0,.87),
+    400: #fff, 500: #fff, 600: #fff, 700: #fff, 800: #fff, 900: #fff,
+    A100: rgba(0,0,0,.87), A200: rgba(0,0,0,.87), A400: #fff, A700: #fff,
+  )
+);
+
+$olima-typography: mat.m2-define-typography-config(
+  $font-family: "'Inter', 'Roboto', 'Helvetica Neue', sans-serif",
+  $headline-5: mat.m2-define-typography-level(28px, 36px, 700, $letter-spacing: -0.02em),
+  $headline-6: mat.m2-define-typography-level(20px, 28px, 600, $letter-spacing: -0.01em),
+  $subtitle-1: mat.m2-define-typography-level(16px, 24px, 600),
+  $subtitle-2: mat.m2-define-typography-level(14px, 20px, 600),
+  $body-1:     mat.m2-define-typography-level(14px, 22px, 400),
+  $body-2:     mat.m2-define-typography-level(14px, 20px, 400),
+  $button:     mat.m2-define-typography-level(14px, 20px, 600, $letter-spacing: 0),
+  $caption:    mat.m2-define-typography-level(12px, 16px, 400),
+);
+
+$olima-theme: mat.m2-define-light-theme((
+  color: (
+    primary: mat.m2-define-palette($olima-indigo, 500, 300, 700),
+    accent:  mat.m2-define-palette($olima-violet, 500, 300, 700),
+    warn:    mat.m2-define-palette($olima-red, 500, 300, 700),
+  ),
+  typography: $olima-typography,
+  density: -1,
+));
+
+@include mat.core();
+@include mat.all-component-themes($olima-theme);
+
+/* ---------- 2. Tokenlar ---------- */
+
+:root {
+  --brand:        #6366f1;
+  --brand-600:    #4f46e5;
+  --brand-700:    #4338ca;
+  --brand-soft:   #eef2ff;
+  --accent:       #a855f7;
+  --accent-soft:  #f3e8ff;
+
+  --ok:    #059669;  --ok-soft:    #ecfdf5;
+  --warn:  #d97706;  --warn-soft:  #fffbeb;
+  --err:   #dc2626;  --err-soft:   #fef2f2;
+  --info:  #0284c7;  --info-soft:  #f0f9ff;
+
+  --ink:      #0f172a;
+  --ink-2:    #334155;
+  --ink-3:    #64748b;
+  --ink-4:    #94a3b8;
+
+  --bg:       #f4f5fa;
+  --surface:  #ffffff;
+  --edge:     #e6e9f0;
+  --edge-2:   #eef1f6;
+
+  --r-sm: 8px;
+  --r:    12px;
+  --r-lg: 16px;
+
+  --sh-1: 0 1px 2px rgba(15,23,42,.05);
+  --sh-2: 0 2px 8px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04);
+  --sh-3: 0 12px 32px rgba(15,23,42,.10), 0 2px 8px rgba(15,23,42,.06);
+
+  --nav-w: 264px;
+  --bar-h: 64px;
+  --gap:   24px;
 }
+
+/* ---------- 3. Asos ---------- */
+
+html, body { height: 100%; }
+
 body {
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
-  background-color: #f5f5f5;
+  /* yassi oq emas: yuqorida yengil indigo-binafsha tus */
+  background:
+    radial-gradient(900px 420px at 18% -8%,  rgba(99,102,241,.10), transparent 62%),
+    radial-gradient(760px 380px at 92% -4%,  rgba(168,85,247,.09), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+  color: var(--ink);
+  font-family: 'Inter', 'Roboto', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+* { box-sizing: border-box; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; border: 3px solid var(--bg); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-4); }
+
+/* ---------- 4. Sahifa karkasi ---------- */
+
+.page {
+  padding: 28px 32px 48px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 26px;
+  flex-wrap: wrap;
+}
+
+.page-head__text { flex: 1 1 320px; min-width: 0; }
+
+.page-head h1 {
+  margin: 0 0 6px;
+  font-size: 26px;
+  line-height: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.page-head p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--ink-3);
+  max-width: 76ch;
+}
+
+.page-head__actions { display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+
+/* ---------- 5. Kartochka ---------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--edge);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+}
+
+.card--pad { padding: 20px; }
+
+.card--link {
+  cursor: pointer;
+  transition: box-shadow .18s ease, border-color .18s ease, transform .18s ease;
+}
+.card--link:hover {
+  box-shadow: var(--sh-2);
+  border-color: #d6dbe6;
+  transform: translateY(-1px);
+}
+
+.card__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--edge-2);
+}
+
+.card__title { font-size: 15px; font-weight: 650; color: var(--ink); margin: 0; }
+
+/* ---------- 6. Ikonka doirasi ---------- */
+
+.icon-pill {
+  width: 40px; height: 40px;
+  border-radius: 11px;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+  background: var(--brand-soft);
+  color: var(--brand-600);
+}
+.icon-pill mat-icon { font-size: 21px; width: 21px; height: 21px; }
+
+.icon-pill--accent { background: var(--accent-soft); color: #7e22ce; }
+.icon-pill--ok     { background: var(--ok-soft);     color: var(--ok); }
+.icon-pill--warn   { background: var(--warn-soft);   color: var(--warn); }
+.icon-pill--err    { background: var(--err-soft);    color: var(--err); }
+.icon-pill--info   { background: var(--info-soft);   color: var(--info); }
+
+/* ---------- 7. Statistika ---------- */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(178px, 1fr));
+  gap: 14px;
+}
+
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--edge);
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
+  box-shadow: var(--sh-1);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.stat__body { min-width: 0; }
+
+.stat__label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-3);
+  letter-spacing: .01em;
+  margin-bottom: 2px;
+}
+
+.stat__value {
+  font-size: 28px;
+  line-height: 34px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 8. Nishonlar ---------- */
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: .01em;
+  white-space: nowrap;
+  background: #f1f5f9;
+  color: var(--ink-2);
+}
+.tag--ok   { background: var(--ok-soft);   color: var(--ok); }
+.tag--warn { background: var(--warn-soft); color: var(--warn); }
+.tag--err  { background: var(--err-soft);  color: var(--err); }
+.tag--info { background: var(--info-soft); color: var(--info); }
+.tag--brand{ background: var(--brand-soft);color: var(--brand-600); }
+
+.mono {
+  font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 12.5px;
+}
+
+/* ---------- 9. Bo'sh holat ---------- */
+
+.empty {
+  text-align: center;
+  padding: 56px 24px;
+  border: 1px dashed var(--edge);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+.empty mat-icon {
+  font-size: 40px; width: 40px; height: 40px;
+  color: var(--ink-4);
+  margin-bottom: 12px;
+}
+.empty h3 { margin: 0 0 6px; font-size: 16px; font-weight: 650; color: var(--ink-2); }
+.empty p  { margin: 0 auto 18px; font-size: 13.5px; color: var(--ink-3); max-width: 46ch; }
+
+/* ---------- 10. Jadval ---------- */
+
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--edge);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--sh-1);
+}
+.table-scroll { overflow-x: auto; }
+
+table.mat-mdc-table { background: transparent; width: 100%; }
+
+.mat-mdc-header-row {
+  background: #fbfcfe;
+  border-bottom: 1px solid var(--edge);
+}
+.mat-mdc-header-cell {
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--ink-3) !important;
+  white-space: nowrap;
+}
+.mat-mdc-cell {
+  font-size: 13.5px !important;
+  color: var(--ink-2) !important;
+  border-bottom-color: var(--edge-2) !important;
+}
+.mat-mdc-row:hover { background: #fafbfe; }
+.mat-mdc-row:last-child .mat-mdc-cell { border-bottom: none !important; }
+
+/* ---------- 11. Material tuzatishlari ---------- */
+
+.mat-mdc-raised-button, .mat-mdc-unelevated-button,
+.mat-mdc-outlined-button, .mat-mdc-button {
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+}
+.mat-mdc-unelevated-button.mat-primary { box-shadow: 0 1px 2px rgba(79,70,229,.24); }
+
+.mat-mdc-card {
+  border-radius: var(--r-lg) !important;
+  border: 1px solid var(--edge);
+  box-shadow: var(--sh-1) !important;
+}
+
+.mat-mdc-dialog-surface {
+  border-radius: var(--r-lg) !important;
+  box-shadow: var(--sh-3) !important;
+}
+
+.mat-mdc-form-field { width: 100%; }
+.mat-mdc-text-field-wrapper { border-radius: 10px !important; }
+
+.mat-mdc-menu-panel {
+  border-radius: var(--r) !important;
+  border: 1px solid var(--edge);
+  box-shadow: var(--sh-3) !important;
+}
+
+.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+  border-radius: 10px !important;
+}
+
+.mat-mdc-tab-header { border-bottom: 1px solid var(--edge); }
+
+/* ---------- 12. Yordamchilar ---------- */
+
+.row     { display: flex; align-items: center; gap: 10px; }
+.row--sb { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.grow    { flex: 1 1 auto; }
+.muted   { color: var(--ink-3); }
+.dim     { color: var(--ink-4); }
+.nowrap  { white-space: nowrap; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+
+@media (max-width: 720px) {
+  .page { padding: 20px 16px 40px; }
+  .page-head h1 { font-size: 22px; line-height: 28px; }
 }

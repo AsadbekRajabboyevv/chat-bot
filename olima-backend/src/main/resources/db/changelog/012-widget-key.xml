@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      Widget kaliti. Bungacha mijoz sayti chat so'rovida organizationId ni O'ZI yuborardi,
+      ya'ni ochiq sahifadagi skriptdan uni almashtirib boshqa tashkilotning hujjatlaridan
+      javob olish mumkin edi.
+
+      Endi kalit -> tashkilot bog'lanishi SERVER tomonda turadi. So'rov tanasidagi
+      organizationId e'tiborga olinmaydi.
+    -->
+    <changeSet id="012-add-widget-key" author="olima">
+        <addColumn tableName="organizations">
+            <column name="widget_key" type="VARCHAR(64)"/>
+        </addColumn>
+    </changeSet>
+
+    <!-- Mavjud tashkilotlarga kalit beriladi: wk_ + UUID (chiziqchasiz). -->
+    <changeSet id="012-backfill-widget-key" author="olima">
+        <sql>
+            UPDATE organizations
+               SET widget_key = 'wk_' || replace(gen_random_uuid()::text, '-', '')
+             WHERE widget_key IS NULL;
+        </sql>
+    </changeSet>
+
+    <changeSet id="012-widget-key-constraints" author="olima">
+        <addNotNullConstraint tableName="organizations" columnName="widget_key" columnDataType="VARCHAR(64)"/>
+        <addUniqueConstraint tableName="organizations" columnNames="widget_key" constraintName="uk_organizations_widget_key"/>
+        <createIndex tableName="organizations" indexName="idx_organizations_widget_key">
+            <column name="widget_key"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

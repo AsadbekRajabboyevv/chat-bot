@@ -3,6 +3,7 @@ package com.olima.user;
 import com.olima.organization.OrganizationRepository;
 import com.olima.organization.exception.OrganizationNotFoundException;
 import com.olima.user.dto.CreateUserRequest;
+import com.olima.user.dto.ResetPasswordRequest;
 import com.olima.user.dto.UserResponse;
 import com.olima.user.exception.DuplicateUsernameException;
 import com.olima.user.exception.UserNotFoundException;
@@ -57,6 +58,27 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         user = userRepository.save(user);
+        return toResponse(user, organizationName);
+    }
+
+    /**
+     * Parol xeshlangan holda saqlanadi, ya'ni eskisini ko'rsatib bo'lmaydi — yagona yo'l
+     * yangisini o'rnatish. Busiz panel hisobni o'chirib qaytadan yaratishga majbur bo'lardi:
+     * o'chirish ishlab, yaratish yiqilsa mijoz kirish huquqini butunlay yo'qotardi.
+     */
+    @Override
+    public UserResponse resetPassword(UUID id, ResetPasswordRequest request) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
+
+        user.setPasswordHash(passwordEncoder.encode(request.password()));
+        user = userRepository.save(user);
+
+        String organizationName = user.getOrganizationId() == null ? null
+                : organizationRepository.findById(user.getOrganizationId())
+                        .map(o -> o.getName())
+                        .orElse(null);
+
         return toResponse(user, organizationName);
     }
 

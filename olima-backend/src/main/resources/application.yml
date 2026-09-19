@@ -35,6 +35,10 @@ jwt:
   expiration-ms: ${JWT_EXPIRATION_MS:86400000}
 
 app:
+  # Vergul bilan ajratilgan origin naqshlari. Serverda CORS_ORIGINS orqali
+  # o'zgartiriladi — yangi domen uchun qayta yig'ish shart emas.
+  cors:
+    allowed-origin-patterns: ${CORS_ORIGINS:http://localhost:*,http://127.0.0.1:*,http://172.16.*.*:*,http://192.168.*.*:*,http://10.*.*.*:*}
   default-super-admin:
     username: ${SUPER_ADMIN_USERNAME:super}
     password: ${SUPER_ADMIN_PASSWORD:1234a}

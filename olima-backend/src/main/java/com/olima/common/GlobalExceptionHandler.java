@@ -96,10 +96,20 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.BAD_REQUEST, "Validatsiya xatoligi yuz berdi");
     }
 
+    /**
+     * Kutilmagan xato. Matni MIJOZGA CHIQMAYDI — chat widget'i mijoz saytida ochiq turadi,
+     * ya'ni bu yerdagi har qanday satr sayt tashrifchisiga ko'rinadi. Amalda u yerga
+     * "com.openai.errors.UnauthorizedException: 401: You didn't provide an API key..."
+     * chiqib qoldi: ichki tafsilot ham, sozlash muammosi ham begona odamga ko'rindi.
+     *
+     * Endi tashqariga faqat umumiy matn va qidiruv kodi ketadi; to'liq tafsilot logda.
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGenericException(Exception ex) {
-        log.error("Internal server error: ", ex);
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage() != null ? ex.getMessage() : "Ichki server xatoligi yuz berdi");
+        String ref = java.util.UUID.randomUUID().toString().substring(0, 8);
+        log.error("Internal server error [ref={}]: ", ref, ex);
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR,
+                "Ichki xatolik yuz berdi. Qayta urinib ko'ring (kod: " + ref + ")");
     }
 
     private ResponseEntity<ApiError> buildResponse(HttpStatus status, String message) {

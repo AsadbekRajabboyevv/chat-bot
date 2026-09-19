@@ -9,6 +9,7 @@ public record OrganizationResponse(
     String slug,
     String description,
     boolean enabled,
+    String widgetKey,
     Instant createdAt,
     Instant updatedAt
 ) {}

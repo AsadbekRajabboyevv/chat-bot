@@ -1,0 +1,20 @@
+# ── OLIMA AI marshruti — OLIMA loyihasiga tegishli, ptcenter'ga emas. ──
+#
+# Bu fayl serverda /opt/caddy-sites/ ichida yashaydi, ya'ni /opt/ptcenter dan
+# TASHQARIDA. Ptcenter deploy'i faqat /opt/ptcenter ga rsync qiladi, shuning
+# uchun bu blok o'chib ketmaydi. Batafsil: /opt/PROXY-ROUTING.md
+#
+# Domen hali yo'q. sslip.io — DNS xizmati: <ip-defis-bilan>.sslip.io o'sha IP ga
+# yechiladi, shuning uchun Let's Encrypt sertifikat bera oladi. Haqiqiy domen
+# olingach uni shu blokning birinchi qatoriga qo'shib qo'yish yetarli —
+# boshqa hech narsa o'zgarmaydi, chunki frontend API'ga nisbiy manzil
+# (/api/v1) bilan murojaat qiladi.
+
+olima.178-105-158-192.sslip.io {
+	encode gzip zstd
+
+	reverse_proxy olima-web:80 {
+		# SSE (/api/v1/chat/stream): buferlash javob oqimini to'xtatib qo'yadi
+		flush_interval -1
+	}
+}

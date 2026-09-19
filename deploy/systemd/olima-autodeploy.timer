@@ -1,0 +1,10 @@
+[Unit]
+Description=OLIMA AI — prod branch'ni har daqiqada tekshirish
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=60s
+Unit=olima-autodeploy.service
+
+[Install]
+WantedBy=timers.target
