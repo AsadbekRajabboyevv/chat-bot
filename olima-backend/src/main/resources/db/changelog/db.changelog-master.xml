@@ -18,5 +18,6 @@
     <include file="db/changelog/011-fix-university-tool-url.xml"/>
     <include file="db/changelog/012-widget-key.xml"/>
     <include file="db/changelog/013-widget-greeting.xml"/>
+    <include file="db/changelog/013-telegram.xml"/>
 
 </databaseChangeLog>

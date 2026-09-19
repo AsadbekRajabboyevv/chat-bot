@@ -5,6 +5,7 @@ import com.olima.conversation.exception.ConversationNotFoundException;
 import com.olima.knowledge.exception.DocumentParseException;
 import com.olima.knowledge.exception.KnowledgeBaseNotFoundException;
 import com.olima.organization.exception.OrganizationNotFoundException;
+import com.olima.telegram.exception.TelegramApiException;
 import com.olima.tool.exception.ToolNotFoundException;
 import com.olima.user.exception.DuplicateUsernameException;
 import com.olima.user.exception.UserNotFoundException;
@@ -82,6 +83,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleAccessDenied(AccessDeniedException ex) {
         log.warn("Access denied: {}", ex.getMessage());
         return buildResponse(HttpStatus.FORBIDDEN, "You do not have permission to perform this action");
+    }
+
+    @ExceptionHandler(TelegramApiException.class)
+    public ResponseEntity<ApiError> handleTelegramApiException(TelegramApiException ex) {
+        log.warn("Telegram API error: {}", ex.getMessage());
+        return buildResponse(HttpStatus.BAD_GATEWAY, ex.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

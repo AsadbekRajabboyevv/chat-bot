@@ -38,6 +38,9 @@ app:
   # Vergul bilan ajratilgan origin naqshlari. Prod deploy CORS_ORIGINS orqali,
   # lokal docker-compose esa CORS_ALLOWED_ORIGIN_PATTERNS orqali o'zgartiradi —
   # yangi domen uchun qayta yig'ish shart emas.
+  # Telegram webhook manzili shu asosda quriladi: {public-base-url}/api/v1/telegram/webhook/{secret}.
+  # Telegram faqat ochiq, haqiqiy HTTPS manzilga so'rov yubora oladi — localhost ishlamaydi.
+  public-base-url: ${PUBLIC_BASE_URL:https://olima.178-105-158-192.sslip.io}
   cors:
     allowed-origin-patterns: ${CORS_ORIGINS:${CORS_ALLOWED_ORIGIN_PATTERNS:http://localhost:*,http://127.0.0.1:*,http://172.16.*.*:*,http://192.168.*.*:*,http://10.*.*.*:*}}
   default-super-admin:

@@ -383,6 +383,7 @@ export class AppComponent implements OnInit {
       items: [
         { path: '/knowledge', icon: 'auto_stories', label: 'Bilimlar bazasi' },
         { path: '/tools', icon: 'handyman', label: 'Vositalar' },
+        { path: '/telegram', icon: 'send', label: 'Telegram bot' },
       ],
     },
     {
@@ -408,6 +409,7 @@ export class AppComponent implements OnInit {
     '/chat': 'Chat sinovi',
     '/knowledge': 'Bilimlar bazasi',
     '/tools': 'Vositalar',
+    '/telegram': 'Telegram bot',
     '/conversations': 'Suhbatlar',
     '/executions': 'Bajarilgan amallar',
     '/complaints': 'Murojaatlar',
