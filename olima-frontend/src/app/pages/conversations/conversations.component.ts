@@ -4,20 +4,21 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
+import { EmptyStateComponent } from '../../components/empty-state.component';
 import { ApiService } from '../../services/api.service';
 import { Conversation } from '../../models';
 
 @Component({
   selector: 'app-conversations',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatButtonModule, MatIconModule],
+  imports: [EmptyStateComponent, CommonModule, MatTableModule, MatButtonModule, MatIconModule],
   template: `
     <div class="page-container">
       <h2>Suhbatlar tarixi</h2>
-      <table mat-table [dataSource]="conversations" class="mat-elevation-z8">
+      <table mat-table [dataSource]="conversations" class="mat-elevation-z8" *ngIf="conversations.length > 0">
         <ng-container matColumnDef="title">
           <th mat-header-cell *matHeaderCellDef> Mavzu </th>
-          <td mat-cell *matCellDef="let conv"> {{conv.title || 'Yangi suhbat'}} </td>
+          <td mat-cell *matCellDef="let conv"> {{ title(conv.title) }} </td>
         </ng-container>
 
         <ng-container matColumnDef="date">
@@ -42,6 +43,14 @@ import { Conversation } from '../../models';
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
+
+      <app-empty-state *ngIf="loaded && conversations.length === 0" icon="forum"
+        title="Hali suhbat yo'q"
+        text="Saytingizdagi widget orqali birinchi savol berilishi bilan suhbat shu yerda paydo bo'ladi — savol, javob va manbalari bilan.">
+        <button mat-flat-button color="primary" (click)="router.navigate(['/chat'])">
+          <mat-icon>chat</mat-icon> Chatni sinab ko'rish
+        </button>
+      </app-empty-state>
     </div>
   `,
   styles: [`.page-container { padding: 24px; } table { width: 100%; }`]
@@ -49,14 +58,24 @@ import { Conversation } from '../../models';
 export class ConversationsComponent implements OnInit {
   conversations: Conversation[] = [];
   displayedColumns = ['title', 'date', 'messages', 'actions'];
+  loaded = false;
 
-  constructor(private apiService: ApiService, private router: Router) {}
+  constructor(private apiService: ApiService, readonly router: Router) {}
 
   ngOnInit() {
     const orgId = localStorage.getItem('selectedOrgId');
-    if (orgId) {
-      this.apiService.getConversations(orgId).subscribe(data => this.conversations = data);
-    }
+    if (!orgId) { this.loaded = true; return; }
+    this.apiService.getConversations(orgId).subscribe({
+      next: data => { this.conversations = data; this.loaded = true; },
+      error: () => this.loaded = true,
+    });
+  }
+
+  /** Backend avtomatik sarlavhani inglizcha yozadi ("Chat with X") — ko'rsatishda o'zbekchalashtiriladi. */
+  title(t?: string | null): string {
+    const v = t?.trim();
+    if (!v) return 'Yangi suhbat';
+    return v.startsWith('Chat with ') ? 'Suhbat: ' + v.slice('Chat with '.length) : v;
   }
 
   viewConversation(id: string) {

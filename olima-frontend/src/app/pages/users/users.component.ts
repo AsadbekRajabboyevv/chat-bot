@@ -4,6 +4,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { EmptyStateComponent } from '../../components/empty-state.component';
 import { ApiService } from '../../services/api.service';
 import { AppUser } from '../../models';
 import { UserDialogComponent } from './user-dialog.component';
@@ -12,7 +13,7 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [
+  imports: [EmptyStateComponent, 
     CommonModule,
     MatTableModule,
     MatButtonModule,
@@ -69,11 +70,10 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
 
-      <div class="empty-state" *ngIf="users.length === 0">
-        <mat-icon class="empty-icon">people</mat-icon>
-        <h3>Adminlar mavjud emas</h3>
-        <p>Tashkilot adminlariga kirish huquqi berish uchun yangi admin qo'shing.</p>
-      </div>
+      <app-empty-state *ngIf="loaded && users.length === 0" icon="shield_person"
+        title="Hali admin yo'q"
+        text="Mijoz o'z bilimlar bazasi va murojaatlarini boshqarishi uchun unga tashkilot admini hisobini yarating.">
+      </app-empty-state>
     </div>
   `,
   styles: [`
@@ -117,6 +117,7 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 })
 export class UsersComponent implements OnInit {
   users: AppUser[] = [];
+  loaded = false;
   displayedColumns: string[] = ['username', 'role', 'organization', 'createdAt', 'actions'];
 
   constructor(
@@ -129,7 +130,10 @@ export class UsersComponent implements OnInit {
   }
 
   loadUsers(): void {
-    this.apiService.getUsers().subscribe(users => this.users = users);
+    this.apiService.getUsers().subscribe({
+      next: users => { this.users = users; this.loaded = true; },
+      error: () => this.loaded = true,
+    });
   }
 
   addUser(): void {

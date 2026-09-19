@@ -640,6 +640,17 @@ footer{padding:0 14px 10px; font-size:10.5px; color:var(--faint); text-align:cen
   if (SUB) subEl.textContent = SUB;
   greet();
   toHost("ready");
+
+  /* Panelda boshqariladigan sozlamalar (salomlashish matni) host sahifadagi widget.js ga uzatiladi.
+     So'rov shu iframe'dan ketadi — API bilan bir origin, ya'ni mijoz saytiga CORS kerak emas. */
+  if (KEY) {
+    fetch(API + "/api/v1/chat/widget-config", {headers: {"X-Widget-Key": KEY}})
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(c){ toHost("config", c || {}); })
+      .catch(function(){ toHost("config", {}); });
+  } else {
+    toHost("config", {});
+  }
 })();
 </script>
 </body>

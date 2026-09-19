@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { EmptyStateComponent } from '../../components/empty-state.component';
 import { ApiService } from '../../services/api.service';
 import { Tool, Organization } from '../../models';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
@@ -13,7 +14,7 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 @Component({
   selector: 'app-tools',
   standalone: true,
-  imports: [
+  imports: [EmptyStateComponent, 
     CommonModule,
     RouterLink,
     MatTableModule,
@@ -108,19 +109,13 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
 
-      <div class="empty-state" *ngIf="tools.length === 0 && !loading">
-        <mat-icon class="empty-icon">build</mat-icon>
-        <h3>Vositalar ro'yxatdan o'tmagan</h3>
-        <p *ngIf="currentOrg">
-          Hozircha <strong>{{ currentOrg.name }}</strong> uchun vositalar mavjud emas.
-        </p>
-        <p *ngIf="!currentOrg">
-          Iltimos, yuqori menyudan yoki Tashkilotlar sahifasidan tashkilotni tanlang.
-        </p>
-        <button mat-raised-button color="primary" (click)="addTool()" [disabled]="!orgId">
+      <app-empty-state *ngIf="tools.length === 0 && !loading" icon="handyman"
+        title="Hali vosita ulanmagan"
+        [text]="currentOrg ? 'Vosita — yordamchi chaqira oladigan API (talaba ma’lumoti, kontrakt qarzi, ariza yuborish). ' + currentOrg.name + ' uchun birinchisini qo‘shing — kod yozish shart emas.' : 'Avval tepadagi ro‘yxatdan tashkilotni tanlang.'">
+        <button mat-flat-button color="primary" (click)="addTool()" [disabled]="!orgId">
           <mat-icon>add</mat-icon> Birinchi vositani qo'shish
         </button>
-      </div>
+      </app-empty-state>
     </div>
   `,
   styles: [`

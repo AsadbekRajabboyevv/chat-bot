@@ -47,7 +47,27 @@ import { KnowledgeBase, KnowledgeDocument } from '../../models';
         <p class="upload-hint">PDF, Word, TXT va boshqa matnli hujjatlar avtomatik tahlil qilinadi va chatbot qidiruvi uchun bo'laklarga ajratiladi.</p>
 
         <div class="upload-row">
-          <input type="file" #fileInput (change)="onFileSelected($event)" [disabled]="uploading" />
+          <!-- Brauzerning "Choose File / No file chosen" tugmasi o'rniga: bosib tanlash yoki sudrab tashlash -->
+          <label class="drop" [class.over]="dragOver" [class.has]="selectedFile" [class.off]="uploading"
+                 (dragover)="onDragOver($event)" (dragleave)="dragOver = false" (drop)="onDrop($event)">
+            <input type="file" #fileInput hidden [accept]="accept" (change)="onFileSelected($event)" [disabled]="uploading" />
+            <ng-container *ngIf="!selectedFile; else chosen">
+              <span class="drop-ico"><mat-icon>upload_file</mat-icon></span>
+              <span class="drop-txt">
+                <span><b>Fayl tanlang</b> yoki shu yerga tashlang</span>
+                <small>PDF, DOCX, DOC, TXT, RTF, HTML · 25 MB gacha</small>
+              </span>
+            </ng-container>
+            <ng-template #chosen>
+              <span class="drop-ico ok"><mat-icon>description</mat-icon></span>
+              <span class="drop-txt">
+                <b class="fname" [title]="selectedFile!.name">{{ selectedFile!.name }}</b>
+                <small>{{ fileSize(selectedFile!.size) }} · almashtirish uchun bosing</small>
+              </span>
+              <button type="button" mat-icon-button class="drop-x" (click)="clearFile($event)" [disabled]="uploading"
+                      aria-label="Faylni olib tashlash"><mat-icon>close</mat-icon></button>
+            </ng-template>
+          </label>
           <mat-form-field appearance="outline" class="title-field">
             <mat-label>Hujjat sarlavhasi (ixtiyoriy)</mat-label>
             <input matInput [(ngModel)]="uploadTitle" [disabled]="uploading" placeholder="Standart: fayl nomi">
@@ -102,7 +122,7 @@ import { KnowledgeBase, KnowledgeDocument } from '../../models';
           <td mat-cell *matCellDef="let doc">
             <span class="badge" [ngClass]="doc.status.toLowerCase()"
                   [matTooltip]="doc.status === 'FAILED' ? doc.errorMessage : ''">
-              {{ doc.status === 'READY' ? 'Tayyor' : (doc.status === 'PROCESSING' ? 'Qayta ishlanmoqda' : (doc.status === 'FAILED' ? 'Xatolik' : doc.status)) }}
+              {{ statusLabel(doc.status) }}
             </span>
           </td>
         </ng-container>
@@ -156,6 +176,21 @@ import { KnowledgeBase, KnowledgeDocument } from '../../models';
       flex-wrap: wrap;
     }
     .title-field { flex: 1; min-width: 220px; margin-bottom: -1.25em; }
+    .drop { flex: 1.2; min-width: 260px; min-height: 56px; box-sizing: border-box; display: flex; align-items: center; gap: 12px;
+            padding: 8px 10px 8px 12px; border: 1.5px dashed #c7d2fe; border-radius: 10px; background: #f8faff;
+            cursor: pointer; transition: border-color .15s, background .15s; }
+    .drop:hover, .drop.over { border-color: var(--brand, #6366f1); background: var(--brand-soft, #eef2ff); }
+    .drop.has { border-style: solid; border-color: #c7d2fe; background: #fff; }
+    .drop.off { opacity: .6; pointer-events: none; }
+    .drop-ico { flex: none; width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center;
+                color: var(--brand, #6366f1); background: var(--brand-soft, #eef2ff); }
+    .drop-ico.ok { color: #059669; background: #ecfdf5; }
+    .drop-ico mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    .drop-txt { display: flex; flex-direction: column; min-width: 0; flex: 1; font-size: 13.5px; color: #334155; line-height: 1.35; }
+    .drop-txt b { color: var(--brand, #6366f1); font-weight: 600; }
+    .drop-txt .fname { color: #0f172a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .drop-txt small { font-size: 12px; color: #94a3b8; }
+    .drop-x { flex: none; color: #94a3b8; }
     .url-field { flex: 2; min-width: 260px; margin-bottom: -1.25em; }
     .upload-error { color: #dc2626; font-size: 13px; margin-top: 12px; margin-bottom: 0; }
 
@@ -243,10 +278,57 @@ export class KnowledgeDetailComponent implements OnInit {
     });
   }
 
+  private static readonly STATUS: Record<string, string> = {
+    PENDING: 'Navbatda', PROCESSING: 'Qayta ishlanmoqda', COMPLETED: 'Tayyor', READY: 'Tayyor', FAILED: 'Xatolik',
+  };
+
+  statusLabel(status: string): string {
+    return KnowledgeDetailComponent.STATUS[status] ?? status;
+  }
+
+  readonly accept = '.pdf,.docx,.doc,.txt,.rtf,.odt,.html,.htm,.md';
+  private static readonly MAX_BYTES = 25 * 1024 * 1024;   // backend va nginx chegarasi bilan bir xil
+  dragOver = false;
+
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
-    this.selectedFile = input.files && input.files.length > 0 ? input.files[0] : undefined;
+    this.pickFile(input.files && input.files.length > 0 ? input.files[0] : undefined);
+    input.value = '';   // xuddi shu faylni qayta tanlash ham (change) chaqirsin
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    if (!this.uploading) this.dragOver = true;
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    this.dragOver = false;
+    if (this.uploading) return;
+    this.pickFile(event.dataTransfer?.files?.[0]);
+  }
+
+  clearFile(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.selectedFile = undefined;
     this.uploadError = '';
+  }
+
+  fileSize(bytes: number): string {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
+    return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+  }
+
+  private pickFile(file?: File) {
+    this.uploadError = '';
+    if (file && file.size > KnowledgeDetailComponent.MAX_BYTES) {
+      this.selectedFile = undefined;
+      this.uploadError = `Fayl juda katta (${this.fileSize(file.size)}). Chegara — 25 MB.`;
+      return;
+    }
+    this.selectedFile = file;
   }
 
   upload() {

@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { EmptyStateComponent } from '../../components/empty-state.component';
 import { ApiService } from '../../services/api.service';
 import { KnowledgeBase } from '../../models';
 import { KnowledgeBaseDialogComponent } from './knowledge-base-dialog.component';
@@ -12,7 +13,7 @@ import { KnowledgeBaseDialogComponent } from './knowledge-base-dialog.component'
 @Component({
   selector: 'app-knowledge',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatDialogModule],
+  imports: [EmptyStateComponent, CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatDialogModule],
   template: `
     <div class="page-container">
       <div class="header">
@@ -37,15 +38,13 @@ import { KnowledgeBaseDialogComponent } from './knowledge-base-dialog.component'
         </mat-card>
       </div>
 
-      <div class="empty-state" *ngIf="knowledgeBases.length === 0">
-        <mat-icon class="empty-icon">library_books</mat-icon>
-        <h3>Bilimlar bazasi mavjud emas</h3>
-        <p *ngIf="orgId">Yangi baza yarating va chatbot foydalanishi uchun hujjatlarni (PDF, DOCX, TXT va h.k.) yuklang.</p>
-        <p *ngIf="!orgId">Iltimos, avval yuqori menyudan tashkilotni tanlang.</p>
-        <button mat-raised-button color="primary" (click)="addKnowledgeBase()" [disabled]="!orgId">
+      <app-empty-state *ngIf="loaded && knowledgeBases.length === 0" icon="auto_stories"
+        title="Bilimlar bazasi hali bo'sh"
+        [text]="orgId ? 'Yordamchi faqat shu yerdagi hujjatlarga tayanib javob beradi. Baza yarating va nizom, qaror yoki yo‘riqnomalarni (PDF, DOCX, TXT) yuklang.' : 'Avval tepadagi ro‘yxatdan tashkilotni tanlang.'">
+        <button mat-flat-button color="primary" (click)="addKnowledgeBase()" [disabled]="!orgId">
           <mat-icon>add</mat-icon> Yangi bilimlar bazasi
         </button>
-      </div>
+      </app-empty-state>
     </div>
   `,
   styles: [`
@@ -75,6 +74,7 @@ import { KnowledgeBaseDialogComponent } from './knowledge-base-dialog.component'
 })
 export class KnowledgeComponent implements OnInit {
   knowledgeBases: KnowledgeBase[] = [];
+  loaded = false;
   orgId: string = '';
 
   constructor(
@@ -91,9 +91,13 @@ export class KnowledgeComponent implements OnInit {
   loadKnowledgeBases() {
     if (!this.orgId) {
       this.knowledgeBases = [];
+      this.loaded = true;
       return;
     }
-    this.apiService.getKnowledgeBases(this.orgId).subscribe(data => this.knowledgeBases = data);
+    this.apiService.getKnowledgeBases(this.orgId).subscribe({
+      next: data => { this.knowledgeBases = data; this.loaded = true; },
+      error: () => this.loaded = true,
+    });
   }
 
   addKnowledgeBase() {

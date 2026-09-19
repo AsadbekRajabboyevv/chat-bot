@@ -15,6 +15,8 @@ public class OrganizationMapper {
             entity.getDescription(),
             entity.isEnabled(),
             entity.getWidgetKey(),
+            entity.getWidgetGreeting(),
+            entity.isWidgetGreetingEnabled(),
             entity.getCreatedAt(),
             entity.getUpdatedAt()
         );

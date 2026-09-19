@@ -44,6 +44,11 @@ export class ApiService {
     return this.http.put<Organization>(`${this.baseUrl}/organizations/${id}`, data);
   }
 
+  /** Tashkilot admini ham chaqira oladi — faqat o'z tashkiloti uchun (server tekshiradi). */
+  updateWidgetSettings(id: string, data: { greeting: string | null; greetingEnabled: boolean }): Observable<Organization> {
+    return this.http.put<Organization>(`${this.baseUrl}/organizations/${id}/widget`, data);
+  }
+
   deleteOrganization(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/organizations/${id}`);
   }

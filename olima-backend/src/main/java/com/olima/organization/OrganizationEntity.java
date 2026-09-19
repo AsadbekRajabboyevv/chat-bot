@@ -29,4 +29,12 @@ public class OrganizationEntity extends BaseEntity {
      */
     @Column(name = "widget_key", unique = true)
     private String widgetKey;
+
+    /** Mijoz saytida logo ustida chiqadigan salomlashish matni. null — widget standart matnni oladi. */
+    @Column(name = "widget_greeting", length = 300)
+    private String widgetGreeting;
+
+    @Column(name = "widget_greeting_enabled", nullable = false)
+    @Builder.Default
+    private boolean widgetGreetingEnabled = true;
 }

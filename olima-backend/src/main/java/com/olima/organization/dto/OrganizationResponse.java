@@ -10,6 +10,8 @@ public record OrganizationResponse(
     String description,
     boolean enabled,
     String widgetKey,
+    String widgetGreeting,
+    boolean widgetGreetingEnabled,
     Instant createdAt,
     Instant updatedAt
 ) {}
