@@ -35,7 +35,11 @@ export class AuthService {
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem('selectedOrgId');
     this.currentUser = null;
-    this.router.navigate(['/login']);
+    // Boshqa navigatsiya (masalan, tashkilot almashtirish) tugamagan bo'lsa router o'tishni bekor qilishi
+    // mumkin — foydalanuvchi panelda qolib ketmasin: o'tolmasa sahifani to'liq /login ga yuklaymiz.
+    this.router.navigateByUrl('/login', { replaceUrl: true })
+      .then(ok => { if (!ok && !location.pathname.startsWith('/login')) location.assign('/login'); })
+      .catch(() => location.assign('/login'));
   }
 
   private setSession(response: LoginResponse): void {

@@ -6,5 +6,4 @@
 **/.angular
 deploy/jars
 deploy/site
-olchov
 *.log

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      007-seed-data boshlang'ich sinov uchun "Ta'lim to'g'risida"gi qonun nomi ostida 4 ta NAMUNA modda
+      (16, 22, 28, 35) va lex.uz'ga o'xshatilgan havolalar qo'ygan edi. Bu matn haqiqiy qonundan olinmagan,
+      havolalar mavjud emas. Bot rasmiy manba sifatida iqtibos keltirmasligi uchun o'chiriladi.
+
+      Haqiqiy hujjatlar bilimlar bazasiga panel orqali yuklanadi. 007 ni tahrirlamaymiz — u allaqachon
+      qo'llangan, o'zgartirish Liquibase checksum xatosiga olib keladi.
+    -->
+    <changeSet id="014-remove-placeholder-law" author="olima">
+        <delete tableName="document_chunks">
+            <where>document_id = '990e8400-e29b-41d4-a716-446655440001'</where>
+        </delete>
+        <delete tableName="documents">
+            <where>id = '990e8400-e29b-41d4-a716-446655440001'</where>
+        </delete>
+    </changeSet>
+</databaseChangeLog>

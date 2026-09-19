@@ -48,3 +48,6 @@ olima-frontend/.angular/
 ### Deploy (build artefaktlari — serverda manbadan yig'iladi) ###
 deploy/jars/
 deploy/site/
+
+# ichki sifat o'lchovlari (repo tashqarisida)
+olchov/
