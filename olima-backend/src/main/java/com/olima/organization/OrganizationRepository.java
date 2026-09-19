@@ -8,5 +8,6 @@ import java.util.UUID;
 
 public interface OrganizationRepository extends JpaRepository<OrganizationEntity, UUID> {
     Optional<OrganizationEntity> findBySlug(String slug);
+    Optional<OrganizationEntity> findByWidgetKeyAndEnabledTrue(String widgetKey);
     List<OrganizationEntity> findByEnabledTrue();
 }

@@ -4,6 +4,8 @@ export interface Organization {
   slug: string;
   description: string;
   enabled: boolean;
+  /** Widget saytga qo'yilganda shu kalit yuboriladi; tashkilot server tomonda aniqlanadi. */
+  widgetKey?: string;
   createdAt: string;
   updatedAt: string;
 }

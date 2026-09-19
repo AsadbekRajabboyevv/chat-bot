@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oliy ta'lim portali — demo</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0A2F6B; --blue:#1457B8; --blue-2:#E8F0FB; --sky:#F4F7FC;
+  --ink:#10213A; --body:#3B4B63; --dim:#6B7A90; --rule:#DCE3EE; --card:#FFFFFF;
+  --gold:#C9A227; --ok:#1C7C54;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--body);background:var(--sky);line-height:1.55;font-size:15px}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1200px;margin:0 auto;padding:0 20px}
+
+/* demo tasma */
+.demo-strip{background:#FFF4D6;color:#6B5300;font-size:12.5px;text-align:center;padding:6px 16px;border-bottom:1px solid #F0DFA8}
+.demo-strip b{font-weight:600}
+
+/* yuqori qator */
+.topbar{background:var(--navy);color:#C9D6EE;font-size:13px}
+.topbar .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;height:40px}
+.topbar .left,.topbar .right{display:flex;gap:18px;align-items:center}
+.topbar a:hover{color:#fff}
+.lang{display:flex;gap:4px}
+.lang span{padding:2px 7px;border-radius:4px;cursor:default}
+.lang .on{background:rgba(255,255,255,.14);color:#fff}
+
+/* shapka */
+header.main{background:#fff;border-bottom:1px solid var(--rule)}
+header.main .wrap{display:flex;align-items:center;justify-content:space-between;gap:20px;height:84px}
+.brand{display:flex;align-items:center;gap:14px}
+.mark{width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,var(--navy),var(--blue));display:grid;place-items:center;flex:none}
+.mark svg{width:30px;height:30px}
+.brand-t{font-weight:700;color:var(--navy);font-size:17px;line-height:1.2;letter-spacing:.1px}
+.brand-s{font-size:12.5px;color:var(--dim);margin-top:2px}
+.hdr-actions{display:flex;align-items:center;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:10px;padding:10px 16px;font-weight:600;font-size:14px;border:1px solid transparent;cursor:pointer;font-family:inherit;transition:background .15s,border-color .15s}
+.btn-ghost{border-color:var(--rule);color:var(--navy);background:#fff}
+.btn-ghost:hover{border-color:var(--blue)}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:#0F4698}
+.btn svg{width:17px;height:17px;flex:none}
+
+/* menyu */
+nav.menu{background:#fff;border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:20}
+nav.menu .wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+nav.menu .wrap::-webkit-scrollbar{display:none}
+nav.menu a{padding:14px 14px;font-weight:500;font-size:14px;color:var(--ink);white-space:nowrap;border-bottom:2px solid transparent}
+nav.menu a:hover,nav.menu a.on{color:var(--blue);border-bottom-color:var(--blue)}
+
+/* hero */
+.hero{background:linear-gradient(120deg,var(--navy) 0%,#123E86 55%,var(--blue) 100%);color:#fff;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-120px;top:-120px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.10),rgba(255,255,255,0) 65%)}
+.hero .wrap{position:relative;z-index:1;display:grid;grid-template-columns:1.25fr 1fr;gap:40px;padding-top:56px;padding-bottom:56px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:#BFD3F5}
+.eyebrow i{width:6px;height:6px;border-radius:50%;background:var(--gold);display:block}
+.hero h1{font-size:38px;line-height:1.15;margin:12px 0 14px;color:#fff;font-weight:700;letter-spacing:-.4px}
+.hero p.lead{font-size:16.5px;color:#D4E0F5;margin:0 0 26px;max-width:560px}
+.search{display:flex;background:#fff;border-radius:12px;padding:6px;gap:6px;max-width:580px;box-shadow:0 12px 30px rgba(3,20,50,.25)}
+.search input{flex:1;border:0;outline:0;font:inherit;font-size:15px;padding:10px 12px;color:var(--ink);min-width:0;background:transparent}
+.search button{white-space:nowrap}
+.search-hint{font-size:12.5px;color:#AFC4E8;margin-top:10px}
+
+.ask-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:22px;backdrop-filter:blur(4px)}
+.ask-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.ask-ava{width:44px;height:44px;border-radius:12px;background:#fff;display:grid;place-items:center;flex:none}
+.ask-ava img{width:32px;height:32px}
+.ask-t{font-weight:600;color:#fff;font-size:15.5px}
+.ask-s{font-size:12.5px;color:#BFD3F5;display:flex;align-items:center;gap:6px}
+.ask-s i{width:7px;height:7px;border-radius:50%;background:#46D39A;display:block}
+.chips{display:flex;flex-direction:column;gap:8px}
+.chip{text-align:left;background:#fff;color:var(--ink);border:0;border-radius:10px;padding:11px 14px;font:inherit;font-size:14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;transition:transform .12s}
+.chip:hover{transform:translateX(3px)}
+.chip span.arr{color:var(--blue);font-weight:700}
+
+/* statistika */
+.stats{margin-top:-28px;position:relative;z-index:2}
+.stats .grid{display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border:1px solid var(--rule);border-radius:14px;box-shadow:0 8px 24px rgba(10,47,107,.07)}
+.stat{padding:20px 22px;border-right:1px solid var(--rule)}
+.stat:last-child{border-right:0}
+.stat b{display:block;font-size:24px;color:var(--navy);font-weight:700;letter-spacing:-.3px}
+.stat span{font-size:13px;color:var(--dim)}
+
+/* bo'limlar */
+section{padding:56px 0 8px}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:22px}
+.sec-head h2{margin:0;font-size:24px;color:var(--ink);letter-spacing:-.2px}
+.sec-head p{margin:4px 0 0;color:var(--dim);font-size:14px}
+.more{color:var(--blue);font-weight:600;font-size:14px;white-space:nowrap}
+
+.services{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.svc{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:10px;transition:border-color .15s,box-shadow .15s}
+.svc:hover{border-color:#AFC6EA;box-shadow:0 8px 22px rgba(10,47,107,.07)}
+.svc-ic{width:44px;height:44px;border-radius:11px;background:var(--blue-2);display:grid;place-items:center;color:var(--blue)}
+.svc-ic svg{width:22px;height:22px}
+.svc h3{margin:4px 0 0;font-size:16px;color:var(--ink)}
+.svc p{margin:0;font-size:13.5px;color:var(--dim);flex:1}
+.svc-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px dashed var(--rule);padding-top:12px;margin-top:4px}
+.svc-foot small{font-size:12px;color:var(--dim)}
+.link-ask{background:none;border:0;padding:0;font:inherit;font-size:13px;font-weight:600;color:var(--blue);cursor:pointer}
+
+.two{display:grid;grid-template-columns:1.6fr 1fr;gap:24px}
+.news{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.nw{background:#fff;border:1px solid var(--rule);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.nw-img{height:132px;position:relative}
+.nw-img.a{background:linear-gradient(135deg,#1457B8,#4B8BE0)}
+.nw-img.b{background:linear-gradient(135deg,#0A2F6B,#2F6FC7)}
+.nw-img.c{background:linear-gradient(135deg,#185E7A,#2E9CB8)}
+.nw-img.d{background:linear-gradient(135deg,#3C3F9E,#6D72D6)}
+.nw-img svg{position:absolute;right:16px;bottom:14px;width:46px;height:46px;opacity:.35;color:#fff}
+.tag{position:absolute;left:14px;top:14px;background:rgba(255,255,255,.92);color:var(--navy);font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:20px}
+.nw-b{padding:14px 16px 16px}
+.nw-b time{font-size:12px;color:var(--dim)}
+.nw-b h4{margin:6px 0 0;font-size:14.5px;line-height:1.4;color:var(--ink);font-weight:600}
+
+.docs{background:#fff;border:1px solid var(--rule);border-radius:14px}
+.doc{display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid var(--rule)}
+.doc:last-child{border-bottom:0}
+.doc-ic{width:36px;height:36px;border-radius:9px;background:#FDF3E1;color:#A2700B;display:grid;place-items:center;flex:none;font-size:11px;font-weight:700}
+.doc b{display:block;font-size:13.5px;color:var(--ink);font-weight:600;line-height:1.35}
+.doc small{font-size:12px;color:var(--dim)}
+.doc a:hover b{color:var(--blue)}
+
+/* murojaat bloki */
+.appeal{margin:56px 0 0;background:#fff;border:1px solid var(--rule);border-radius:18px;display:grid;grid-template-columns:1.2fr 1fr;overflow:hidden}
+.appeal-l{padding:32px}
+.appeal-l h2{margin:0 0 8px;font-size:24px;color:var(--ink)}
+.appeal-l p{margin:0 0 18px;color:var(--dim)}
+.steps{display:grid;gap:12px;margin:0 0 22px;padding:0;list-style:none}
+.steps li{display:flex;gap:12px;align-items:flex-start;font-size:14px}
+.steps .n{width:26px;height:26px;border-radius:50%;background:var(--blue-2);color:var(--blue);font-weight:700;font-size:13px;display:grid;place-items:center;flex:none}
+.appeal-r{background:linear-gradient(160deg,var(--blue-2),#fff);padding:32px;display:flex;flex-direction:column;justify-content:center;gap:14px;border-left:1px solid var(--rule)}
+.fact{display:flex;gap:12px;align-items:center}
+.fact b{font-size:22px;color:var(--navy);min-width:74px}
+.fact span{font-size:13.5px;color:var(--body)}
+
+/* footer */
+footer{margin-top:64px;background:var(--navy);color:#BFD0EC;font-size:13.5px}
+footer .wrap{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:28px;padding-top:44px;padding-bottom:32px}
+footer h5{margin:0 0 12px;color:#fff;font-size:14px}
+footer ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+footer a:hover{color:#fff}
+.foot-bottom{border-top:1px solid rgba(255,255,255,.12)}
+.foot-bottom .wrap{display:flex;justify-content:space-between;gap:16px;padding-top:16px;padding-bottom:16px;font-size:12.5px;color:#93A8CC;grid-template-columns:none}
+
+@media (max-width:980px){
+  .hero .wrap{grid-template-columns:1fr;gap:28px}
+  .services{grid-template-columns:repeat(2,1fr)}
+  .two{grid-template-columns:1fr}
+  .appeal{grid-template-columns:1fr}
+  .appeal-r{border-left:0;border-top:1px solid var(--rule)}
+  footer .wrap{grid-template-columns:1fr 1fr}
+  .hdr-actions .btn-ghost{display:none}
+}
+@media (max-width:640px){
+  .wrap{padding:0 16px}
+  .topbar .left{display:none}
+  .topbar .wrap{justify-content:flex-end}
+  header.main .wrap{height:72px}
+  .mark{width:44px;height:44px}
+  .brand-t{font-size:15px}
+  .brand-s{display:none}
+  .hdr-actions .btn-primary .t{display:none}
+  .hdr-actions .btn-primary{padding:10px}
+  .hero .wrap{padding-top:36px;padding-bottom:48px}
+  .hero h1{font-size:28px}
+  .hero p.lead{font-size:15px}
+  .search{flex-direction:column}
+  .stats .grid{grid-template-columns:1fr 1fr}
+  .stat:nth-child(2){border-right:0}
+  .stat:nth-child(-n+2){border-bottom:1px solid var(--rule)}
+  .services,.news{grid-template-columns:1fr}
+  .sec-head{flex-direction:column;align-items:flex-start}
+  .appeal-l,.appeal-r{padding:22px}
+  footer .wrap{grid-template-columns:1fr}
+  .foot-bottom .wrap{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<div class="demo-strip"><b>Demo sahifa.</b> Bu OLIMA AI yordamchisini ko'rsatish uchun yaratilgan namunaviy portal. Rasmiy sayt emas.</div>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="left">
+      <span>Ishonch telefoni: <b style="color:#fff">1000</b> (namuna)</span>
+      <span>Du–Ju, 09:00–18:00</span>
+    </div>
+    <div class="right">
+      <a href="#">Ko'zi ojizlar uchun</a>
+      <div class="lang"><span class="on">O'zb</span><span>Ўзб</span><span>Рус</span><span>Eng</span></div>
+    </div>
+  </div>
+</div>
+
+<header class="main">
+  <div class="wrap">
+    <a href="#" class="brand">
+      <div class="mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/><path d="M22 9v6"/></svg>
+      </div>
+      <div>
+        <div class="brand-t">Oliy ta'lim axborot portali</div>
+        <div class="brand-s">Abituriyent, talaba va OTM xodimlari uchun yagona ma'lumot manbai</div>
+      </div>
+    </a>
+    <div class="hdr-actions">
+      <a class="btn btn-ghost" href="#hujjatlar">Me'yoriy hujjatlar</a>
+      <button class="btn btn-primary" type="button" data-open>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span class="t">Murojaat yuborish</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<nav class="menu">
+  <div class="wrap">
+    <a href="#" class="on">Bosh sahifa</a>
+    <a href="#xizmatlar">Abituriyentlarga</a>
+    <a href="#xizmatlar">Talabalarga</a>
+    <a href="#xizmatlar">Xorijda ta'lim</a>
+    <a href="#hujjatlar">Me'yoriy hujjatlar</a>
+    <a href="#yangiliklar">Yangiliklar</a>
+    <a href="#murojaat">Murojaatlar</a>
+    <a href="#aloqa">Aloqa</a>
+  </div>
+</nav>
+
+<section class="hero" style="padding:0">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow"><i></i>Murojaatlar xizmati · 24/7</div>
+      <h1>Oliy ta'lim bo'yicha savolingizga javob — amaldagi hujjat asosida</h1>
+      <p class="lead">Qabul, o'qishni ko'chirish, akademik ta'til, grant va diplomni tan olish bo'yicha savolingizni yozing. Yordamchi javobni me'yoriy hujjatlardan topib beradi, murojaatingizni esa mas'ul xodimga yo'naltiradi.</p>
+      <form class="search" id="askForm" autocomplete="off">
+        <input id="askInput" type="text" placeholder="Masalan: o'qishni boshqa OTMga ko'chirsa bo'ladimi?" aria-label="Savolingiz">
+        <button class="btn btn-primary" type="submit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          Javob olish
+        </button>
+      </form>
+      <div class="search-hint">Javoblar OLIMA AI yordamchisi tomonidan beriladi · shaxsiy ma'lumotingizni kiritmang</div>
+    </div>
+
+    <div class="ask-card">
+      <div class="ask-head">
+        <div class="ask-ava"><img src="https://olima.178-105-158-192.sslip.io/logo-96.png" alt=""></div>
+        <div>
+          <div class="ask-t">OLIMA AI yordamchisi</div>
+          <div class="ask-s"><i></i>Onlayn · odatda bir necha soniyada javob beradi</div>
+        </div>
+      </div>
+      <div class="chips">
+        <button class="chip" type="button" data-q="Vazirlikning ishonch telefoni va manzili qanday?">Ishonch telefoni va manzil <span class="arr">→</span></button>
+        <button class="chip" type="button" data-q="Ma'mun universiteti davlat OTMmi yoki nodavlatmi?">Ma'mun universiteti davlat OTMmi? <span class="arr">→</span></button>
+        <button class="chip" type="button" data-q="Xorijda olingan diplomni tan olish (nostrifikatsiya) uchun nima qilish kerak?">Xorijiy diplomni tan olish <span class="arr">→</span></button>
+        <button class="chip" type="button" data-q="Universitet kontrakt pulimni qaytarmayapti, shikoyat qilmoqchiman. Mavzu: kontrakt puli qaytarilmadi. Batafsil: 2025-yil sentabrda o'qishni tark etdim, ortiqcha to'langan 4 mln so'm hali qaytarilmadi. Toifa: moliyaviy.">Shikoyat yo'llash <span class="arr">→</span></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="stats">
+  <div class="wrap">
+    <div class="grid">
+      <div class="stat"><b>200+</b><span>oliy ta'lim muassasasi</span></div>
+      <div class="stat"><b>1 mln+</b><span>talaba</span></div>
+      <div class="stat"><b>24/7</b><span>murojaat qabuli</span></div>
+      <div class="stat"><b>15 kun</b><span>murojaatni ko'rib chiqish muddati</span></div>
+    </div>
+  </div>
+</div>
+
+<section id="xizmatlar">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <h2>Ko'p so'raladigan xizmatlar</h2>
+        <p>Har bir xizmat bo'yicha yordamchidan so'rashingiz mumkin</p>
+      </div>
+      <a class="more" href="#">Barcha xizmatlar →</a>
+    </div>
+    <div class="services">
+      <article class="svc">
+        <div class="svc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M21 3l-7 7"/><path d="M8 21H3v-5"/><path d="M3 21l7-7"/></svg></div>
+        <h3>O'qishni ko'chirish</h3>
+        <p>Bir OTMdan boshqasiga, bir ta'lim shaklidan boshqasiga o'tish shartlari va muddatlari.</p>
+        <div class="svc-foot"><small>VMQ 578-son</small><button class="link-ask" data-q="O'qishni ko'chirish uchun qachon va qayerga ariza beriladi?">Yordamchidan so'rash →</button></div>
+      </article>
+      <article class="svc">
+        <div class="svc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg></div>
+        <h3>Akademik ta'til</h3>
+        <p>Sog'lig'i, harbiy xizmat yoki oilaviy sabab bilan ta'til olish va o'qishga qaytish.</p>
+        <div class="svc-foot"><small>VMQ 344-son</small><button class="link-ask" data-q="Akademik ta'tildan keyin o'qishga qanday qaytiladi?">Yordamchidan so'rash →</button></div>
+      </article>
+      <article class="svc">
+        <div class="svc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"/></svg></div>
+        <h3>Davlat granti</h3>
+        <p>Grant asosida o'qish, grantni qayta taqsimlash va grantdan mahrum bo'lish holatlari.</p>
+        <div class="svc-foot"><small>VMQ 149-son</small><button class="link-ask" data-q="Kontraktdan davlat grantiga o'tish mumkinmi?">Yordamchidan so'rash →</button></div>
+      </article>
+      <article class="svc">
+        <div class="svc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg></div>
+        <h3>Xorijiy diplomni tan olish</h3>
+        <p>Chet elda olingan ta'lim hujjatlarini nostrifikatsiya qilish tartibi.</p>
+        <div class="svc-foot"><small>VMQ 620-son</small><button class="link-ask" data-q="Nostrifikatsiya uchun qanday hujjatlar kerak?">Yordamchidan so'rash →</button></div>
+      </article>
+      <article class="svc">
+        <div class="svc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 3v5h5M8 13h8M8 17h5"/></svg></div>
+        <h3>Qabul</h3>
+        <p>Bakalavriat va magistraturaga qabul, hujjat topshirish va imtihon jadvali.</p>
+        <div class="svc-foot"><small>Ta'lim to'g'risidagi qonun</small><button class="link-ask" data-q="Magistraturaga qabul qanday amalga oshiriladi?">Yordamchidan so'rash →</button></div>
+      </article>
+      <article class="svc">
+        <div class="svc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+        <h3>Shikoyat va ariza</h3>
+        <p>OTM faoliyati ustidan shikoyat. Avtomatik javob berilmaydi — mas'ul xodimga yo'naltiriladi.</p>
+        <div class="svc-foot"><small>Jismoniy va yuridik shaxslarning murojaatlari to'g'risidagi qonun</small><button class="link-ask" data-q="Dekanat ma'lumotnoma bermayapti, shikoyat qilmoqchiman.">Murojaat qilish →</button></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="yangiliklar">
+  <div class="wrap two">
+    <div>
+      <div class="sec-head">
+        <div><h2>Yangiliklar</h2><p>Namunaviy e'lonlar</p></div>
+        <a class="more" href="#">Barchasi →</a>
+      </div>
+      <div class="news">
+        <article class="nw">
+          <div class="nw-img a"><span class="tag">Qabul</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg></div>
+          <div class="nw-b"><time>18.09.2026</time><h4>O'qishni ko'chirish bo'yicha kuzgi ariza qabuli boshlandi</h4></div>
+        </article>
+        <article class="nw">
+          <div class="nw-img b"><span class="tag">Grant</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"/></svg></div>
+          <div class="nw-b"><time>16.09.2026</time><h4>Grantlarni qayta taqsimlash natijalari e'lon qilindi</h4></div>
+        </article>
+        <article class="nw">
+          <div class="nw-img c"><span class="tag">Xorijda ta'lim</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg></div>
+          <div class="nw-b"><time>12.09.2026</time><h4>Nostrifikatsiya arizalari endi to'liq onlayn qabul qilinadi</h4></div>
+        </article>
+        <article class="nw">
+          <div class="nw-img d"><span class="tag">Murojaatlar</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          <div class="nw-b"><time>10.09.2026</time><h4>Portalda sun'iy intellekt yordamchisi sinov rejimida ishga tushdi</h4></div>
+        </article>
+      </div>
+    </div>
+
+    <div id="hujjatlar">
+      <div class="sec-head">
+        <div><h2>Me'yoriy hujjatlar</h2><p>lex.uz dagi amaldagi tahrir</p></div>
+      </div>
+      <div class="docs">
+        <div class="doc"><div class="doc-ic">QN</div><a href="https://lex.uz/docs/-5013007" target="_blank" rel="noopener"><b>«Ta'lim to'g'risida»gi Qonun</b><small>O'RQ-637 · 23.09.2020</small></a></div>
+        <div class="doc"><div class="doc-ic">VMQ</div><a href="https://lex.uz/uz/docs/-7726569" target="_blank" rel="noopener"><b>Qabul, ko'chirish, qayta tiklash va chetlashtirish tartibi</b><small>VMQ 578-son · 13.09.2025</small></a></div>
+        <div class="doc"><div class="doc-ic">VMQ</div><a href="https://lex.uz/docs/-5443081" target="_blank" rel="noopener"><b>Akademik ta'til berish tartibi</b><small>VMQ 344-son · 03.06.2021</small></a></div>
+        <div class="doc"><div class="doc-ic">VMQ</div><a href="https://lex.uz/docs/-7429154" target="_blank" rel="noopener"><b>Davlat granti asosida o'qitish</b><small>VMQ 149-son · 10.03.2025</small></a></div>
+        <div class="doc"><div class="doc-ic">VMQ</div><a href="https://lex.uz/docs/-4441142" target="_blank" rel="noopener"><b>Xorijiy ta'lim hujjatlarini tan olish</b><small>VMQ 620-son · 24.07.2019</small></a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap" id="murojaat">
+  <div class="appeal">
+    <div class="appeal-l">
+      <h2>Murojaatingiz qanday ko'rib chiqiladi</h2>
+      <p>Savol va shikoyat turlicha qayta ishlanadi.</p>
+      <ul class="steps">
+        <li><span class="n">1</span><span><b>Savol</b> — yordamchi amaldagi hujjatdan javob topadi va manbani ko'rsatadi.</span></li>
+        <li><span class="n">2</span><span><b>Javob topilmasa</b> — o'ylab topmaydi, savolni mas'ul xodimga uzatadi.</span></li>
+        <li><span class="n">3</span><span><b>Shikoyat yoki ariza</b> — avtomatik javob berilmaydi. Qoralama tayyorlanadi, siz tasdiqlaganingizdan keyin xodimga yuboriladi.</span></li>
+      </ul>
+      <button class="btn btn-primary" type="button" data-open>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Yordamchini ochish
+      </button>
+    </div>
+    <div class="appeal-r">
+      <div class="fact"><b>~5 s</b><span>savolga javob vaqti</span></div>
+      <div class="fact"><b>24/7</b><span>kechasi va dam olish kunlari ham</span></div>
+      <div class="fact"><b>15 kun</b><span>shikoyatni ko'rib chiqishning qonuniy muddati</span></div>
+    </div>
+  </div>
+</div>
+
+<footer id="aloqa">
+  <div class="wrap">
+    <div>
+      <h5>Oliy ta'lim axborot portali</h5>
+      <p style="margin:0 0 10px">Namunaviy demo sahifa. OLIMA AI murojaatlar yordamchisini ko'rsatish uchun yaratilgan.</p>
+      <p style="margin:0">Manzil: namuna ko'chasi, 1-uy</p>
+    </div>
+    <div>
+      <h5>Abituriyentlarga</h5>
+      <ul><li><a href="#">Qabul</a></li><li><a href="#">Grantlar</a></li><li><a href="#">OTMlar ro'yxati</a></li></ul>
+    </div>
+    <div>
+      <h5>Talabalarga</h5>
+      <ul><li><a href="#">O'qishni ko'chirish</a></li><li><a href="#">Akademik ta'til</a></li><li><a href="#">Stipendiya</a></li></ul>
+    </div>
+    <div>
+      <h5>Aloqa</h5>
+      <ul><li>Ishonch telefoni: 1000 (namuna)</li><li>info@example.uz</li><li><a href="#" data-open>Onlayn murojaat</a></li></ul>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <div class="wrap">
+      <span>© 2026 · Demo sahifa, rasmiy sayt emas</span>
+      <span>Yordamchi: OLIMA AI · TadbirkorAI jamoasi</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // Widget iframe'i "ready" demaguncha yuborilgan savol yo'qoladi — shuning uchun navbatga olinadi.
+  var ready = false;
+  var pending = null;
+  function ask(q) {
+    if (ready) { window.OlimaAI.ask(q); return; }
+    pending = q;
+    if (window.OlimaAI) window.OlimaAI.open();
+  }
+  function openChat() {
+    if (window.OlimaAI) window.OlimaAI.open();
+    else if (pending === null) pending = "";
+  }
+  document.querySelectorAll("[data-q]").forEach(function (el) {
+    el.addEventListener("click", function (e) { e.preventDefault(); ask(el.getAttribute("data-q")); });
+  });
+  document.querySelectorAll("[data-open]").forEach(function (el) {
+    el.addEventListener("click", function (e) { e.preventDefault(); openChat(); });
+  });
+  document.getElementById("askForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var input = document.getElementById("askInput");
+    var q = input.value.trim();
+    if (!q) { input.focus(); return; }
+    ask(q);
+    input.value = "";
+  });
+  var timer = setInterval(function () {
+    if (!window.OlimaAI || !window.OlimaAI.on) return;
+    clearInterval(timer);
+    if (pending !== null) window.OlimaAI.open();
+    function flush() {
+      if (ready) return;
+      ready = true;
+      if (pending) window.OlimaAI.ask(pending);
+      pending = null;
+    }
+    window.OlimaAI.on("ready", flush);
+    setTimeout(flush, 5000);   // "ready" biz ulanishdan oldin kelib ketgan bo'lsa
+  }, 50);
+})();
+</script>
+
+<script src="https://olima.178-105-158-192.sslip.io/widget.js"
+        data-key="wk_fbcc856e24254ca29e02d0a4561d8462"
+        data-org="550e8400-e29b-41d4-a716-446655440001"
+        data-api="https://olima.178-105-158-192.sslip.io"
+        data-title="OLIMA AI yordamchisi"
+        data-subtitle="Oliy ta'lim bo'yicha savollar"
+        data-accent="#1457B8"
+        data-theme="light"
+        data-suggest="Vazirlikning ishonch telefoni qanday?|Ma'mun universiteti davlat OTMmi?|Nostrifikatsiya uchun nima qilish kerak?"
+        async></script>
+</body>
+</html>

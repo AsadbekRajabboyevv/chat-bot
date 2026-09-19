@@ -19,8 +19,8 @@ services:
 
   mock-government:
     build:
-      context: ./mock-government
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: mock-government/Dockerfile
     container_name: olima-mock-government
     ports:
       - "8081:8081"
@@ -36,8 +36,8 @@ services:
 
   olima-backend:
     build:
-      context: ./olima-backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: olima-backend/Dockerfile
     container_name: olima-backend
     ports:
       - "8080:8080"
@@ -48,6 +48,11 @@ services:
       DB_USERNAME: olima
       DB_PASSWORD: olima
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      GOOGLE_SEARCH_API_KEY: ${GOOGLE_SEARCH_API_KEY:-}
+      GOOGLE_SEARCH_CX: ${GOOGLE_SEARCH_CX:-}
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-}
+      SERPAPI_API_KEY: ${SERPAPI_API_KEY:-}
       MOCK_GOVERNMENT_BASE_URL: http://mock-government:8081
     depends_on:
       postgres:

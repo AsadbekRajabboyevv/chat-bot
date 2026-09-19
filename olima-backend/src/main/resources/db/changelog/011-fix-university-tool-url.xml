@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      UniversityController da @GetMapping("/") turibdi, ya'ni haqiqiy yo'l
+      /api/universities/ (slash bilan). 007 dagi urug'da slash yo'q edi va
+      search_universities tool'i 500 qaytarardi.
+    -->
+    <changeSet id="008-fix-search-universities-endpoint" author="olima">
+        <update tableName="tools">
+            <column name="configuration"
+                    value='{"endpoint": "http://mock-government:8081/api/universities/", "method": "GET"}'/>
+            <where>name = 'search_universities'</where>
+        </update>
+    </changeSet>
+
+</databaseChangeLog>

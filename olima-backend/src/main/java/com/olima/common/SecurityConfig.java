@@ -3,7 +3,9 @@ package com.olima.common;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.olima.security.JwtAuthenticationFilter;
 import com.olima.security.OrganizationScopeFilter;
+import com.olima.security.WidgetKeyFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -33,6 +35,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final OrganizationScopeFilter organizationScopeFilter;
+    private final WidgetKeyFilter widgetKeyFilter;
     private final ObjectMapper objectMapper;
 
     @Bean
@@ -45,6 +48,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
+                        // Chat mijoz saytidagi widget uchun ochiq bo'lishi shart — u JWT ololmaydi.
+                        // Himoya WidgetKeyFilter'da: kalitsiz 401, noto'g'ri kalit 403.
+                        .requestMatchers("/api/v1/chat/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) ->
@@ -52,7 +58,8 @@ public class SecurityConfig {
                         .accessDeniedHandler((request, response, accessDeniedException) ->
                                 writeError(response, 403, "Forbidden", "You do not have permission to perform this action")))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(organizationScopeFilter, JwtAuthenticationFilter.class);
+                .addFilterAfter(widgetKeyFilter, JwtAuthenticationFilter.class)
+                .addFilterAfter(organizationScopeFilter, WidgetKeyFilter.class);
 
         return http.build();
     }
@@ -68,10 +75,22 @@ public class SecurityConfig {
         response.getWriter().write(objectMapper.writeValueAsString(body));
     }
 
+    /**
+     * Ruxsat etilgan origin naqshlari. Sozlamadan keladi, chunki har yangi domen
+     * yoki port uchun qayta yig'ish kerak bo'lmasligi lozim. Naqsh ishlatiladi:
+     * setAllowedOrigins() joker belgini qabul qilmaydi.
+     *
+     * Diqqat: panel backend bilan bir xil origin'da bo'lsa ham brauzer POST'da
+     * Origin sarlavhasini yuboradi va bu ro'yxat baribir tekshiriladi —
+     * ya'ni serverning o'z manzili ham shu yerda bo'lishi shart.
+     */
+    @Value("${app.cors.allowed-origin-patterns}")
+    private List<String> allowedOriginPatterns;
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:80"));
+        configuration.setAllowedOriginPatterns(allowedOriginPatterns);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

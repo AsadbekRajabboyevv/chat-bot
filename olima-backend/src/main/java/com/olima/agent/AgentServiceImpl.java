@@ -270,7 +270,7 @@ public class AgentServiceImpl implements AgentService {
                         })
                         .doOnError(err -> {
                             log.error("Error during chat streaming: {}", err.getMessage(), err);
-                            sendSseEvent(emitter, ChatStreamEvent.error(err.getMessage()));
+                            sendSseEvent(emitter, ChatStreamEvent.error(safeError(err)));
                             try {
                                 emitter.complete();
                             } catch (Exception ignored) {}
@@ -295,7 +295,7 @@ public class AgentServiceImpl implements AgentService {
 
             } catch (Exception e) {
                 log.error("Failed to initialize chat stream: {}", e.getMessage(), e);
-                sendSseEvent(emitter, ChatStreamEvent.error(e.getMessage()));
+                sendSseEvent(emitter, ChatStreamEvent.error(safeError(e)));
                 try {
                     emitter.complete();
                 } catch (Exception ignored) {}
@@ -485,6 +485,16 @@ public class AgentServiceImpl implements AgentService {
         } catch (Exception e) {
             return "{\"success\": false, \"error\": \"Failed to serialize tool result\"}";
         }
+    }
+
+    /**
+     * Oqimdagi xato matni ham mijoz saytida ko'rinadi — istisno matnini o'zini yubormaymiz.
+     * To'liq tafsilot logda, tashqarida faqat umumiy matn va qidiruv kodi.
+     */
+    private String safeError(Throwable t) {
+        String ref = java.util.UUID.randomUUID().toString().substring(0, 8);
+        log.error("Chat stream failed [ref={}]: ", ref, t);
+        return "Javob olishda xatolik yuz berdi. Qayta urinib ko'ring (kod: " + ref + ")";
     }
 
     private void sendSseEvent(SseEmitter emitter, ChatStreamEvent event) {

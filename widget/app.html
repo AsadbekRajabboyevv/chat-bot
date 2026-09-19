@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>OLIMA AI</title>
+<style>
+:root{
+  --accent:#12564A; --accent-soft:#E2EEE9;
+  --paper:#FBFAF7; --surface:#FFFFFF; --surface-2:#F1F1EC;
+  --ink:#16191C; --muted:#5C6570; --faint:#8B938F;
+  --line:#E4E4DE; --line-2:#CFD0C8;
+  --seal:#8A2B2B; --seal-soft:#F7E9E7;
+  --warn:#8A6A12; --warn-soft:#FBF1DC;
+}
+
+/* ---------- qorong'i mavzu ---------- */
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#12161A; --surface:#181D22; --surface-2:#212830;
+  --ink:#E6EAEE; --muted:#9AA5B1; --faint:#6E7A86;
+  --line:#272E36; --line-2:#39424C;
+  --seal:#E09A96; --seal-soft:#2B1D1C;
+  --warn:#E0B461; --warn-soft:#2A2314;
+  --accent-soft:#1B2B26;
+}}
+:root[data-theme="dark"]{
+  --paper:#12161A; --surface:#181D22; --surface-2:#212830;
+  --ink:#E6EAEE; --muted:#9AA5B1; --faint:#6E7A86;
+  --line:#272E36; --line-2:#39424C;
+  --seal:#E09A96; --seal-soft:#2B1D1C;
+  --warn:#E0B461; --warn-soft:#2A2314;
+  --accent-soft:#1B2B26;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--surface); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-size:14.5px; line-height:1.55; display:flex; flex-direction:column;
+  -webkit-font-smoothing:antialiased;
+}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
+
+header{
+  display:flex; align-items:center; gap:10px; padding:13px 14px;
+  padding-top:calc(13px + env(safe-area-inset-top,0px));
+  border-bottom:1px solid var(--line); background:var(--surface-2); flex:none;
+}
+header .av{width:32px;height:32px;border-radius:9px;object-fit:contain;flex:none;background:#fff;padding:2px}
+header .t{min-width:0}
+header .t b{display:block; font-size:14.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+header .t span{display:block; font-size:11.5px; color:var(--faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+header button{
+  margin-left:auto; flex:none; background:transparent; border:0; cursor:pointer; color:var(--muted);
+  width:30px; height:30px; border-radius:7px; display:grid; place-items:center; font-size:19px; line-height:1;
+}
+header button:hover{background:var(--line)}
+
+#log{flex:1; overflow-y:auto; padding:16px 14px; display:flex; flex-direction:column; gap:13px}
+.row{display:flex; flex-direction:column; gap:6px; max-width:94%}
+.row.me{align-self:flex-end; align-items:flex-end}
+.row.bot{align-self:flex-start}
+.b{padding:9px 13px; border-radius:13px; white-space:pre-wrap; word-wrap:break-word}
+.me .b{background:var(--ink); color:var(--paper); border-bottom-right-radius:4px}
+.bot .b{background:var(--surface-2); border-bottom-left-radius:4px}
+
+.tool{
+  display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted);
+  background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:6px 10px;
+}
+.tool .sp{width:11px;height:11px;border:2px solid var(--line-2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;flex:none}
+.tool.done .sp{border-top-color:var(--accent);border-color:var(--accent);animation:none}
+.tool .ms{margin-left:auto; font-variant-numeric:tabular-nums; color:var(--faint); font-size:11px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.cursor{display:inline-block;width:7px;height:1.05em;background:var(--accent);vertical-align:-2px;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+
+.srcs{display:flex; flex-wrap:wrap; gap:6px}
+.srcs a{
+  font-size:11.5px; text-decoration:none; color:var(--accent); background:var(--accent-soft);
+  border:1px solid transparent; border-radius:20px; padding:3px 9px; max-width:100%;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.srcs a:hover{border-color:var(--accent)}
+.srcs span.doc{
+  font-size:11.5px; color:var(--muted); background:var(--surface-2); border:1px solid var(--line);
+  border-radius:20px; padding:3px 9px; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.srcs span.more{font-size:11.5px; color:var(--faint); padding:3px 4px}
+
+/* bot javobi markdown bilan keladi — jadval, ro'yxat, qalin matn */
+.bot .b.md{white-space:normal}
+.b.md p{margin:0 0 7px}
+.b.md p:last-child,.b.md ul:last-child,.b.md ol:last-child,.b.md .tw:last-child{margin-bottom:0}
+.b.md ul,.b.md ol{margin:0 0 7px; padding-left:19px}
+.b.md li{margin:2px 0}
+.b.md h4{margin:4px 0 6px; font-size:13.5px}
+.b.md a{color:var(--accent)}
+.b.md .tw{overflow-x:auto; margin:4px 0 8px}
+.b.md table{border-collapse:collapse; font-size:12.5px; min-width:100%}
+.b.md th,.b.md td{border:1px solid var(--line-2); padding:5px 7px; text-align:left; vertical-align:top}
+.b.md th{background:var(--paper); font-weight:600}
+
+.nosrc{
+  font-size:11.5px; color:var(--warn); background:var(--warn-soft);
+  border-radius:6px; padding:5px 9px; display:inline-flex; gap:6px; align-items:center;
+}
+
+.card{border:1px solid var(--line-2); border-left:3px solid var(--seal); background:var(--seal-soft); border-radius:0 9px 9px 0; padding:11px 12px}
+.card .h{font-size:12px; font-weight:700; color:var(--seal); letter-spacing:.03em; text-transform:uppercase}
+.card p{margin:6px 0 9px; font-size:13.5px; color:var(--muted)}
+.card .acts{display:flex; gap:8px; flex-wrap:wrap}
+.card button{font:inherit; font-size:13px; cursor:pointer; border:0; border-radius:7px; padding:7px 13px}
+.card .yes{background:var(--seal); color:#fff}
+.card .no{background:transparent; color:var(--muted); border:1px solid var(--line-2)}
+.card.confirm{border-left-color:var(--accent); background:var(--accent-soft)}
+.card.confirm .h{color:var(--accent)}
+.card.confirm .yes{background:var(--accent)}
+.card .ok{font-size:13px; color:var(--seal); font-weight:600}
+.card.confirm .ok{color:var(--accent)}
+
+.sug{display:flex; flex-wrap:wrap; gap:7px; padding:0 14px 10px; flex:none}
+.sug button{
+  font:inherit; font-size:12.5px; cursor:pointer; background:transparent; color:var(--muted);
+  border:1px solid var(--line-2); border-radius:20px; padding:5px 11px;
+}
+.sug button:hover{border-color:var(--accent); color:var(--accent)}
+
+form{
+  display:flex; gap:8px; align-items:flex-end; padding:11px 14px; border-top:1px solid var(--line); flex:none;
+  padding-bottom:calc(11px + env(safe-area-inset-bottom,0px));
+}
+textarea{
+  /* Balandlik JS bilan hisoblanadi. overflow ataylab hidden: aks holda bir qatorli
+     matnda ham native scrollbar (yuqori/pastga strelkalar) chiqib qoladi —
+     hisoblangan balandlik min-height'dan kichik bo'lgan paytda shunday bo'lgandi. */
+  flex:1; font:inherit; font-size:14.5px; line-height:20px; resize:none;
+  max-height:110px; height:40px;
+  padding:9px 12px; border-radius:10px; border:1px solid var(--line-2);
+  background:var(--paper); color:var(--ink);
+  overflow-y:hidden; scrollbar-width:thin; transition:border-color .15s ease;
+}
+textarea:focus{ outline:none; border-color:var(--accent); }
+textarea::-webkit-scrollbar{width:6px}
+textarea::-webkit-scrollbar-thumb{background:var(--line-2); border-radius:99px}
+textarea::-webkit-scrollbar-button{display:none; height:0}
+
+form button{
+  flex:none; font:inherit; cursor:pointer; border:0; background:var(--accent); color:#fff;
+  width:40px; height:40px; border-radius:10px; display:grid; place-items:center;
+  transition:filter .15s ease, transform .1s ease;
+}
+form button:hover:not([disabled]){ filter:brightness(1.08) }
+form button:active:not([disabled]){ transform:scale(.95) }
+form button[disabled]{opacity:.45; cursor:default}
+form button svg{width:18px;height:18px;display:block;fill:currentColor}
+
+footer{padding:0 14px 10px; font-size:10.5px; color:var(--faint); text-align:center; flex:none}
+</style>
+</head>
+<body>
+
+<header>
+  <img class="av" id="av" src="logo-96.png" alt="OLIMA AI">
+  <div class="t">
+    <b id="hTitle">Yordamchi</b>
+    <span id="hSub">ulanmoqda…</span>
+  </div>
+  <button id="btnClose" type="button" aria-label="Yopish">&times;</button>
+</header>
+
+<div id="log" aria-live="polite"></div>
+<div class="sug" id="sug"></div>
+
+<form id="f">
+  <textarea id="q" rows="1" placeholder="Savolingizni yozing…" aria-label="Savol"></textarea>
+  <button id="send" type="submit" aria-label="Yuborish">
+    <svg viewBox="0 0 24 24"><path d="M3.4 20.4l17.45-7.48a1 1 0 000-1.84L3.4 3.6a.998.998 0 00-1.39.91L2 9.12c0 .5.37.93.87.99L17 12 2.87 13.88c-.5.07-.87.5-.87 1l.01 4.61c0 .71.73 1.2 1.39.91z"/></svg>
+  </button>
+</form>
+<footer>OLIMA AI yordamchisi</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  var P = new URLSearchParams(location.search);
+  var API   = P.get("api") || "http://localhost:8080";
+  var ORG   = P.get("org") || "";
+  var KEY   = P.get("key") || "";
+  var TITLE = P.get("title") || "Yordamchi";
+  var SUB   = P.get("subtitle") || "";
+  var ACC   = P.get("accent") || "";
+
+  /* Kalit tashkilotni SERVER tomonda aniqlaydi — so'rov tanasidagi org e'tiborga olinmaydi. */
+  function chatHeaders(extra){
+    var h = {"Content-Type":"application/json"};
+    for (var k in (extra || {})) h[k] = extra[k];
+    if (KEY) h["X-Widget-Key"] = KEY;
+    return h;
+  }
+
+  var THEME = P.get("theme") || "auto";
+  if (THEME === "dark" || THEME === "light") document.documentElement.setAttribute("data-theme", THEME);
+  if (ACC) document.documentElement.style.setProperty("--accent", ACC);
+  document.getElementById("hTitle").textContent = TITLE;
+
+  var log = document.getElementById("log");
+  var sug = document.getElementById("sug");
+  var form = document.getElementById("f");
+  var input = document.getElementById("q");
+  var sendBtn = document.getElementById("send");
+  var subEl = document.getElementById("hSub");
+
+  var conversationId = null;
+  var identity = null;
+  var busy = false;
+
+  function toHost(type, payload){
+    try { parent.postMessage({source:"olima-widget", type:type, payload:payload}, "*"); } catch(e){}
+  }
+
+  function el(tag, cls, txt){
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (txt != null) e.textContent = txt;
+    return e;
+  }
+
+  /* ---------- xavfsiz markdown ----------
+     Javob matni modeldan (va u orqali korpusdan) keladi, shuning uchun innerHTML ishlatilmaydi:
+     hamma narsa DOM tugunlari bilan quriladi, havola faqat http(s) bo'lsa bosiladi. */
+  function inline(parent, s){
+    var re = /\*\*([^*]+)\*\*|\[([^\]]+)\]\(([^)\s]+)\)|`([^`]+)`/g, last = 0, m;
+    while ((m = re.exec(s))){
+      if (m.index > last) parent.appendChild(document.createTextNode(s.slice(last, m.index)));
+      if (m[1] != null) parent.appendChild(el("b", null, m[1]));
+      else if (m[2] != null){
+        if (/^https?:\/\//i.test(m[3])){
+          var a = el("a", null, m[2]); a.href = m[3]; a.target = "_blank"; a.rel = "noopener noreferrer";
+          parent.appendChild(a);
+        } else parent.appendChild(document.createTextNode(m[2]));
+      }
+      else parent.appendChild(el("code", null, m[4]));
+      last = re.lastIndex;
+    }
+    if (last < s.length) parent.appendChild(document.createTextNode(s.slice(last)));
+  }
+  function cells(line){
+    return line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map(function(c){ return c.trim(); });
+  }
+  function md(text){
+    var frag = document.createDocumentFragment();
+    var lines = String(text).replace(/\r/g, "").split("\n");
+    var i = 0, list = null, para = null;
+    function close(){ list = null; para = null; }
+    while (i < lines.length){
+      var ln = lines[i], t = ln.trim();
+      if (!t){ close(); i++; continue; }
+      /* jadval: sarlavha qatori + |---| ajratuvchi */
+      if (t.charAt(0) === "|" && i + 1 < lines.length && /^\|?\s*:?-{2,}/.test(lines[i+1].trim())){
+        close();
+        var wrap = el("div","tw"), tb = el("table"), tr = el("tr");
+        cells(t).forEach(function(c){ var th = el("th"); inline(th, c); tr.appendChild(th); });
+        tb.appendChild(tr);
+        i += 2;
+        while (i < lines.length && lines[i].trim().charAt(0) === "|"){
+          var r = el("tr");
+          cells(lines[i]).forEach(function(c){ var td = el("td"); inline(td, c); r.appendChild(td); });
+          tb.appendChild(r); i++;
+        }
+        wrap.appendChild(tb); frag.appendChild(wrap);
+        continue;
+      }
+      var h = /^#{1,6}\s+(.*)$/.exec(t);
+      if (h){ close(); var hh = el("h4"); inline(hh, h[1]); frag.appendChild(hh); i++; continue; }
+      var li = /^([-*•]|\d+[.)])\s+(.*)$/.exec(t);
+      if (li){
+        var tag = /\d/.test(li[1]) ? "ol" : "ul";
+        if (!list || list.tagName.toLowerCase() !== tag){ list = el(tag); frag.appendChild(list); }
+        para = null;
+        var item = el("li"); inline(item, li[2]); list.appendChild(item);
+        i++; continue;
+      }
+      list = null;
+      if (!para){ para = el("p"); frag.appendChild(para); }
+      else para.appendChild(el("br"));
+      inline(para, t);
+      i++;
+    }
+    return frag;
+  }
+  function renderBot(ui){
+    ui.bubble.classList.add("md");
+    ui.bubble.textContent = "";
+    ui.bubble.appendChild(md(ui.text));
+  }
+
+  function atBottom(){ return log.scrollHeight - log.scrollTop - log.clientHeight < 60; }
+  function toBottom(){ log.scrollTop = log.scrollHeight; }
+
+  function addMe(text){
+    var r = el("div","row me");
+    r.appendChild(el("div","b", text));
+    log.appendChild(r); toBottom();
+  }
+
+  function addBot(){
+    var r = el("div","row bot");
+    log.appendChild(r); toBottom();
+    return r;
+  }
+
+  /* ---------- manba nomini qisqartirish ---------- */
+  function srcLabel(u){
+    try {
+      var url = new URL(u);
+      return url.hostname.replace(/^www\./,"") + (url.pathname.length > 1 ? "…" : "");
+    } catch(e){ return String(u).slice(0,42); }
+  }
+
+  function docLabel(name){
+    var t = String(name).replace(/\.(txt|md|pdf|docx?|html?)$/i, "").replace(/[_-]+/g, " ").trim();
+    t = t.charAt(0).toUpperCase() + t.slice(1);
+    return t.length > 40 ? t.slice(0, 39) + "…" : t;
+  }
+
+  /* ---------- tavsiya savollar ---------- */
+  var SUGGEST = [
+    "O'qishni ko'chirish tartibi qanday?",
+    "Akademik ta'til qancha muddatga beriladi?",
+    "Shikoyat qoldirmoqchiman"
+  ];
+  /* sayt o'z savollarini bera oladi: data-suggest="savol 1|savol 2" */
+  if (P.get("suggest")) SUGGEST = P.get("suggest").split("|").map(function(x){ return x.trim(); }).filter(Boolean).slice(0, 4);
+  function renderSuggest(){
+    sug.innerHTML = "";
+    if (log.children.length > 1) return;
+    SUGGEST.forEach(function(s){
+      var b = el("button", null, s);
+      b.type = "button";
+      b.addEventListener("click", function(){ send(s); });
+      sug.appendChild(b);
+    });
+  }
+
+  function greet(){
+    var r = addBot();
+    r.appendChild(el("div","b",
+      "Assalomu alaykum. " + TITLE + "man. Savolingizni yozing — javobni tashkilot hujjatlari asosida beraman va manbasini ko'rsataman."));
+    renderSuggest();
+  }
+
+  /* ---------- SSE oqimini o'qish ---------- */
+  function stream(text, ui){
+    var body = { message: text };
+    if (ORG) body.organizationId = ORG;
+    if (conversationId) body.conversationId = conversationId;
+    if (identity && identity.userId) body.studentId = identity.userId;
+
+    return fetch(API + "/api/v1/chat/stream", {
+      method: "POST",
+      headers: chatHeaders({"Accept":"text/event-stream"}),
+      body: JSON.stringify(body)
+    }).then(function(res){
+      if (!res.ok || !res.body) throw new Error("HTTP " + res.status);
+      var reader = res.body.getReader();
+      var dec = new TextDecoder();
+      var buf = "";
+
+      function pump(){
+        return reader.read().then(function(chunk){
+          if (chunk.done) return;
+          buf += dec.decode(chunk.value, {stream:true});
+          var parts = buf.split("\n\n");
+          buf = parts.pop();
+          parts.forEach(function(block){
+            block.split("\n").forEach(function(line){
+              if (line.indexOf("data:") !== 0) return;
+              var raw = line.slice(5).trim();
+              if (!raw) return;
+              var ev;
+              try { ev = JSON.parse(raw); } catch(e){ return; }
+              handle(ev, ui);
+            });
+          });
+          return pump();
+        });
+      }
+      return pump();
+    });
+  }
+
+  function handle(ev, ui){
+    switch(ev.type){
+      case "INIT":
+        conversationId = ev.conversationId || conversationId;
+        subEl.textContent = "hujjatlar asosida javob beradi";
+        break;
+
+      case "TOOL_CALL":
+        if (ui.tool) ui.tool.classList.add("done");
+        var t = el("div","tool");
+        t.appendChild(el("span","sp"));
+        var nm = (ev.toolCall && ev.toolCall.toolName) || "qidiruv";
+        t.appendChild(el("span", null, toolLabel(nm)));
+        if (ev.toolCall && ev.toolCall.durationMs != null)
+          t.appendChild(el("span","ms", ev.toolCall.durationMs + " ms"));
+        ui.row.insertBefore(t, ui.bubble);
+        ui.tool = t;
+        if (atBottom()) toBottom();
+        break;
+
+      case "CONTENT":
+        if (ui.tool) ui.tool.classList.add("done");
+        ui.text += (ev.content || "");
+        renderBot(ui);
+        (ui.bubble.lastElementChild || ui.bubble).appendChild(ui.cursor);
+        if (atBottom()) toBottom();
+        break;
+
+      case "COMPLETE":
+        conversationId = ev.conversationId || conversationId;
+        finish(ui, ev);
+        break;
+
+      case "ERROR":
+        fail(ui, ev.content || "Xatolik");
+        break;
+    }
+  }
+
+  function toolLabel(name){
+    var map = {
+      search_knowledge_base: "Hujjatlardan qidirilmoqda",
+      search_internet:       "Ochiq manbalardan qidirilmoqda",
+      get_transfer_rules:    "Ko'chirish tartibi o'qilmoqda",
+      get_academic_leave_rules: "Akademik ta'til tartibi o'qilmoqda",
+      search_universities:   "Muassasalar ro'yxati",
+      get_student_profile:   "Shaxsiy ma'lumot olinmoqda",
+      get_student_contract:  "Kontrakt ma'lumoti olinmoqda",
+      get_student_scholarship:"Stipendiya ma'lumoti olinmoqda",
+      create_complaint_draft:"Murojaat qoralamasi tayyorlanmoqda"
+    };
+    return map[name] || name;
+  }
+
+  function finish(ui, ev){
+    if (ui.cursor.parentNode) ui.cursor.parentNode.removeChild(ui.cursor);
+    if (ui.tool) ui.tool.classList.add("done");
+
+    var sources = ev.sources || [];
+    if (sources.length){
+      var box = el("div","srcs");
+      var seen = {};
+      var shown = 0, hidden = 0;
+      sources.forEach(function(s){
+        if (!s || seen[s]) return;
+        seen[s] = 1;
+        if (shown >= 4){ hidden++; return; }
+        shown++;
+        if (/^https?:\/\//i.test(s)){
+          var a = el("a", null, srcLabel(s));
+          a.href = s; a.target = "_blank"; a.rel = "noopener noreferrer";
+          a.title = s;
+          box.appendChild(a);
+        } else {
+          /* korpusdagi fayl nomi — ochiq havolasi yo'q, bosilmaydigan chip */
+          var d = el("span", "doc", "📄 " + docLabel(s));
+          d.title = s;
+          box.appendChild(d);
+        }
+      });
+      if (hidden) box.appendChild(el("span", "more", "+" + hidden));
+      ui.row.appendChild(box);
+    } else if (ui.text.trim() && !ev.confirmationRequired) {
+      /* shikoyat qoralamasi hujjatdan olingan javob emas — unga manba kerak emas */
+      /* Mahsulotning va'dasi: manbasiz javob ochiq belgilanadi.
+         Guard qo'shilgandan keyin bu holat umuman chiqmasligi kerak. */
+      var w = el("div","nosrc");
+      w.appendChild(el("span", null, "⚠"));
+      w.appendChild(el("span", null, "Bu javobga manba biriktirilmadi — xodim bilan tekshiring"));
+      ui.row.appendChild(w);
+    }
+
+    if (ev.confirmationRequired && ev.pendingComplaintId){
+      confirmCard(ui.row, ev.pendingComplaintId);
+    }
+
+    toHost("answer", {text: ui.text, sources: sources});
+    toHost("unread", {});
+    done();
+    if (atBottom()) toBottom();
+  }
+
+  function confirmCard(row, complaintId){
+    var c = el("div","card confirm");
+    c.appendChild(el("div","h","Tasdiq talab qilinadi"));
+    c.appendChild(el("p", null, "Murojaat qoralamasi tayyorlandi. Siz tasdiqlamaguningizcha yuborilmaydi."));
+    var acts = el("div","acts");
+    var yes = el("button","yes","Tasdiqlash va yuborish"); yes.type="button";
+    var no  = el("button","no","Bekor qilish"); no.type="button";
+    acts.appendChild(yes); acts.appendChild(no);
+    c.appendChild(acts);
+    row.appendChild(c);
+
+    no.addEventListener("click", function(){
+      acts.remove();
+      c.appendChild(el("div","ok","Bekor qilindi — hech narsa yuborilmadi."));
+    });
+    yes.addEventListener("click", function(){
+      yes.disabled = true; yes.textContent = "Yuborilmoqda…";
+      var url = API + "/api/v1/chat/confirm?conversationId=" + encodeURIComponent(conversationId) +
+                "&complaintId=" + encodeURIComponent(complaintId);
+      fetch(url, {method:"POST", headers: chatHeaders()})
+        .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+        .then(function(res){
+          acts.remove();
+          c.appendChild(el("div","ok","Yuborildi."));
+          var r2 = addBot();
+          r2.appendChild(el("div","b", (res && res.message) || "Murojaatingiz qabul qilindi."));
+          toBottom();
+        })
+        .catch(function(){
+          yes.disabled = false; yes.textContent = "Tasdiqlash va yuborish";
+          c.appendChild(el("div","ok","Yuborib bo'lmadi, qayta urinib ko'ring."));
+        });
+    });
+  }
+
+  function fail(ui, msg){
+    if (ui.cursor.parentNode) ui.cursor.parentNode.removeChild(ui.cursor);
+    if (ui.tool && ui.tool.parentNode) ui.tool.parentNode.removeChild(ui.tool);
+    if (!ui.text.trim() && ui.bubble.parentNode) ui.bubble.parentNode.removeChild(ui.bubble);
+
+    var c = el("div","card");
+    c.appendChild(el("div","h","Javob olinmadi"));
+    c.appendChild(el("p", null, String(msg).slice(0,180)));
+    var acts = el("div","acts");
+    var again = el("button","yes","Qayta urinish"); again.type="button";
+    var hand  = el("button","no","Xodimga uzatish"); hand.type="button";
+    acts.appendChild(again); acts.appendChild(hand);
+    c.appendChild(acts);
+    ui.row.appendChild(c);
+
+    again.addEventListener("click", function(){ c.remove(); send(ui.question); });
+    hand.addEventListener("click", function(){
+      acts.remove();
+      c.appendChild(el("div","ok","Murojaat xodimga uzatildi."));
+      toHost("handoff", {question: ui.question, reason: "error"});
+    });
+    done();
+    toBottom();
+  }
+
+  function done(){
+    busy = false;
+    sendBtn.disabled = false;
+    input.disabled = false;
+  }
+
+  function send(text){
+    text = (text || "").trim();
+    if (!text || busy) return;
+    busy = true;
+    sendBtn.disabled = true;
+    sug.innerHTML = "";
+
+    addMe(text);
+
+    var row = addBot();
+    var bubble = el("div","b","");
+    var cursor = el("span","cursor");
+    bubble.appendChild(cursor);
+    row.appendChild(bubble);
+    toBottom();
+
+    var ui = {row:row, bubble:bubble, cursor:cursor, text:"", tool:null, question:text};
+
+    stream(text, ui).catch(function(err){
+      /* oqim ishlamasa — oddiy so'rovga tushamiz */
+      var body = { message: text };
+      if (ORG) body.organizationId = ORG;
+      if (conversationId) body.conversationId = conversationId;
+      if (identity && identity.userId) body.studentId = identity.userId;
+      fetch(API + "/api/v1/chat", {
+        method:"POST", headers: chatHeaders(), body: JSON.stringify(body)
+      })
+      .then(function(r){ return r.ok ? r.json() : Promise.reject("HTTP " + r.status); })
+      .then(function(res){
+        conversationId = res.conversationId || conversationId;
+        ui.text = res.message || "";
+        renderBot(ui);
+        finish(ui, {
+          sources: res.sources || [],
+          confirmationRequired: res.confirmationRequired,
+          pendingComplaintId: res.pendingComplaintId,
+          conversationId: res.conversationId
+        });
+      })
+      .catch(function(e2){ fail(ui, String(err && err.message ? err.message : e2)); });
+    });
+  }
+
+  /* ---------- forma ---------- */
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    var v = input.value;
+    input.value = "";
+    input.style.height = "40px";
+    input.style.overflowY = "hidden";
+    send(v);
+  });
+  function autosize(){
+    input.style.height = "auto";
+    var h = Math.max(40, Math.min(110, input.scrollHeight));
+    input.style.height = h + "px";
+    /* Faqat chegaraga yetganda scrollbar ko'rsatamiz. */
+    input.style.overflowY = input.scrollHeight > 110 ? "auto" : "hidden";
+  }
+  input.addEventListener("input", autosize);
+  input.addEventListener("keydown", function(e){
+    if (e.key === "Enter" && !e.shiftKey){ e.preventDefault(); form.requestSubmit(); }
+  });
+  document.getElementById("btnClose").addEventListener("click", function(){ toHost("close"); });
+
+  /* ---------- host bilan aloqa ---------- */
+  window.addEventListener("message", function(ev){
+    var d = ev.data;
+    if (!d || d.source !== "olima-host") return;
+    if (d.type === "ask") send(d.text);
+    else if (d.type === "identify") {
+      identity = d.identity || null;
+      if (identity && identity.name) subEl.textContent = identity.name;
+    }
+    else if (d.type === "focus") { try { input.focus(); } catch(e){} }
+  });
+
+  if (SUB) subEl.textContent = SUB;
+  greet();
+  toHost("ready");
+})();
+</script>
+</body>
+</html>

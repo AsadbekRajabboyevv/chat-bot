@@ -1,0 +1,10 @@
+[Unit]
+Description=OLIMA AI — prod branch'dan avtomatik deploy
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/olima/src/deploy/autodeploy.sh
+TimeoutStartSec=30min
+Nice=10

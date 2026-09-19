@@ -44,3 +44,7 @@ olima-frontend/.angular/
 
 ### Logs ###
 *.log
+
+### Deploy (build artefaktlari — serverda manbadan yig'iladi) ###
+deploy/jars/
+deploy/site/

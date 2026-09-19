@@ -225,6 +225,11 @@ export class ApiService {
     return this.http.post<AppUser>(`${this.baseUrl}/users`, data);
   }
 
+  /** Parolni almashtirish. Eskisi xeshlangan, ya'ni o'qib bo'lmaydi — faqat ustiga yozish mumkin. */
+  resetUserPassword(id: string, password: string): Observable<AppUser> {
+    return this.http.put<AppUser>(`${this.baseUrl}/users/${id}/password`, { password });
+  }
+
   deleteUser(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/users/${id}`);
   }

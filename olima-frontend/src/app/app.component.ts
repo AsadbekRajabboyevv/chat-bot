@@ -10,11 +10,24 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ApiService } from './services/api.service';
 import { AuthService } from './services/auth.service';
 import { Organization } from './models';
 import { FormsModule } from '@angular/forms';
+
+interface NavItem {
+  path: string;
+  icon: string;
+  label: string;
+  superOnly?: boolean;
+}
+
+interface NavGroup {
+  title: string;
+  items: NavItem[];
+}
 
 @Component({
   selector: 'app-root',
@@ -33,192 +46,317 @@ import { FormsModule } from '@angular/forms';
     MatSelectModule,
     MatFormFieldModule,
     MatMenuModule,
+    MatTooltipModule,
     MatProgressSpinnerModule
   ],
   template: `
     <router-outlet *ngIf="isAuthPage"></router-outlet>
 
-    <mat-sidenav-container class="sidenav-container" *ngIf="!isAuthPage">
-      <mat-sidenav #sidenav mode="side" opened class="sidenav">
-        <div class="sidenav-header">
-          <mat-icon>smart_toy</mat-icon>
-          <h2>OLIMA</h2>
-        </div>
-        <mat-nav-list>
-          <a mat-list-item routerLink="/dashboard" routerLinkActive="active">
-            <mat-icon matListItemIcon>dashboard</mat-icon>
-            <div matListItemTitle>Boshqaruv paneli</div>
-          </a>
-          <a mat-list-item routerLink="/chat" routerLinkActive="active">
-            <mat-icon matListItemIcon>chat</mat-icon>
-            <div matListItemTitle>Chat</div>
-          </a>
-          <a mat-list-item routerLink="/organizations" routerLinkActive="active" *ngIf="isSuperAdmin">
-            <mat-icon matListItemIcon>business</mat-icon>
-            <div matListItemTitle>Tashkilotlar</div>
-          </a>
-          <a mat-list-item routerLink="/users" routerLinkActive="active" *ngIf="isSuperAdmin">
-            <mat-icon matListItemIcon>admin_panel_settings</mat-icon>
-            <div matListItemTitle>Adminlar</div>
-          </a>
-          <a mat-list-item routerLink="/tools" routerLinkActive="active">
-            <mat-icon matListItemIcon>build</mat-icon>
-            <div matListItemTitle>Vositalar boshqaruvi</div>
-          </a>
-          <a mat-list-item routerLink="/conversations" routerLinkActive="active">
-            <mat-icon matListItemIcon>forum</mat-icon>
-            <div matListItemTitle>Suhbatlar</div>
-          </a>
-          <a mat-list-item routerLink="/executions" routerLinkActive="active">
-            <mat-icon matListItemIcon>history</mat-icon>
-            <div matListItemTitle>Bajarilgan amallar</div>
-          </a>
-          <a mat-list-item routerLink="/complaints" routerLinkActive="active">
-            <mat-icon matListItemIcon>report_problem</mat-icon>
-            <div matListItemTitle>Murojaatlar</div>
-          </a>
-          <a mat-list-item routerLink="/knowledge" routerLinkActive="active">
-            <mat-icon matListItemIcon>library_books</mat-icon>
-            <div matListItemTitle>Bilimlar bazasi</div>
-          </a>
-        </mat-nav-list>
-      </mat-sidenav>
-      <mat-sidenav-content>
-        <mat-toolbar color="primary" class="toolbar">
-          <button mat-icon-button (click)="sidenav.toggle()">
-            <mat-icon>menu</mat-icon>
-          </button>
-          <span>OLIMA Boshqaruv Paneli</span>
-          <span class="spacer"></span>
-
-          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="org-selector"
-                           *ngIf="isSuperAdmin && organizations.length > 0">
-            <mat-select [(ngModel)]="selectedOrgId" (selectionChange)="onOrgChange($event.value)" placeholder="Tashkilotni tanlang">
-              <mat-option *ngFor="let org of organizations" [value]="org.id">
-                {{ org.name }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <span class="org-name-display" *ngIf="!isSuperAdmin && organizations.length > 0">
-            {{ organizations[0].name }}
+    <div class="shell" *ngIf="!isAuthPage" [class.shell--collapsed]="collapsed">
+      <!-- ============ Yon panel ============ -->
+      <aside class="nav">
+        <a class="brand" routerLink="/dashboard">
+          <img src="assets/logo-96.png" alt="OLIMA AI" class="brand__logo">
+          <span class="brand__text">
+            <span class="brand__name">OLIMA AI</span>
+            <span class="brand__sub">boshqaruv paneli</span>
           </span>
+        </a>
 
-          <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-menu-btn">
-            <mat-icon>account_circle</mat-icon>
-          </button>
-          <mat-menu #userMenu="matMenu">
-            <div class="menu-user-info">
-              <strong>{{ currentUsername }}</strong>
-              <span>{{ isSuperAdmin ? 'Super admin' : 'Tashkilot admini' }}</span>
+        <nav class="nav__scroll">
+          <ng-container *ngFor="let group of navGroups">
+            <div class="nav__group" *ngIf="visible(group).length">
+              <div class="nav__label">{{ group.title }}</div>
+              <a *ngFor="let item of visible(group)"
+                 class="nav__item"
+                 [routerLink]="item.path"
+                 routerLinkActive="is-active"
+                 [matTooltip]="collapsed ? item.label : ''"
+                 matTooltipPosition="right">
+                <mat-icon>{{ item.icon }}</mat-icon>
+                <span class="nav__text">{{ item.label }}</span>
+              </a>
             </div>
-            <button mat-menu-item (click)="logout()">
-              <mat-icon>logout</mat-icon>
-              <span>Chiqish</span>
-            </button>
-          </mat-menu>
-        </mat-toolbar>
+          </ng-container>
+        </nav>
 
-        <div class="content-wrapper">
-          <div class="loading-screen" *ngIf="!orgsLoaded">
-            <mat-spinner diameter="40"></mat-spinner>
+        <div class="nav__foot">
+          <button class="nav__collapse" (click)="collapsed = !collapsed"
+                  [matTooltip]="collapsed ? 'Yoyish' : 'Yig\\'ish'" matTooltipPosition="right">
+            <mat-icon>{{ collapsed ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+            <span class="nav__text">Yig'ish</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- ============ Asosiy ustun ============ -->
+      <div class="main">
+        <header class="bar">
+          <div class="bar__left">
+            <span class="bar__crumb">{{ pageTitle }}</span>
+          </div>
+
+          <div class="bar__right">
+            <div class="org-pick" *ngIf="isSuperAdmin && organizations.length > 0">
+              <mat-icon class="org-pick__icon">apartment</mat-icon>
+              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="org-pick__field">
+                <mat-select [(ngModel)]="selectedOrgId" (selectionChange)="onOrgChange($event.value)"
+                            placeholder="Tashkilot">
+                  <mat-option *ngFor="let org of organizations" [value]="org.id">{{ org.name }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="org-fixed" *ngIf="!isSuperAdmin && organizations.length > 0">
+              <mat-icon>apartment</mat-icon>
+              <span class="truncate">{{ organizations[0].name }}</span>
+            </div>
+
+            <button class="who" [matMenuTriggerFor]="userMenu">
+              <span class="who__ava">{{ initials }}</span>
+              <span class="who__meta">
+                <span class="who__name">{{ currentUsername }}</span>
+                <span class="who__role">{{ isSuperAdmin ? 'Super admin' : 'Tashkilot admini' }}</span>
+              </span>
+              <mat-icon class="who__caret">expand_more</mat-icon>
+            </button>
+            <mat-menu #userMenu="matMenu" xPosition="before">
+              <div class="menu-head">
+                <strong>{{ currentUsername }}</strong>
+                <span>{{ isSuperAdmin ? 'Super admin' : 'Tashkilot admini' }}</span>
+              </div>
+              <button mat-menu-item (click)="logout()">
+                <mat-icon>logout</mat-icon>
+                <span>Chiqish</span>
+              </button>
+            </mat-menu>
+          </div>
+        </header>
+
+        <div class="content">
+          <div class="boot" *ngIf="!orgsLoaded">
+            <mat-spinner diameter="34"></mat-spinner>
             <span>Yuklanmoqda...</span>
           </div>
           <router-outlet *ngIf="orgsLoaded"></router-outlet>
         </div>
-      </mat-sidenav-content>
-    </mat-sidenav-container>
+      </div>
+    </div>
   `,
   styles: [`
-    .sidenav-container {
+    .shell {
+      display: grid;
+      grid-template-columns: var(--nav-w) 1fr;
       height: 100vh;
+      transition: grid-template-columns .2s ease;
     }
-    .sidenav {
-      width: 250px;
-      background-color: #ffffff;
-      box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+    .shell--collapsed { grid-template-columns: 76px 1fr; }
+
+    /* ---------- yon panel (to'q) ---------- */
+    .nav {
+      position: relative;
+      background: linear-gradient(185deg, #241f5c 0%, #1e1b4b 42%, #191734 100%);
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      overflow: hidden;
     }
-    .sidenav-header {
-      padding: 24px 16px;
+    /* yumshoq binafsha nur — yassi ko'rinmasligi uchun */
+    .nav::after {
+      content: '';
+      position: absolute;
+      width: 300px; height: 300px;
+      top: -110px; left: -90px;
+      background: #7c3aed;
+      filter: blur(90px);
+      opacity: .38;
+      pointer-events: none;
+    }
+    .nav > * { position: relative; z-index: 1; }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      height: var(--bar-h);
+      padding: 0 18px;
+      border-bottom: 1px solid rgba(255,255,255,.09);
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .brand__logo {
+      width: 32px; height: 32px;
+      border-radius: 9px;
+      flex-shrink: 0;
+      object-fit: contain;
+      background: rgba(255,255,255,.1);
+      padding: 3px;
+    }
+    .brand__text { display: flex; flex-direction: column; min-width: 0; }
+    .brand__name {
+      font-size: 15px; font-weight: 700; color: #fff;
+      letter-spacing: -0.01em; line-height: 18px; white-space: nowrap;
+    }
+    .brand__sub {
+      font-size: 10.5px; color: rgba(255,255,255,.46); letter-spacing: .04em;
+      text-transform: uppercase; line-height: 14px; white-space: nowrap;
+    }
+
+    .nav__scroll { flex: 1 1 auto; overflow-y: auto; padding: 14px 12px 8px; }
+    .nav__scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,.14); border-color: transparent; }
+
+    .nav__group { margin-bottom: 18px; }
+
+    .nav__label {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.38);
+      padding: 0 10px 7px;
+      white-space: nowrap;
+    }
+
+    .nav__item {
       display: flex;
       align-items: center;
       gap: 12px;
-      background-color: #1a237e;
-      color: white;
-    }
-    .sidenav-header h2 {
-      margin: 0;
-      font-size: 1.5rem;
-      font-weight: 500;
-    }
-    .active {
-      background-color: rgba(0, 0, 0, 0.04);
-      color: #1a237e;
-    }
-    .active mat-icon {
-      color: #1a237e;
-    }
-    .toolbar {
-      background-color: #1a237e;
-      color: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      z-index: 2;
+      height: 40px;
+      padding: 0 10px;
+      border-radius: 10px;
+      color: rgba(255,255,255,.72);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 550;
+      white-space: nowrap;
+      transition: background .14s ease, color .14s ease;
       position: relative;
     }
-    .spacer {
-      flex: 1 1 auto;
+    .nav__item mat-icon {
+      font-size: 20px; width: 20px; height: 20px;
+      color: rgba(255,255,255,.5);
+      flex-shrink: 0;
+      transition: color .14s ease;
     }
-    .org-selector {
-      width: 250px;
-      margin-right: 16px;
+    .nav__item:hover { background: rgba(255,255,255,.07); color: #fff; }
+    .nav__item:hover mat-icon { color: rgba(255,255,255,.8); }
+
+    .nav__item.is-active {
+      background: linear-gradient(90deg, rgba(129,140,248,.26) 0%, rgba(168,85,247,.14) 100%);
+      color: #fff;
+      font-weight: 650;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
     }
-    ::ng-deep .org-selector .mat-mdc-text-field-wrapper {
-      background-color: rgba(255, 255, 255, 0.1) !important;
+    .nav__item.is-active mat-icon { color: #c7d2fe; }
+    .nav__item.is-active::before {
+      content: '';
+      position: absolute;
+      left: -12px; top: 9px; bottom: 9px;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: linear-gradient(180deg, #818cf8, #a855f7);
     }
-    ::ng-deep .org-selector .mat-mdc-select-value-text {
-      color: white !important;
+
+    .nav__foot { padding: 10px 12px 14px; border-top: 1px solid rgba(255,255,255,.09); }
+    .nav__collapse {
+      display: flex; align-items: center; gap: 12px;
+      width: 100%; height: 38px; padding: 0 10px;
+      border: none; background: transparent; cursor: pointer;
+      border-radius: 10px; color: rgba(255,255,255,.55);
+      font-size: 13px; font-weight: 550; font-family: inherit;
     }
-    ::ng-deep .org-selector .mat-mdc-select-arrow {
-      color: white !important;
-    }
-    .org-name-display {
-      margin-right: 16px;
-      font-size: 14px;
-      font-weight: 500;
-      opacity: 0.9;
-    }
-    .user-menu-btn {
-      color: white;
-    }
-    .menu-user-info {
+    .nav__collapse:hover { background: rgba(255,255,255,.07); color: #fff; }
+    .nav__collapse mat-icon { font-size: 20px; width: 20px; height: 20px; }
+
+    .shell--collapsed .nav__text,
+    .shell--collapsed .brand__text,
+    .shell--collapsed .nav__label { display: none; }
+    .shell--collapsed .nav__item,
+    .shell--collapsed .nav__collapse { justify-content: center; padding: 0; }
+    .shell--collapsed .brand { justify-content: center; padding: 0; }
+    .shell--collapsed .nav__group { margin-bottom: 10px; }
+
+    /* ---------- yuqori panel ---------- */
+    .main { display: flex; flex-direction: column; min-width: 0; }
+
+    .bar {
+      height: var(--bar-h);
+      flex-shrink: 0;
+      background: rgba(255,255,255,.86);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--edge);
       display: flex;
-      flex-direction: column;
-      padding: 8px 16px;
-      border-bottom: 1px solid #edf2f7;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 22px 0 28px;
+      position: sticky; top: 0; z-index: 10;
+    }
+
+    .bar__crumb { font-size: 15px; font-weight: 650; color: var(--ink); letter-spacing: -0.01em; }
+    .bar__right { display: flex; align-items: center; gap: 12px; }
+
+    .org-pick { display: flex; align-items: center; gap: 8px; }
+    .org-pick__icon { font-size: 19px; width: 19px; height: 19px; color: var(--ink-4); }
+    .org-pick__field { width: 228px; }
+    ::ng-deep .org-pick__field .mat-mdc-text-field-wrapper { background: #f6f7fb; }
+    ::ng-deep .org-pick__field .mdc-notched-outline__leading,
+    ::ng-deep .org-pick__field .mdc-notched-outline__notch,
+    ::ng-deep .org-pick__field .mdc-notched-outline__trailing { border-color: var(--edge) !important; }
+
+    .org-fixed {
+      display: flex; align-items: center; gap: 7px;
+      max-width: 240px;
+      height: 36px; padding: 0 12px;
+      background: #f6f7fb; border: 1px solid var(--edge);
+      border-radius: 10px;
+      font-size: 13px; font-weight: 600; color: var(--ink-2);
+    }
+    .org-fixed mat-icon { font-size: 18px; width: 18px; height: 18px; color: var(--ink-4); }
+
+    .who {
+      display: flex; align-items: center; gap: 9px;
+      height: 40px; padding: 0 8px 0 6px;
+      border: 1px solid transparent; background: transparent;
+      border-radius: 11px; cursor: pointer; font-family: inherit;
+      transition: background .14s ease, border-color .14s ease;
+    }
+    .who:hover { background: #f5f7fb; border-color: var(--edge); }
+    .who__ava {
+      width: 30px; height: 30px; border-radius: 9px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--brand) 0%, var(--accent) 100%);
+      color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .02em;
+    }
+    .who__meta { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.25; }
+    .who__name { font-size: 13px; font-weight: 650; color: var(--ink); }
+    .who__role { font-size: 11px; color: var(--ink-4); }
+    .who__caret { font-size: 18px; width: 18px; height: 18px; color: var(--ink-4); }
+
+    .menu-head {
+      display: flex; flex-direction: column; gap: 2px;
+      padding: 10px 16px 11px;
+      border-bottom: 1px solid var(--edge-2);
       margin-bottom: 4px;
     }
-    .menu-user-info strong {
-      font-size: 14px;
-      color: #1a237e;
+    .menu-head strong { font-size: 13.5px; color: var(--ink); }
+    .menu-head span { font-size: 11.5px; color: var(--ink-4); }
+
+    /* ---------- kontent ---------- */
+    .content { flex: 1 1 auto; overflow-y: auto; }
+
+    .boot {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; height: 60vh; color: var(--ink-3); font-size: 13.5px;
     }
-    .menu-user-info span {
-      font-size: 12px;
-      color: #718096;
-    }
-    .content-wrapper {
-      padding: 24px;
-      height: calc(100vh - 64px - 48px);
-      overflow-y: auto;
-    }
-    .loading-screen {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      height: 100%;
-      color: #64748b;
-      font-size: 14px;
+
+    @media (max-width: 980px) {
+      .shell { grid-template-columns: 76px 1fr; }
+      .nav__text, .brand__text, .nav__label { display: none; }
+      .nav__item, .nav__collapse, .brand { justify-content: center; padding: 0; }
+      .nav__foot { display: none; }
+      .who__meta { display: none; }
+      .org-pick__field { width: 160px; }
     }
   `]
 })
@@ -227,6 +365,52 @@ export class AppComponent implements OnInit {
   selectedOrgId: string | null = null;
   isAuthPage = false;
   orgsLoaded = false;
+  collapsed = false;
+  pageTitle = 'Boshqaruv paneli';
+
+  readonly navGroups: NavGroup[] = [
+    {
+      title: 'Umumiy',
+      items: [
+        { path: '/dashboard', icon: 'space_dashboard', label: 'Boshqaruv paneli' },
+        { path: '/chat', icon: 'forum', label: 'Chat sinovi' },
+      ],
+    },
+    {
+      title: 'Bilim va vositalar',
+      items: [
+        { path: '/knowledge', icon: 'auto_stories', label: 'Bilimlar bazasi' },
+        { path: '/tools', icon: 'handyman', label: 'Vositalar' },
+      ],
+    },
+    {
+      title: 'Faoliyat',
+      items: [
+        { path: '/conversations', icon: 'chat_bubble', label: 'Suhbatlar' },
+        { path: '/executions', icon: 'history', label: 'Bajarilgan amallar' },
+        { path: '/complaints', icon: 'flag', label: 'Murojaatlar' },
+      ],
+    },
+    {
+      title: 'Boshqaruv',
+      items: [
+        { path: '/organizations', icon: 'apartment', label: 'Tashkilotlar', superOnly: true },
+        { path: '/users', icon: 'shield_person', label: 'Adminlar', superOnly: true },
+      ],
+    },
+  ];
+
+  private readonly titles: Record<string, string> = {
+    '/dashboard': 'Boshqaruv paneli',
+    '/chat': 'Chat sinovi',
+    '/knowledge': 'Bilimlar bazasi',
+    '/tools': 'Vositalar',
+    '/conversations': 'Suhbatlar',
+    '/executions': 'Bajarilgan amallar',
+    '/complaints': 'Murojaatlar',
+    '/organizations': 'Tashkilotlar',
+    '/users': 'Adminlar',
+  };
 
   constructor(
     private apiService: ApiService,
@@ -242,11 +426,24 @@ export class AppComponent implements OnInit {
     return this.authService.getCurrentUser()?.username || '';
   }
 
+  get initials(): string {
+    const name = this.currentUsername.trim();
+    if (!name) return '?';
+    return name.slice(0, 2).toUpperCase();
+  }
+
+  visible(group: NavGroup): NavItem[] {
+    return group.items.filter(i => !i.superOnly || this.isSuperAdmin);
+  }
+
   ngOnInit(): void {
     this.isAuthPage = this.router.url.startsWith('/login');
+    this.setTitle(this.router.url);
 
     this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe((e) => {
-      this.isAuthPage = (e as NavigationEnd).urlAfterRedirects.startsWith('/login');
+      const url = (e as NavigationEnd).urlAfterRedirects;
+      this.isAuthPage = url.startsWith('/login');
+      this.setTitle(url);
       if (!this.isAuthPage && this.authService.isAuthenticated() && this.organizations.length === 0) {
         this.loadOrganizations();
       }
@@ -259,6 +456,14 @@ export class AppComponent implements OnInit {
     window.addEventListener('orgChanged', () => {
       this.loadOrganizations(false);
     });
+  }
+
+  /** Eng uzun mos prefiks — /knowledge/:id ham "Bilimlar bazasi" deb qoladi. */
+  private setTitle(url: string): void {
+    const match = Object.keys(this.titles)
+      .filter(p => url.startsWith(p))
+      .sort((a, b) => b.length - a.length)[0];
+    this.pageTitle = match ? this.titles[match] : 'OLIMA AI';
   }
 
   loadOrganizations(resetSelection = true): void {

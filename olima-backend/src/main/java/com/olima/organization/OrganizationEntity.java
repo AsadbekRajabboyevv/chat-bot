@@ -1,6 +1,7 @@
 package com.olima.organization;
 
 import com.olima.common.BaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -21,4 +22,11 @@ public class OrganizationEntity extends BaseEntity {
     private String slug;
     private String description;
     private boolean enabled;
+
+    /**
+     * Widget saytga qo'yilganda shu kalit yuboriladi va tashkilot SERVER tomonda aniqlanadi.
+     * So'rov tanasidagi organizationId ga ishonilmaydi — u brauzerdan keladi va o'zgartirilishi mumkin.
+     */
+    @Column(name = "widget_key", unique = true)
+    private String widgetKey;
 }
