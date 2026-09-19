@@ -36,6 +36,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final OrganizationScopeFilter organizationScopeFilter;
     private final ObjectMapper objectMapper;
+    private final WidgetKeyFilter widgetKeyFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -92,14 +93,7 @@ public class SecurityConfig {
         configuration.setAllowedOriginPatterns(allowedOriginPatterns);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
-        java.util.List<String> patterns = java.util.Arrays.stream(allowedOriginPatterns.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isBlank())
-                .toList();
-        configuration.setAllowedOriginPatterns(patterns.isEmpty() ? java.util.List.of("*") : patterns);
-        configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(java.util.List.of("*"));
-        configuration.setExposedHeaders(java.util.List.of("Authorization", "Link", "X-Total-Count"));
+        configuration.setExposedHeaders(List.of("Authorization", "Link", "X-Total-Count"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
