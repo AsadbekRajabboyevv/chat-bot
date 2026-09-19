@@ -141,7 +141,7 @@ chat-bot/
 ├── olima-frontend/       Admin panel (Angular 18 + Material)
 ├── widget/               widget.js (SDK), chat oynasi, landing
 ├── portal/               demo mijoz sayti
-├── mock-government/      test API'lar (talaba, kontrakt, stipendiya, OTM) — soxta ma'lumot
+├── mock-government/      test API'lar (talaba, kontrakt, stipendiya, OTM)
 └── deploy/               prod: Docker Compose, nginx, auto-deploy (deploy/README.md)
 ```
 
