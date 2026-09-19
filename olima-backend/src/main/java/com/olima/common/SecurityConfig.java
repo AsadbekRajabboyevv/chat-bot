@@ -51,6 +51,9 @@ public class SecurityConfig {
                         // Chat mijoz saytidagi widget uchun ochiq bo'lishi shart — u JWT ololmaydi.
                         // Himoya WidgetKeyFilter'da: kalitsiz 401, noto'g'ri kalit 403.
                         .requestMatchers("/api/v1/chat/**").permitAll()
+                        // Telegram JWT ololmaydi — himoya URL ichidagi maxfiy kod orqali,
+                        // TelegramService.handleIncomingUpdate ichida tekshiriladi.
+                        .requestMatchers("/api/v1/telegram/webhook/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) ->

@@ -16,7 +16,8 @@ import {
   LoginRequest,
   LoginResponse,
   AppUser,
-  CreateUserRequest
+  CreateUserRequest,
+  TelegramBotConfig
 } from '../models';
 
 @Injectable({
@@ -232,5 +233,17 @@ export class ApiService {
 
   deleteUser(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/users/${id}`);
+  }
+
+  getTelegramConfig(organizationId: string): Observable<TelegramBotConfig | null> {
+    return this.http.get<TelegramBotConfig>(`${this.baseUrl}/telegram/config?organizationId=${organizationId}`);
+  }
+
+  saveTelegramConfig(organizationId: string, botToken: string): Observable<TelegramBotConfig> {
+    return this.http.post<TelegramBotConfig>(`${this.baseUrl}/telegram/config?organizationId=${organizationId}`, { botToken });
+  }
+
+  deleteTelegramConfig(organizationId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/telegram/config?organizationId=${organizationId}`);
   }
 }

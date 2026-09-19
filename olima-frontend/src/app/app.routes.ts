@@ -72,5 +72,10 @@ export const routes: Routes = [
     path: 'knowledge/:id',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/knowledge/knowledge-detail.component').then(m => m.KnowledgeDetailComponent)
+  },
+  {
+    path: 'telegram',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/telegram/telegram.component').then(m => m.TelegramComponent)
   }
 ];
