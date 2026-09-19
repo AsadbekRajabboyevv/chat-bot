@@ -164,3 +164,11 @@ export interface CreateUserRequest {
   role: UserRole;
   organizationId?: string;
 }
+
+export interface TelegramBotConfig {
+  organizationId: string;
+  botUsername: string;
+  maskedToken: string;
+  webhookUrl: string;
+  enabled: boolean;
+}
