@@ -1,0 +1,9 @@
+# Demo mijoz sayti (namunaviy "Oliy talim axborot portali") — OLIMA widget ulangan.
+# Admin panel (olima-web) ga BOG LIQ EMAS: Caddy statik faylni o zi beradi.
+# Fayl: /opt/caddy-sites/www/oliytalim/index.html  (manba: chat-bot repo, portal/index.html)
+oliytalim.178-105-158-192.sslip.io {
+	encode gzip zstd
+	root * /etc/caddy/sites/www/oliytalim
+	header Cache-Control "no-cache, must-revalidate"
+	file_server
+}

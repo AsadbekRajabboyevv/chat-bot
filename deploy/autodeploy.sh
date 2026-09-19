@@ -66,6 +66,9 @@ dc up -d --remove-orphans >>"$LOG" 2>&1
 
 for i in $(seq 1 36); do   # 3 daqiqagacha kutamiz (Spring ko'tarilishi ~40 s)
   if curl -fsS -m 5 "$HEALTH_URL" 2>/dev/null | grep -q '"UP"'; then
+    # Demo portal Caddy'ning o'zidan (file_server) beriladi — faylni almashtirish yetarli
+    PORTAL_DIR=/opt/caddy-sites/www/oliytalim
+    [[ -d "$PORTAL_DIR" ]] && install -m 644 "$SRC/portal/index.html" "$PORTAL_DIR/index.html"
     echo "$NEW" > "$STATE"
     rm -f "$FAILED"
     log "deploy OK: $MSG"

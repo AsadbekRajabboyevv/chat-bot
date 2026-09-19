@@ -39,7 +39,8 @@ Server: Hetzner `178.105.158.192`, papka `/opt/olima/`
 5. Natija Telegram'ga (`notifier send`) yuboriladi
 
 Build manbadan qilinadi: panel `olima-frontend/` dan, backend `olima-backend/` dan,
-widget va landing `widget/` dan, demo portal `portal/` dan. Qo'lda jar yoki dist nusxalash yo'q.
+widget va landing `widget/` dan. Demo portal `portal/index.html` deploy oxirida
+`/opt/caddy-sites/www/oliytalim/` ga nusxalanadi. Qo'lda jar yoki dist nusxalash yo'q.
 
 ## Foydali buyruqlar (serverda)
 
@@ -54,7 +55,7 @@ systemctl stop olima-autodeploy.timer      # auto-deploy'ni vaqtincha o'chirish
 
 - Panel: https://olima.178-105-158-192.sslip.io/
 - Landing: https://olima.178-105-158-192.sslip.io/demo/
-- Demo portal: https://olima.178-105-158-192.sslip.io/portal/
+- Demo portal (alohida host, Caddy file_server): https://oliytalim.178-105-158-192.sslip.io/
 - Widget: https://olima.178-105-158-192.sslip.io/widget.js
 
 ⚠️ Server VTest (vtest.uz) prodini ham ko'taradi. OLIMA alohida Postgres, alohida
