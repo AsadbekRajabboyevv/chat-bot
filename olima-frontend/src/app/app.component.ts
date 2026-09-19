@@ -452,6 +452,11 @@ export class AppComponent implements OnInit {
       else if (e instanceof NavigationEnd || e instanceof NavigationCancel || e instanceof NavigationError) {
         this.loading.setNavigating(false);
       }
+      // Deploy'dan keyin ochiq qolgan tab eski chunk faylini so'raydi — u serverda endi yo'q va sahifa o'tishi
+      // jimgina yiqiladi. Bunday holda sahifani o'sha manzil bilan to'liq qayta yuklaymiz (yangi versiya keladi).
+      if (e instanceof NavigationError && /dynamically imported module|Loading chunk|Importing a module script|MIME type/i.test(String(e.error?.message ?? e.error))) {
+        location.assign(e.url);
+      }
     });
 
     this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe((e) => {
