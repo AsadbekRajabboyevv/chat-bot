@@ -112,6 +112,11 @@ public class TelegramService {
         long chatId = chatIdNode.asLong();
         String text = textNode.asText();
 
+        if (text.trim().startsWith("/start")) {
+            sendStartGreeting(config, chatId);
+            return;
+        }
+
         try {
             UUID conversationId = findExistingConversationId(config.getOrganizationId(), chatId);
             ChatRequest request = new ChatRequest(config.getOrganizationId(), conversationId, text, null);
@@ -132,6 +137,20 @@ public class TelegramService {
                 // best-effort — if even the error notice fails, there's nothing more to do here
             }
         }
+    }
+
+    /**
+     * /start never reaches the AI — it's a Telegram-only convention with no natural-language
+     * content, so the model has nothing to detect a language from and tends to answer in English.
+     * Answering it directly also saves an LLM call for a message that needs no AI at all.
+     */
+    private void sendStartGreeting(TelegramBotConfigEntity config, long chatId) {
+        String orgName = organizationRepository.findById(config.getOrganizationId())
+                .map(org -> org.getName())
+                .orElse("tashkilot");
+        String greeting = "Assalomu alaykum! Men " + orgName + " uchun AI yordamchiman. "
+                + "Savolingizni shu yerga yozing — imkon qadar tez va aniq javob berishga harakat qilaman.";
+        telegramClient.sendMessage(config.getBotToken(), chatId, greeting);
     }
 
     private UUID findExistingConversationId(UUID organizationId, long chatId) {
