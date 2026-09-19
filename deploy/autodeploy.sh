@@ -29,7 +29,11 @@ notify() { command -v notifier >/dev/null && notifier send "$*" >/dev/null 2>&1 
 dc()     { docker compose --env-file "$ENV_FILE" -f "$SRC/deploy/docker-compose.yml" "$@"; }
 
 cd "$SRC"
-git fetch -q origin "$BRANCH"
+# Tarmoq yoki GitHub kaliti muammosi — deploy.log ni to'ldirmaymiz, faqat journal'ga
+if ! git fetch -q origin "$BRANCH"; then
+  echo "git fetch yiqildi (deploy key / tarmoq) — keyingi daqiqada qayta urinaman" >&2
+  exit 0
+fi
 NEW=$(git rev-parse "origin/$BRANCH")
 OLD=$(cat "$STATE" 2>/dev/null || echo none)
 
