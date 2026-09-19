@@ -15,7 +15,7 @@ git merge --ff-only dev        # yoki GitHub'da dev -> prod PR
 git push origin prod
 ```
 
-~1 daqiqada server o'zgarishni sezadi, build qiladi (5–8 daqiqa) va ko'taradi.
+~1 daqiqada server o'zgarishni sezadi, build qiladi (kesh bilan ~20 s, to'liq qayta build 5–8 daqiqa) va ko'taradi.
 
 ## Server qanday tinglaydi
 
