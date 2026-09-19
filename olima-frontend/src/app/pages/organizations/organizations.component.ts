@@ -7,6 +7,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { EmptyStateComponent } from '../../components/empty-state.component';
 import { ApiService } from '../../services/api.service';
 import { Organization } from '../../models';
 import { OrganizationDialogComponent } from './organization-dialog.component';
@@ -16,7 +17,7 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 @Component({
   selector: 'app-organizations',
   standalone: true,
-  imports: [
+  imports: [EmptyStateComponent, 
     CommonModule,
     MatTableModule,
     MatButtonModule,
@@ -98,14 +99,13 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
         </div>
       </div>
 
-      <div class="empty" *ngIf="organizations.length === 0">
-        <mat-icon>apartment</mat-icon>
-        <h3>Hali tashkilot yo'q</h3>
-        <p>Birinchi mijozni qo'shing — unga bilim bazasi, vositalar va admin hisobi biriktiriladi.</p>
+      <app-empty-state *ngIf="loaded && organizations.length === 0" icon="apartment"
+        title="Hali tashkilot yo'q"
+        text="Birinchi mijozni qo'shing — unga bilimlar bazasi, vositalar, widget kaliti va admin hisobi biriktiriladi.">
         <button mat-flat-button color="primary" (click)="addOrganization()">
           <mat-icon>add</mat-icon> Tashkilot qo'shish
         </button>
-      </div>
+      </app-empty-state>
     </div>
   `,
   styles: [`
@@ -122,6 +122,7 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 })
 export class OrganizationsComponent implements OnInit {
   organizations: Organization[] = [];
+  loaded = false;
   displayedColumns: string[] = ['name', 'slug', 'enabled', 'createdAt', 'actions'];
 
   constructor(
@@ -137,7 +138,7 @@ export class OrganizationsComponent implements OnInit {
 
   loadOrganizations() {
     this.apiService.getOrganizations().subscribe({
-      next: (orgs) => (this.organizations = orgs),
+      next: (orgs) => { this.organizations = orgs; this.loaded = true; },
       error: (err) => this.fail('Tashkilotlarni yuklab bo\'lmadi', err),
     });
   }

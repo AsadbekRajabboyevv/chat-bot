@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
+import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd, NavigationStart, NavigationCancel, NavigationError } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -14,6 +14,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ApiService } from './services/api.service';
 import { AuthService } from './services/auth.service';
+import { LoadingService } from './services/loading.service';
+import { BrandLoaderComponent } from './components/brand-loader.component';
 import { Organization } from './models';
 import { FormsModule } from '@angular/forms';
 
@@ -33,6 +35,7 @@ interface NavGroup {
   selector: 'app-root',
   standalone: true,
   imports: [
+    BrandLoaderComponent,
     RouterOutlet,
     RouterLink,
     RouterLinkActive,
@@ -134,12 +137,9 @@ interface NavGroup {
         </header>
 
         <div class="content">
-          <div class="boot" *ngIf="!orgsLoaded">
-            <mat-spinner diameter="34"></mat-spinner>
-            <span>Yuklanmoqda...</span>
-          </div>
           <router-outlet *ngIf="orgsLoaded"></router-outlet>
         </div>
+        <app-brand-loader *ngIf="!orgsLoaded || loading.visible()"></app-brand-loader>
       </div>
     </div>
   `,
@@ -277,7 +277,9 @@ interface NavGroup {
     .shell--collapsed .nav__group { margin-bottom: 10px; }
 
     /* ---------- yuqori panel ---------- */
-    .main { display: flex; flex-direction: column; min-width: 0; }
+    .main { display: flex; flex-direction: column; min-width: 0; position: relative; }
+    /* loader faqat kontentni yopadi — sarlavha va tashkilot tanlagich ishlayveradi */
+    .main > app-brand-loader { top: var(--bar-h, 64px); }
 
     .bar {
       height: var(--bar-h);
@@ -417,7 +419,8 @@ export class AppComponent implements OnInit {
   constructor(
     private apiService: ApiService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    readonly loading: LoadingService
   ) {}
 
   get isSuperAdmin(): boolean {
@@ -441,6 +444,13 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.isAuthPage = this.router.url.startsWith('/login');
     this.setTitle(this.router.url);
+
+    this.router.events.subscribe((e) => {
+      if (e instanceof NavigationStart) this.loading.setNavigating(true);
+      else if (e instanceof NavigationEnd || e instanceof NavigationCancel || e instanceof NavigationError) {
+        this.loading.setNavigating(false);
+      }
+    });
 
     this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe((e) => {
       const url = (e as NavigationEnd).urlAfterRedirects;
