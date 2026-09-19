@@ -9,7 +9,7 @@
 [![Jonli demo](https://img.shields.io/badge/Jonli_demo-oliytalim-1457B8?style=for-the-badge)](https://oliytalim.178-105-158-192.sslip.io/)
 [![Admin panel](https://img.shields.io/badge/Admin_panel-OLIMA-0E6B58?style=for-the-badge)](https://olima.178-105-158-192.sslip.io/)
 [![Landing](https://img.shields.io/badge/Landing-demo-7C4DDB?style=for-the-badge)](https://olima.178-105-158-192.sslip.io/demo/)
-[![Taqdimot](https://img.shields.io/badge/Taqdimot-PDF-E5484D?style=for-the-badge)](docs/OLIMA-AI-Pitch-Deck.pdf)
+[![Taqdimot](https://img.shields.io/badge/Taqdimot-PDF-E5484D?style=for-the-badge)](presentation/OLIMA-AI-Pitch-Deck.pdf)
 
 ![Java](https://img.shields.io/badge/Java-21-E76F00?logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.1-6DB33F?logo=springboot&logoColor=white)
@@ -57,7 +57,7 @@ OLIMA AI — tashkilot saytiga bitta qator kod bilan qo'yiladigan yordamchi:
 
 > Admin panelga kirish ma'lumotlari tashkilotchilarga alohida beriladi.
 
-**Taqdimot (Pitch Day):** [PDF](docs/OLIMA-AI-Pitch-Deck.pdf) · [PowerPoint](docs/OLIMA-AI-Pitch-Deck.pptx) — muammo, yechim, bozor, biznes model, jamoa.
+**Taqdimot (Pitch Day):** [PDF](presentation/OLIMA-AI-Pitch-Deck.pdf) · [PowerPoint](presentation/OLIMA-AI-Pitch-Deck.pptx) — muammo, yechim, bozor, biznes model, jamoa.
 
 **Demo'da nimani ko'rish mumkin:**
 1. Demo saytni oching — bir necha soniyadan keyin logo ustida salomlashish kartasi chiqadi, logo atrofida impuls yonadi.
