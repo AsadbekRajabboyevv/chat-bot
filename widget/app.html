@@ -250,9 +250,17 @@ footer{padding:0 14px 10px; font-size:10.5px; color:var(--faint); text-align:cen
   function cells(line){
     return line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map(function(c){ return c.trim(); });
   }
+  /* ```map {"lat":..,"lng":..}``` bloki — Telegram'dagi TelegramFormatter bilan bir xil: xarita havolasiga aylanadi.
+     Koordinatasiz kod bloklari shunchaki olib tashlanadi — foydalanuvchiga xom JSON ko'rsatilmaydi. */
+  function mapBlocks(s){
+    return s.replace(/```[a-z]*\s*([\s\S]*?)```/gi, function(all, body){
+      var lat = /"lat"\s*:\s*(-?\d+(?:\.\d+)?)/.exec(body), lng = /"lng"\s*:\s*(-?\d+(?:\.\d+)?)/.exec(body);
+      return (lat && lng) ? "[📍 Xaritada ko'rish](https://maps.google.com/?q=" + lat[1] + "," + lng[1] + ")" : "";
+    }).replace(/```[a-z]*[\s\S]*$/i, "");   // oqim hali tugamagan blok ko'rinmasin
+  }
   function md(text){
     var frag = document.createDocumentFragment();
-    var lines = String(text).replace(/\r/g, "").split("\n");
+    var lines = mapBlocks(String(text)).replace(/\r/g, "").split("\n");
     var i = 0, list = null, para = null;
     function close(){ list = null; para = null; }
     while (i < lines.length){
