@@ -142,8 +142,7 @@ chat-bot/
 ├── widget/               widget.js (SDK), chat oynasi, landing
 ├── portal/               demo mijoz sayti
 ├── mock-government/      test API'lar (talaba, kontrakt, stipendiya, OTM) — soxta ma'lumot
-├── deploy/               prod: Docker Compose, nginx, auto-deploy (deploy/README.md)
-└── olchov/               javob sifatini o'lchash skripti va natijalari
+└── deploy/               prod: Docker Compose, nginx, auto-deploy (deploy/README.md)
 ```
 
 ---
