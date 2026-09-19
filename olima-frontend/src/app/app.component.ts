@@ -266,11 +266,17 @@ export class AppComponent implements OnInit {
       next: (orgs) => {
         this.organizations = orgs;
         const saved = localStorage.getItem('selectedOrgId');
+        let currentOrg: Organization | undefined;
         if (saved && orgs.some(o => o.id === saved)) {
           this.selectedOrgId = saved;
+          currentOrg = orgs.find(o => o.id === saved);
         } else if (orgs.length > 0 && resetSelection) {
           this.selectedOrgId = orgs[0].id;
+          currentOrg = orgs[0];
           localStorage.setItem('selectedOrgId', this.selectedOrgId);
+        }
+        if (currentOrg) {
+          localStorage.setItem('selectedOrgName', currentOrg.name);
         }
         this.orgsLoaded = true;
       },
@@ -284,6 +290,10 @@ export class AppComponent implements OnInit {
   onOrgChange(orgId: string): void {
     this.selectedOrgId = orgId;
     localStorage.setItem('selectedOrgId', orgId);
+    const org = this.organizations.find(o => o.id === orgId);
+    if (org) {
+      localStorage.setItem('selectedOrgName', org.name);
+    }
     window.dispatchEvent(new Event('orgChanged'));
   }
 

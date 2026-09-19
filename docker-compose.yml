@@ -49,6 +49,7 @@ services:
       DB_PASSWORD: olima
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       MOCK_GOVERNMENT_BASE_URL: http://mock-government:8081
+      CORS_ALLOWED_ORIGIN_PATTERNS: ${CORS_ALLOWED_ORIGIN_PATTERNS:-*}
     depends_on:
       postgres:
         condition: service_healthy

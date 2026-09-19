@@ -16,6 +16,24 @@ public class RestApiToolExecutor implements ToolExecutor {
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
 
+    private static volatile Boolean mockGovResolvable = null;
+
+    private static boolean isMockGovResolvable() {
+        if (mockGovResolvable == null) {
+            synchronized (RestApiToolExecutor.class) {
+                if (mockGovResolvable == null) {
+                    try {
+                        java.net.InetAddress.getByName("mock-government");
+                        mockGovResolvable = true;
+                    } catch (Exception ex) {
+                        mockGovResolvable = false;
+                    }
+                }
+            }
+        }
+        return mockGovResolvable;
+    }
+
     @Override
     public ToolType supportedType() {
         return ToolType.REST_API;
@@ -35,12 +53,8 @@ public class RestApiToolExecutor implements ToolExecutor {
             String methodStr = (String) config.get("method");
             HttpMethod method = methodStr != null ? HttpMethod.valueOf(methodStr.toUpperCase()) : HttpMethod.GET;
 
-            if (url.contains("mock-government")) {
-                try {
-                    java.net.InetAddress.getByName("mock-government");
-                } catch (java.net.UnknownHostException ex) {
-                    url = url.replace("mock-government", "localhost");
-                }
+            if (url.contains("mock-government") && !isMockGovResolvable()) {
+                url = url.replace("mock-government", "localhost");
             }
 
             for (Map.Entry<String, Object> entry : parameters.entrySet()) {
@@ -71,7 +85,20 @@ public class RestApiToolExecutor implements ToolExecutor {
                 bodySpec.body(parameters);
             }
 
-            String response = bodySpec.retrieve().body(String.class);
+            String response;
+            try {
+                response = bodySpec.retrieve().body(String.class);
+            } catch (org.springframework.web.client.HttpClientErrorException.NotFound nf) {
+                if (!url.endsWith("/")) {
+                    response = restClient.method(method).uri(url + "/").retrieve().body(String.class);
+                } else {
+                    throw nf;
+                }
+            }
+
+            if (response == null || response.isBlank() || response.trim().equals("null")) {
+                return ToolResult.failure("Ichki ma'lumotlar bazasida ma'lumot topilmadi.");
+            }
             return ToolResult.success(response);
         } catch (Exception e) {
             return ToolResult.failure(e.getMessage());

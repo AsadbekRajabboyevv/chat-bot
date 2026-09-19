@@ -853,11 +853,13 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   loadCurrentOrg() {
+    this.currentOrgName = localStorage.getItem('selectedOrgName') || '';
     const orgId = localStorage.getItem('selectedOrgId');
     if (orgId) {
       this.apiService.getOrganization(orgId).subscribe({
         next: (org) => {
           this.currentOrgName = org.name;
+          localStorage.setItem('selectedOrgName', org.name);
         },
         error: () => {}
       });
@@ -993,7 +995,40 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         return source;
       }
     }
-    return source;
+    return this.formatInternalSourceLabel(source);
+  }
+
+  formatInternalSourceLabel(source: string): string {
+    if (!source) {
+      return this.currentOrgName ? `${this.currentOrgName} rasmiy hujjati` : 'Rasmiy hujjat';
+    }
+
+    const orgPrefix = this.currentOrgName ? this.currentOrgName.trim() : '';
+
+    // If source already contains the organization name (e.g. "Transport vazirligi: ..."):
+    if (orgPrefix && source.toLowerCase().includes(orgPrefix.toLowerCase())) {
+      return source;
+    }
+
+    // Strip extension (.csv, .pdf, .docx, .xlsx, .txt, etc.)
+    let cleaned = source.replace(/\.[a-zA-Z0-9]{2,5}$/i, '');
+
+    // Strip leading timestamp/id digits (e.g. "1657900652document" -> "document", "1657900652_qoidalar" -> "qoidalar")
+    cleaned = cleaned.replace(/^\d{8,}[_\-\s]*/, '');
+
+    // Replace underscores and hyphens with spaces
+    cleaned = cleaned.replace(/[_\-]+/g, ' ').trim();
+
+    // Check if empty or generic terms like "document", "file", "csv", "hujjat", etc.
+    const genericTerms = ['document', 'doc', 'file', 'fayl', 'hujjat', 'data', 'jadval', 'table', 'csv', 'pdf'];
+    if (!cleaned || genericTerms.includes(cleaned.toLowerCase())) {
+      return orgPrefix ? `${orgPrefix} rasmiy hujjati` : 'Rasmiy hujjat';
+    }
+
+    // Capitalize first letter
+    cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+
+    return orgPrefix ? `${orgPrefix}: ${cleaned}` : cleaned;
   }
 
   renderMarkdown(text: string): string {

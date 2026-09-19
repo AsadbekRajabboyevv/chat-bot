@@ -18,6 +18,8 @@ import com.olima.execution.ToolExecutorRegistry;
 import com.olima.execution.ToolResult;
 import com.olima.execution.WebSearchService;
 import com.olima.knowledge.DocumentChunkEntity;
+import com.olima.knowledge.DocumentEntity;
+import com.olima.knowledge.DocumentRepository;
 import com.olima.knowledge.KnowledgeService;
 import com.olima.organization.OrganizationService;
 import com.olima.organization.dto.OrganizationResponse;
@@ -63,6 +65,7 @@ public class AgentServiceImpl implements AgentService {
     private final OrganizationService organizationService;
     private final WebSearchService webSearchService;
     private final KnowledgeService knowledgeService;
+    private final DocumentRepository documentRepository;
     private final MessageRepository messageRepository;
     private final ObjectMapper objectMapper;
 
@@ -122,9 +125,13 @@ public class AgentServiceImpl implements AgentService {
                     }
 
                     String resultJson = serializeToolResult(result);
+                    boolean isSuccess = result.success() && result.data() != null
+                            && !result.data().toString().trim().isBlank()
+                            && !result.data().toString().trim().equals("null")
+                            && !result.data().toString().trim().equals("[]");
                     toolCalls.add(new ToolCallInfo(tool.getName(),
                             objectMapper.writeValueAsString(params), resultJson,
-                            result.success() ? ExecutionStatus.SUCCESS : ExecutionStatus.FAILED, duration));
+                            isSuccess ? ExecutionStatus.SUCCESS : ExecutionStatus.FAILED, duration));
 
                     return resultJson;
                 } catch (Exception e) {
@@ -226,9 +233,13 @@ public class AgentServiceImpl implements AgentService {
                             }
 
                             String resultJson = serializeToolResult(result);
+                            boolean isSuccess = result.success() && result.data() != null
+                                    && !result.data().toString().trim().isBlank()
+                                    && !result.data().toString().trim().equals("null")
+                                    && !result.data().toString().trim().equals("[]");
                             ToolCallInfo info = new ToolCallInfo(tool.getName(),
                                     objectMapper.writeValueAsString(params), resultJson,
-                                    result.success() ? ExecutionStatus.SUCCESS : ExecutionStatus.FAILED, duration);
+                                    isSuccess ? ExecutionStatus.SUCCESS : ExecutionStatus.FAILED, duration);
                             sendSseEvent(emitter, ChatStreamEvent.toolCall(info));
 
                             return resultJson;
@@ -325,7 +336,7 @@ public class AgentServiceImpl implements AgentService {
             long duration = System.currentTimeMillis() - startTime;
 
             List<String> urls = chunks.stream()
-                    .map(DocumentChunkEntity::getSourceUrl)
+                    .map(c -> resolveKnowledgeSourceLabel(c, orgName))
                     .filter(u -> u != null && !u.isBlank())
                     .distinct()
                     .toList();
@@ -334,7 +345,7 @@ public class AgentServiceImpl implements AgentService {
             List<Map<String, Object>> payload = chunks.stream().map(c -> {
                 Map<String, Object> item = new LinkedHashMap<>();
                 item.put("content", c.getContent());
-                item.put("source", c.getSourceUrl());
+                item.put("source", resolveKnowledgeSourceLabel(c, orgName));
                 return item;
             }).toList();
 
@@ -405,7 +416,7 @@ public class AgentServiceImpl implements AgentService {
         };
 
         return FunctionToolCallback.builder("search_internet", searchFunc)
-                .description("Search the public internet for ANY public information STRICTLY related to " + orgName + "'s domain when internal tools and the knowledge base do not have the answer — official regulations, decrees, news, statistics, institution/program listings, comparisons, or recommendations based on the retrieved facts. NEVER use this tool for topics outside " + orgName + " (e.g. general programming, entertainment, sports, cooking, jokes), and NEVER use for private student/citizen data.")
+                .description("Search the public internet for ANY public information STRICTLY related to " + orgName + "'s domain when internal tools and the knowledge base do not have the answer — universities, faculties, distance education (masofaviy ta'lim), evening courses (sirtqi), entrance cutoff scores, quotas, contracts, news, statistics, institution/program listings, comparisons, or recommendations based on the retrieved facts. NEVER use this tool for topics outside " + orgName + " (e.g. general programming, entertainment, sports, cooking, jokes), and NEVER use for private student/citizen data.")
                 .inputType(Map.class)
                 .inputSchema(inputSchema)
                 .build();
@@ -470,21 +481,70 @@ public class AgentServiceImpl implements AgentService {
     }
 
     /**
-     * On failure, ToolResult.data() is null — serializing it alone would hand the model
-     * the literal string "null" with no explanation, so it can't reason about a fallback.
+     * Serializes tool results into JSON. If the tool returned no data, an empty list,
+     * or a failure, returns an actionable instruction JSON so the LLM knows to fall back
+     * to search_internet immediately instead of giving up or apologizing.
      */
     private String serializeToolResult(ToolResult result) {
         try {
-            if (result.success()) {
-                return objectMapper.writeValueAsString(result.data());
+            if (result.success() && result.data() != null) {
+                String str = result.data().toString().trim();
+                if (!str.isBlank() && !str.equals("null") && !str.equals("[]")) {
+                    return objectMapper.writeValueAsString(result.data());
+                }
             }
             String error = (result.error() != null && !result.error().isBlank())
                     ? result.error()
-                    : "Tool returned no data";
-            return objectMapper.writeValueAsString(Map.of("success", false, "error", error));
+                    : "Ichki ma'lumotlar bazasida ma'lumot topilmadi yoki bo'sh";
+            Map<String, Object> fallback = new LinkedHashMap<>();
+            fallback.put("success", false);
+            fallback.put("error", error);
+            fallback.put("action_required", "Ichki bazadan ma'lumot topilmadi yoki bo'sh. Foydalanuvchi so'roviga to'liq va aniq javob berish uchun darhol 'search_internet' vositasi orqali internetdan qidiring!");
+            return objectMapper.writeValueAsString(fallback);
         } catch (Exception e) {
-            return "{\"success\": false, \"error\": \"Failed to serialize tool result\"}";
+            return "{\"success\": false, \"error\": \"Failed to serialize tool result\", \"action_required\": \"Use 'search_internet' to find public information on the web.\"}";
         }
+    }
+
+    private String resolveKnowledgeSourceLabel(DocumentChunkEntity chunk, String orgName) {
+        String sourceUrl = chunk.getSourceUrl();
+        if (sourceUrl != null && (sourceUrl.startsWith("http://") || sourceUrl.startsWith("https://"))) {
+            return sourceUrl;
+        }
+
+        if (chunk.getDocumentId() != null) {
+            DocumentEntity doc = documentRepository.findById(chunk.getDocumentId()).orElse(null);
+            if (doc != null && doc.getTitle() != null && !doc.getTitle().isBlank()) {
+                String cleanTitle = cleanDocumentTitle(doc.getTitle());
+                if (!cleanTitle.isBlank()) {
+                    return (orgName != null && !orgName.isBlank() ? orgName + ": " : "") + cleanTitle;
+                }
+            }
+        }
+
+        if (sourceUrl != null && !sourceUrl.isBlank()) {
+            String clean = cleanDocumentTitle(sourceUrl);
+            if (!clean.isBlank()) {
+                return (orgName != null && !orgName.isBlank() ? orgName + ": " : "") + clean;
+            }
+        }
+
+        return (orgName != null && !orgName.isBlank()) ? orgName + " rasmiy hujjati" : "Rasmiy hujjat";
+    }
+
+    private String cleanDocumentTitle(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return "";
+        }
+        String title = raw.replaceAll("(?i)\\.[a-z0-9]{2,5}$", "");
+        title = title.replaceAll("^\\d{8,}[_\\-\\s]*", "");
+        title = title.replace('_', ' ').replace('-', ' ').trim();
+        String lower = title.toLowerCase();
+        if (lower.isBlank() || lower.equals("document") || lower.equals("doc")
+                || lower.equals("file") || lower.equals("fayl") || lower.equals("hujjat") || lower.equals("data")) {
+            return "";
+        }
+        return title.substring(0, 1).toUpperCase() + title.substring(1);
     }
 
     private void sendSseEvent(SseEmitter emitter, ChatStreamEvent event) {
@@ -534,19 +594,27 @@ public class AgentServiceImpl implements AgentService {
                 + "About " + org.name() + ": " + about + "\n\n"
 
                 + "TOOL PRIORITY — always try in this order before answering or refusing. These tools cover EVERY kind of question in your domain, not just documents/regulations — including recommendations, comparisons, and lists of institutions or programs:\n"
-                + "1. Specific internal tools for personal/official data (e.g. student profile, contract, scholarship, transfer rules, academic leave rules) when the question matches what they do.\n"
+                + "1. Specific internal tools for personal/official data (e.g. student profile, contract, scholarship, search_universities, transfer rules, academic leave rules) when the question matches what they do.\n"
                 + "2. 'search_knowledge_base' — " + org.name() + "'s own uploaded documents and material. Try this for anything within your domain that isn't a personal-data lookup.\n"
-                + "3. 'search_internet' and 'fetch_web_page' — for any other public information about " + org.name() + "'s domain not covered above.\n"
-                + "Never use 'search_internet' for private/personal data (grades, balances, individual records) — only the dedicated internal tools may return those, and only after the user provides their ID.\n"
-                + "If a tool call fails, errors out, or comes back empty (you will see \"success\": false or an empty list), do NOT give up or apologize yet — move to the next tool in the priority order (e.g. an internal tool failed → try search_knowledge_base; that found nothing → try search_internet) before answering. Only tell the user you could not find the information after every relevant tool has been tried.\n"
-                + "IMPORTANT: recommending, comparing, or suggesting specific institutions/programs/options based on facts you retrieved is a normal, core part of your job — it is NOT restricted personal advice. Never refuse a question just because it uses words like 'recommend' or 'suggest'; retrieve the facts with your tools and answer directly.\n\n"
+                + "3. 'search_internet' and 'fetch_web_page' — for any other public information about " + org.name() + "'s domain not covered above (universities, faculties, distance education, admission scores, contract costs, statistics, news).\n"
+                + "Never use 'search_internet' for private/personal data (grades, balances, individual records) — only the dedicated internal tools may return those, and only after the user provides their ID.\n\n"
 
-                + "DOMAIN BOUNDARY — you must enforce this on every message. There are exactly two kinds of refusal, do not blend them:\n"
-                + "- You yourself ARE " + org.name() + " — any question about " + org.name() + " itself, its leadership, structure, services, or the topic already being discussed is firmly IN SCOPE, never a reason to refuse. Keep using conversation context for natural follow-ups (pronouns, short clarifying questions).\n"
-                + "- CASE A — the user explicitly names or unambiguously means a SPECIFIC government organization OTHER THAN " + org.name() + " (a different named ministry/agency — NOT " + org.name() + " itself, and not a generic mention of your own domain). Do NOT answer or search. Reply briefly in the user's language, name that other organization, and tell them to switch to it from the organization menu at the top of the page.\n"
-                + "- CASE B — anything with no connection to any government organization at all: general topics, commodity/product prices, weather, sports, entertainment, programming help. Just briefly state in the user's language that you only help with " + org.name() + " matters. Do NOT mention another organization, do NOT tell them to contact anyone else — there is no specific organization to point to.\n"
-                + "- Both refusals must be one short sentence, no disclaimers, no repeating the question back.\n"
-                + "- If the question IS about " + org.name() + " but none of your tools returned anything useful (no documents uploaded yet, nothing found online), do NOT use either refusal above — that would wrongly imply the topic is out of scope. Instead say plainly, in the user's language, that you don't have specific information on that yet, and that uploading documents to the knowledge base or asking something more specific would help.\n\n"
+                + "CRITICAL FALLBACK TO WEB SEARCH (MANDATORY):\n"
+                + "- If an internal tool (e.g. 'search_universities', 'get_transfer_rules', 'get_academic_leave_rules', or 'search_knowledge_base') returns null, empty list [], failure, or does NOT contain the specific details requested by the user (such as distance education / masofaviy ta'lim, evening courses / sirtqi, IT programs, admission cutoff scores, contract fees, specific universities or faculties):\n"
+                + "  YOU MUST NEVER APOLOGIZE OR SAY 'universitetlar ro'yxatini olishda muammo yuzaga keldi' OR 'ma'lumot topilmadi' OR 'vazirlik saytiga kiring'!\n"
+                + "  Instead, you MUST AUTOMATICALLY AND IMMEDIATELY CALL 'search_internet' (e.g. query 'O‘zbekistonda IT masofaviy taʼlim universitetlar' or similar) and 'fetch_web_page' to retrieve live information from the web!\n"
+                + "  Then provide a comprehensive, well-structured answer with real universities (e.g. TATU, Toshkent Amaliy Fanlar Universiteti, IT Park University, etc.), detailing programs and requirements formatted in a Markdown table.\n"
+                + "  IMPORTANT: recommending, comparing, or suggesting specific institutions/programs/options based on facts you retrieved is a normal, core part of your job — it is NOT restricted personal advice. Never refuse a question just because it uses words like 'recommend' or 'suggest'; retrieve the facts with your tools and answer directly.\n\n"
+
+                + "ENTRANCE EXAM SCORES (KIRISH BALLARI):\n"
+                + "- In Uzbekistan Higher Education (DTM / Bilimni baholash agentligi), the MAXIMUM possible entrance score is STRICTLY 189.0 points (never tens of thousands). 56.7 (kontrakt) and 68.0 (grant) are only general minimum threshold barriers across the republic, NOT the actual cutoff scores for competitive faculties (e.g. Dasturiy injiniring, Kiberxavfsizlik have much higher cutoffs). Always format university score tables using Markdown: | Ta'lim yo'nalishi | Davlat granti | To'lov-kontrakt |.\n\n"
+
+                + "DOMAIN BOUNDARY — you must enforce this on every message. There are exactly three outcomes for any message; pick exactly one, never blend their wording:\n"
+                + "- You yourself ARE " + org.name() + " — any question about " + org.name() + " itself, its leadership, structure, services, history, or the topic already being discussed is firmly IN SCOPE. A broad request like 'tell me about " + org.name() + "' is IN SCOPE too: call 'search_knowledge_base' with the organization's name as the query, and if that returns nothing, call 'search_internet' the same way, before you say anything else.\n"
+                + "- OUTCOME A (wrong organization) — ONLY when the user explicitly names or unambiguously means a SPECIFIC government organization OTHER THAN " + org.name() + " (a different named ministry/agency — never " + org.name() + " itself). Reply with exactly one short sentence in the user's language: name that other organization and say they should switch to it from the organization menu at the top of the page.\n"
+                + "- OUTCOME B (unrelated to government) — the message has no connection to any government organization at all: general topics, commodity/product prices, weather, sports, entertainment, programming help. Reply with exactly one short sentence in the user's language stating you only help with " + org.name() + " matters. Never use this outcome, and never say 'I only help with " + org.name() + " matters', for a question that IS about " + org.name() + " — that phrase is reserved for OUTCOME B alone.\n"
+                + "- OUTCOME C (in scope, but nothing found) — the question is about " + org.name() + ", you called the relevant tools above (including search_internet), and they genuinely returned nothing useful. Say plainly, in the user's language, that you don't have specific information on that particular point yet, and suggest uploading a document to the knowledge base or asking something more specific. Do NOT phrase this as 'I only help with X matters' — that would falsely tell the user their question was off-topic when it was not.\n"
+                + "- Refusals (A and B) are exactly one short sentence, no disclaimers. OUTCOME C may be one short sentence too, but must sound like 'I don't know this yet', never like 'this isn't my job'.\n\n"
 
                 + "COMPLAINTS: to file one, use 'create_complaint_draft' and tell the user it needs their explicit confirmation before submission.\n\n"
 

@@ -14,7 +14,7 @@ public class UniversityController {
 
     private final UniversityService universityService;
 
-    @GetMapping("/")
+    @GetMapping({"", "/"})
     public List<UniversityResponse> getAllUniversities() {
         return universityService.getAllUniversities();
     }

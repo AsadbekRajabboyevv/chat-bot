@@ -106,7 +106,10 @@ public class KnowledgeServiceImpl implements KnowledgeService {
         }
 
         String fileName = file.getOriginalFilename() != null ? file.getOriginalFilename() : "document";
-        String resolvedTitle = (title != null && !title.isBlank()) ? title : stripExtension(fileName);
+        String defaultTitle = knowledgeBase.getName() != null && !knowledgeBase.getName().isBlank()
+                ? knowledgeBase.getName() + " hujjati"
+                : "Rasmiy hujjat";
+        String resolvedTitle = (title != null && !title.isBlank()) ? title.trim() : cleanTitle(fileName, defaultTitle);
 
         DocumentEntity document = DocumentEntity.builder()
                 .knowledgeBaseId(knowledgeBaseId)
@@ -125,7 +128,7 @@ public class KnowledgeServiceImpl implements KnowledgeService {
             }
         };
 
-        return ingest(knowledgeBase, document, fileName, extractor);
+        return ingest(knowledgeBase, document, resolvedTitle, extractor);
     }
 
     @Override
@@ -159,7 +162,9 @@ public class KnowledgeServiceImpl implements KnowledgeService {
 
             List<String> chunks = textChunker.chunk(extractedText);
             UUID organizationId = knowledgeBase.getOrganizationId();
-            String citationUrl = document.getSourceUrl() != null ? document.getSourceUrl() : sourceLabel;
+            String citationUrl = (document.getSourceUrl() != null && !document.getSourceUrl().isBlank())
+                    ? document.getSourceUrl()
+                    : document.getTitle();
             for (String chunkContent : chunks) {
                 DocumentChunkEntity chunk = DocumentChunkEntity.builder()
                         .documentId(document.getId())
@@ -178,6 +183,21 @@ public class KnowledgeServiceImpl implements KnowledgeService {
             document.setErrorMessage(e.getMessage());
             return documentRepository.save(document);
         }
+    }
+
+    private String cleanTitle(String raw, String defaultTitle) {
+        if (raw == null || raw.isBlank()) {
+            return defaultTitle;
+        }
+        String cleaned = stripExtension(raw);
+        cleaned = cleaned.replaceAll("^\\d{8,}[_\\-\\s]*", "");
+        cleaned = cleaned.replace('_', ' ').replace('-', ' ').trim();
+        String lower = cleaned.toLowerCase();
+        if (lower.isBlank() || lower.equals("document") || lower.equals("doc")
+                || lower.equals("file") || lower.equals("fayl") || lower.equals("hujjat") || lower.equals("data")) {
+            return defaultTitle;
+        }
+        return cleaned.substring(0, 1).toUpperCase() + cleaned.substring(1);
     }
 
     private String stripExtension(String fileName) {

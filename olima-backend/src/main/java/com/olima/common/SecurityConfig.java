@@ -68,12 +68,20 @@ public class SecurityConfig {
         response.getWriter().write(objectMapper.writeValueAsString(body));
     }
 
+    @org.springframework.beans.factory.annotation.Value("${app.cors.allowed-origin-patterns:*}")
+    private String allowedOriginPatterns;
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:80"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
+        java.util.List<String> patterns = java.util.Arrays.stream(allowedOriginPatterns.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .toList();
+        configuration.setAllowedOriginPatterns(patterns.isEmpty() ? java.util.List.of("*") : patterns);
+        configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        configuration.setAllowedHeaders(java.util.List.of("*"));
+        configuration.setExposedHeaders(java.util.List.of("Authorization", "Link", "X-Total-Count"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
