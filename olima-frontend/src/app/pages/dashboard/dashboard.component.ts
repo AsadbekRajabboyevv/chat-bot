@@ -7,6 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { ConvTitlePipe } from '../../pipes/conv-title.pipe';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { Conversation, Execution } from '../../models';
@@ -14,7 +15,7 @@ import { Conversation, Execution } from '../../models';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [
+  imports: [ConvTitlePipe, 
     CommonModule, MatIconModule, MatButtonModule,
     MatTooltipModule, MatProgressSpinnerModule, RouterLink
   ],
@@ -96,7 +97,7 @@ import { Conversation, Execution } from '../../models';
                [routerLink]="['/conversations', c.id]">
               <span class="item__dot"></span>
               <span class="item__body">
-                <span class="item__title truncate">{{ c.title || 'Nomsiz suhbat' }}</span>
+                <span class="item__title truncate">{{ c.title | convTitle:'Nomsiz suhbat' }}</span>
                 <span class="item__meta">{{ c.createdAt | date:'dd.MM.yyyy HH:mm' }}</span>
               </span>
               <mat-icon class="item__go">chevron_right</mat-icon>

@@ -14,6 +14,7 @@ import { Router, NavigationStart } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import { ConvTitlePipe } from '../../pipes/conv-title.pipe';
 import { ApiService } from '../../services/api.service';
 import { ChatRequest, ChatResponse, ChatStreamEvent, Conversation, Message, ToolCallInfo } from '../../models';
 import { marked } from 'marked';
@@ -38,7 +39,7 @@ interface DisplayMessage {
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [
+  imports: [ConvTitlePipe, 
     CommonModule,
     FormsModule,
     MatCardModule,
@@ -93,7 +94,7 @@ interface DisplayMessage {
           <div class="menu-title-header">So'nggi suhbatlar</div>
           <button mat-menu-item *ngFor="let c of recentConversations" (click)="selectConversation(c)">
             <mat-icon color="primary">forum</mat-icon>
-            <span class="history-item-title">{{ c.title || 'Suhbat ' + (c.createdAt | date:'shortDate') }}</span>
+            <span class="history-item-title">{{ c.title | convTitle:('Suhbat ' + (c.createdAt | date:'shortDate')) }}</span>
           </button>
           <div *ngIf="recentConversations.length === 0" class="empty-history-item">
             Oldingi suhbatlar mavjud emas.
