@@ -70,6 +70,12 @@
     ".bubble{width:56px;height:56px;border-radius:50%;border:0;cursor:pointer;display:grid;place-items:center;",
     "  background:#fff;color:#fff;box-shadow:0 8px 28px rgba(20,25,60,.3);transition:transform .16s ease;}",
     ".bubble:hover{transform:translateY(-2px)}",
+    // Impuls: chat hali ochilmagan paytda logo atrofidan ikki to'lqin tarqaladi (ochilgach shu sessiyada to'xtaydi)
+    ".bubble{position:relative}",
+    ".bubble.pulse::before,.bubble.pulse::after{content:'';position:absolute;inset:0;border-radius:50%;",
+    "  border:2px solid " + cfg.accent + ";opacity:0;pointer-events:none;animation:olimaPulse 2.6s cubic-bezier(.2,.6,.35,1) infinite}",
+    ".bubble.pulse::after{animation-delay:1.3s}",
+    "@keyframes olimaPulse{0%{transform:scale(1);opacity:.55}70%{opacity:0}100%{transform:scale(1.75);opacity:0}}",
     ".bubble img{width:38px;height:38px;object-fit:contain;display:block;pointer-events:none}",
     ".dot{position:absolute;top:-2px;" + (cfg.side === "left" ? "left" : "right") + ":-2px;min-width:19px;height:19px;",
     "  border-radius:10px;background:#C0392B;color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;padding:0 5px}",
@@ -103,7 +109,7 @@
     "  .root{bottom:16px;" + (cfg.side === "left" ? "left" : "right") + ":16px}",
     "  .greet{bottom:66px}",
     "}",
-    "@media (prefers-reduced-motion:reduce){.panel,.bubble,.greet{transition:none}}"
+    "@media (prefers-reduced-motion:reduce){.panel,.bubble,.greet{transition:none}.bubble.pulse::before,.bubble.pulse::after{animation:none}}"
   ].join("\n");
 
   var root = document.createElement("div");
@@ -132,6 +138,10 @@
     "&accent=" + encodeURIComponent(cfg.accent) +
     "&theme=" + encodeURIComponent(cfg.theme) +
     (cfg.suggest ? "&suggest=" + encodeURIComponent(cfg.suggest) : "");
+
+  var PULSE_KEY = "olima_opened";
+  try { if (!window.sessionStorage.getItem(PULSE_KEY)) bubble.classList.add("pulse"); }
+  catch (e) { bubble.classList.add("pulse"); }
 
   root.appendChild(bubble);
   shadow.appendChild(style);
@@ -248,6 +258,8 @@
     frame.classList.toggle("on", open);
     bubble.setAttribute("aria-label", open ? "Yordamchini yopish" : "Yordamchini ochish");
     if (open) {
+      bubble.classList.remove("pulse");
+      try { window.sessionStorage.setItem(PULSE_KEY, "1"); } catch (e) {}
       hideGreeting();
       setUnread(0);
       post({ type: "focus" });
