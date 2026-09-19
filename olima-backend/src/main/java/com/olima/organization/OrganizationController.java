@@ -2,6 +2,7 @@ package com.olima.organization;
 
 import com.olima.organization.dto.OrganizationRequest;
 import com.olima.organization.dto.OrganizationResponse;
+import com.olima.organization.dto.WidgetSettingsRequest;
 import com.olima.security.AuthenticatedUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +55,15 @@ public class OrganizationController {
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<OrganizationResponse> update(@PathVariable UUID id, @RequestBody @Valid OrganizationRequest request) {
         return ResponseEntity.ok(organizationService.update(id, request));
+    }
+
+    /**
+     * Widget sozlamalari (salomlashish matni). SUPER_ADMIN'dan tashqari tashkilot admini ham o'zgartira oladi —
+     * faqat o'z tashkilotini: OrganizationScopeFilter /organizations/{id}/** yo'lida begona id ni 403 qiladi.
+     */
+    @PutMapping("/{id}/widget")
+    public ResponseEntity<OrganizationResponse> updateWidget(@PathVariable UUID id, @RequestBody @Valid WidgetSettingsRequest request) {
+        return ResponseEntity.ok(organizationService.updateWidgetSettings(id, request));
     }
 
     @DeleteMapping("/{id}")

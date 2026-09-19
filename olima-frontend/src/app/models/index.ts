@@ -6,6 +6,9 @@ export interface Organization {
   enabled: boolean;
   /** Widget saytga qo'yilganda shu kalit yuboriladi; tashkilot server tomonda aniqlanadi. */
   widgetKey?: string;
+  /** Mijoz saytida logo ustida chiqadigan salomlashish; bo'sh bo'lsa widget standart matnni oladi. */
+  widgetGreeting?: string | null;
+  widgetGreetingEnabled?: boolean;
   createdAt: string;
   updatedAt: string;
 }

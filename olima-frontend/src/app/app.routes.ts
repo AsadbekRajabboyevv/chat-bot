@@ -4,6 +4,8 @@ import { superAdminGuard } from './guards/super-admin.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+  // Tashkilot almashtirilganda joriy sahifani qayta yaratish uchun o'tkinchi bo'sh yo'l (AppComponent.onOrgChange)
+  { path: 'reload', children: [] },
   {
     path: 'login',
     loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent)
@@ -22,6 +24,11 @@ export const routes: Routes = [
     path: 'organizations/:id/tools',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/tools/tools.component').then(m => m.ToolsComponent)
+  },
+  {
+    path: 'widget',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/widget/widget-settings.component').then(m => m.WidgetSettingsComponent)
   },
   {
     path: 'users',

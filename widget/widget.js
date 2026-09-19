@@ -7,6 +7,7 @@
  *           data-key="wk_live_..."           // hozircha data-org ishlatiladi
  *           data-org="550e8400-..."          // VAQTINCHA: tashkilot identifikatori
  *           data-api="http://localhost:8080" // backend manzili
+ *           data-greeting="Salom! ..."        // ixtiyoriy: salomlashish matni, "off" — o'chirish
  *           async></script>
  *
  * ⚠️ VAQTINCHA YECHIM: hozir tashkilot brauzerdan uzatilyapti (data-org).
@@ -44,7 +45,10 @@
     accent: (script && script.getAttribute("data-accent")) || "#12564A",
     side: (script && script.getAttribute("data-side")) || "right",
     theme: (script && script.getAttribute("data-theme")) || "auto",
-    suggest: (script && script.getAttribute("data-suggest")) || ""
+    suggest: (script && script.getAttribute("data-suggest")) || "",
+    // Salomlashish kartasi: "off" — o'chirish, bo'sh — standart matn
+    greeting: (script && script.getAttribute("data-greeting")) || "",
+    greetDelay: parseInt((script && script.getAttribute("data-greeting-delay")) || "3500", 10)
   };
 
   var base = (script && script.src ? script.src.replace(/[^/]*$/, "") : "./");
@@ -69,9 +73,27 @@
     ".bubble img{width:38px;height:38px;object-fit:contain;display:block;pointer-events:none}",
     ".dot{position:absolute;top:-2px;" + (cfg.side === "left" ? "left" : "right") + ":-2px;min-width:19px;height:19px;",
     "  border-radius:10px;background:#C0392B;color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;padding:0 5px}",
-    ".nudge{position:absolute;bottom:8px;" + (cfg.side === "left" ? "left" : "right") + ":68px;white-space:nowrap;",
-    "  background:#fff;color:#16191C;border:1px solid #E1E3DF;border-radius:20px;padding:9px 15px;font-size:13.5px;",
-    "  box-shadow:0 6px 20px rgba(0,0,0,.12)}",
+    // ---- salomlashish kartasi ----
+    ".greet{--g-bg:#fff;--g-fg:#16191C;--g-mute:#5B6168;--g-line:#E4E6EA;",
+    "  position:absolute;bottom:70px;" + (cfg.side === "left" ? "left" : "right") + ":0;width:292px;max-width:calc(100vw - 32px);",
+    "  background:var(--g-bg);color:var(--g-fg);border:1px solid var(--g-line);border-radius:16px;",
+    "  border-" + (cfg.side === "left" ? "bottom-left" : "bottom-right") + "-radius:4px;",
+    "  padding:14px 16px 14px 16px;box-shadow:0 12px 36px rgba(20,25,60,.18);cursor:pointer;text-align:left;",
+    "  opacity:0;transform:translateY(8px) scale(.97);transform-origin:bottom " + (cfg.side === "left" ? "left" : "right") + ";",
+    "  transition:opacity .22s ease,transform .22s cubic-bezier(.2,.9,.3,1.2)}",
+    ".greet.on{opacity:1;transform:none}",
+    ".greet .who{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--g-mute);margin:0 22px 6px 0}",
+    ".greet .who img{width:20px;height:20px;border-radius:50%;object-fit:contain}",
+    ".greet .who i{width:7px;height:7px;border-radius:50%;background:#1DB954;display:inline-block;margin-left:2px}",
+    ".greet .msg{font-size:14.5px;line-height:1.45;margin:0}",
+    ".greet .cta{margin-top:10px;font-size:13px;font-weight:600;color:" + cfg.accent + "}",
+    ".greet .x{position:absolute;top:8px;right:8px;width:24px;height:24px;border:0;border-radius:50%;",
+    "  background:transparent;color:var(--g-mute);font-size:17px;line-height:1;cursor:pointer;display:grid;place-items:center}",
+    ".greet .x:hover{background:rgba(0,0,0,.06)}",
+    ".greet:focus-visible,.greet .x:focus-visible{outline:2px solid " + cfg.accent + ";outline-offset:2px}",
+    (cfg.theme === "dark" ? ".greet{--g-bg:#212326;--g-fg:#ECEDEE;--g-mute:#A3A8AE;--g-line:#34373B}" :
+     cfg.theme === "light" ? "" :
+     "@media (prefers-color-scheme:dark){.greet{--g-bg:#212326;--g-fg:#ECEDEE;--g-mute:#A3A8AE;--g-line:#34373B}}"),
     ".panel{position:fixed;z-index:2147483000;bottom:88px;" + (cfg.side === "left" ? "left" : "right") + ":20px;width:396px;height:min(620px,calc(100vh - 120px));",
     "  border:0;border-radius:14px;box-shadow:0 18px 60px rgba(0,0,0,.3);background:transparent;overflow:hidden;",
     "  opacity:0;transform:translateY(10px) scale(.985);transition:opacity .16s ease,transform .16s ease;pointer-events:none}",
@@ -79,9 +101,9 @@
     "@media (max-width:520px){",
     "  .panel{inset:0;width:100%;height:100%;border-radius:0;bottom:0}",
     "  .root{bottom:16px;" + (cfg.side === "left" ? "left" : "right") + ":16px}",
-    "  .nudge{display:none}",
+    "  .greet{bottom:66px}",
     "}",
-    "@media (prefers-reduced-motion:reduce){.panel,.bubble{transition:none}}"
+    "@media (prefers-reduced-motion:reduce){.panel,.bubble,.greet{transition:none}}"
   ].join("\n");
 
   var root = document.createElement("div");
@@ -94,7 +116,7 @@
   bubble.innerHTML = '<img src="' + base + 'logo-96.png" alt="" />';
 
   var badge = null;
-  var nudge = null;
+  var greet = null;
 
   var frame = document.createElement("iframe");
   frame.className = "panel";
@@ -118,27 +140,101 @@
 
   function mount() {
     document.body.appendChild(host);
-    window.setTimeout(showNudge, 2600);
+    window.setTimeout(function () { greetDue = true; tryGreet(); }, cfg.greetDelay);
+    // Server javob bermasa ham salomlashish qolib ketmasin — standart matn bilan chiqadi
+    window.setTimeout(function () { configReady = true; tryGreet(); }, cfg.greetDelay + 3000);
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount);
   else mount();
 
-  /* ---------- nudge: bir marta, 8 soniya ---------- */
-  var nudgeShown = false;
-  function showNudge() {
-    if (nudgeShown || open) return;
-    try { if (window.sessionStorage.getItem("olima_nudge")) return; } catch (e) {}
-    nudgeShown = true;
-    nudge = document.createElement("div");
-    nudge.className = "nudge";
-    nudge.textContent = "Savolingiz bormi?";
-    root.appendChild(nudge);
-    try { window.sessionStorage.setItem("olima_nudge", "1"); } catch (e) {}
-    window.setTimeout(hideNudge, 8000);
+  /* ---------- salomlashish kartasi ----------
+   * Sahifa ochilgach bir necha soniyada logo ustida chiqadi va o'zi yo'qolmaydi.
+   * Bosilsa chat ochiladi; × bosilsa shu saytda boshqa ko'rsatilmaydi (localStorage).
+   * Chat bir marta ochilgan bo'lsa ham ko'rsatilmaydi — mehmon widget'ni allaqachon topgan.
+   */
+  var GREET_KEY = "olima_greet_off";
+  var greetDue = false;      // kechikish o'tdi
+  var configReady = false;   // panel sozlamalari keldi (yoki kutish tugadi)
+  var serverCfg = {};        // { greeting, greetingEnabled } — panelda tashkilot admini boshqaradi
+
+  function tryGreet() {
+    if (greetDue && configReady) showGreeting(false);
   }
-  function hideNudge() {
-    if (nudge && nudge.parentNode) nudge.parentNode.removeChild(nudge);
-    nudge = null;
+  var DEFAULT_GREETING = "Salom! 👋 Savolingiz bormi? Rasmiy hujjatlar asosida darhol javob beraman.";
+
+  function greetingDismissed() {
+    try { return !!window.localStorage.getItem(GREET_KEY); } catch (e) { return false; }
+  }
+  function rememberDismiss() {
+    try { window.localStorage.setItem(GREET_KEY, "1"); } catch (e) {}
+  }
+
+  function showGreeting(force) {
+    if (greet || open) return;
+    if (!force && (cfg.greeting === "off" || serverCfg.greetingEnabled === false || greetingDismissed())) return;
+
+    greet = document.createElement("div");
+    greet.className = "greet";
+    greet.setAttribute("role", "button");
+    greet.setAttribute("tabindex", "0");
+    greet.setAttribute("aria-label", "Yordamchini ochish");
+
+    var who = document.createElement("div");
+    who.className = "who";
+    var av = document.createElement("img");
+    av.src = base + "logo-96.png";
+    av.alt = "";
+    who.appendChild(av);
+    who.appendChild(document.createTextNode(cfg.title));
+    var dot = document.createElement("i");
+    dot.title = "Onlayn";
+    who.appendChild(dot);
+
+    var msg = document.createElement("p");
+    msg.className = "msg";
+    // Ustunlik: panel (tashkilot admini) → sahifadagi data-greeting → standart matn
+    msg.textContent = serverCfg.greeting ||
+      ((cfg.greeting && cfg.greeting !== "off") ? cfg.greeting : DEFAULT_GREETING);
+
+    var cta = document.createElement("div");
+    cta.className = "cta";
+    cta.textContent = "Savol berish →";
+
+    var x = document.createElement("button");
+    x.className = "x";
+    x.type = "button";
+    x.setAttribute("aria-label", "Yopish");
+    x.textContent = "×";
+    x.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      rememberDismiss();
+      hideGreeting();
+      emit("greeting", { action: "dismiss" });
+    });
+
+    greet.appendChild(x);
+    greet.appendChild(who);
+    greet.appendChild(msg);
+    greet.appendChild(cta);
+    greet.addEventListener("click", function () {
+      emit("greeting", { action: "click" });
+      setOpen(true);
+    });
+    greet.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); greet.click(); }
+    });
+
+    root.appendChild(greet);
+    // keyingi kadrda .on — aks holda transition ishlamaydi
+    window.requestAnimationFrame(function () {
+      window.requestAnimationFrame(function () { if (greet) greet.classList.add("on"); });
+    });
+    emit("greeting", { action: "show" });
+  }
+
+  function hideGreeting() {
+    if (greet && greet.parentNode) greet.parentNode.removeChild(greet);
+    greet = null;
   }
 
   /* ---------- ochish / yopish ---------- */
@@ -147,7 +243,7 @@
     frame.classList.toggle("on", open);
     bubble.setAttribute("aria-label", open ? "Yordamchini yopish" : "Yordamchini ochish");
     if (open) {
-      hideNudge();
+      hideGreeting();
       setUnread(0);
       post({ type: "focus" });
       if (identity) post({ type: "identify", identity: identity });
@@ -185,6 +281,11 @@
         if (identity) post({ type: "identify", identity: identity });
         emit("ready", {});
         break;
+      case "config":
+        serverCfg = d.payload || {};
+        configReady = true;
+        tryGreet();
+        break;
       case "close":
         setOpen(false);
         break;
@@ -213,6 +314,8 @@
     open: function () { setOpen(true); },
     close: function () { setOpen(false); },
     toggle: function () { setOpen(!open); },
+    /** Salomlashish kartasini qo'lda ko'rsatish (yopilgan bo'lsa ham) */
+    greet: function () { configReady = true; showGreeting(true); },
     ask: function (text) { setOpen(true); post({ type: "ask", text: String(text || "") }); },
     /**
      * Kirgan foydalanuvchini tanitish.

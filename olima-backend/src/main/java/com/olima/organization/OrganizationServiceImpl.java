@@ -2,6 +2,8 @@ package com.olima.organization;
 
 import com.olima.organization.dto.OrganizationRequest;
 import com.olima.organization.dto.OrganizationResponse;
+import com.olima.organization.dto.WidgetConfigResponse;
+import com.olima.organization.dto.WidgetSettingsRequest;
 import com.olima.organization.exception.OrganizationNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -71,5 +73,24 @@ public class OrganizationServiceImpl implements OrganizationService {
             throw new OrganizationNotFoundException("Organization not found");
         }
         organizationRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public OrganizationResponse updateWidgetSettings(UUID id, WidgetSettingsRequest request) {
+        OrganizationEntity entity = organizationRepository.findById(id)
+            .orElseThrow(() -> new OrganizationNotFoundException("Organization not found"));
+        String greeting = request.greeting() == null ? null : request.greeting().trim();
+        entity.setWidgetGreeting(greeting == null || greeting.isEmpty() ? null : greeting);
+        entity.setWidgetGreetingEnabled(request.greetingEnabled());
+        return organizationMapper.toResponse(organizationRepository.save(entity));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public WidgetConfigResponse widgetConfig(UUID id) {
+        OrganizationEntity entity = organizationRepository.findById(id)
+            .orElseThrow(() -> new OrganizationNotFoundException("Organization not found"));
+        return new WidgetConfigResponse(entity.getWidgetGreeting(), entity.isWidgetGreetingEnabled());
     }
 }

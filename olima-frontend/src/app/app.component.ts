@@ -394,6 +394,7 @@ export class AppComponent implements OnInit {
     {
       title: 'Boshqaruv',
       items: [
+        { path: '/widget', icon: 'waving_hand', label: 'Widget sozlamalari' },
         { path: '/organizations', icon: 'apartment', label: 'Tashkilotlar', superOnly: true },
         { path: '/users', icon: 'shield_person', label: 'Adminlar', superOnly: true },
       ],
@@ -408,6 +409,7 @@ export class AppComponent implements OnInit {
     '/conversations': 'Suhbatlar',
     '/executions': 'Bajarilgan amallar',
     '/complaints': 'Murojaatlar',
+    '/widget': 'Widget sozlamalari',
     '/organizations': 'Tashkilotlar',
     '/users': 'Adminlar',
   };
@@ -460,6 +462,7 @@ export class AppComponent implements OnInit {
 
   /** Eng uzun mos prefiks — /knowledge/:id ham "Bilimlar bazasi" deb qoladi. */
   private setTitle(url: string): void {
+    if (url.startsWith('/reload')) return;
     const match = Object.keys(this.titles)
       .filter(p => url.startsWith(p))
       .sort((a, b) => b.length - a.length)[0];
@@ -500,6 +503,20 @@ export class AppComponent implements OnInit {
       localStorage.setItem('selectedOrgName', org.name);
     }
     window.dispatchEvent(new Event('orgChanged'));
+    this.reloadForOrg();
+  }
+
+  /**
+   * Ko'p sahifalar tashkilotni faqat ngOnInit'da o'qiydi — almashtirilganda ro'yxat eskisicha qolardi.
+   * Har sahifaga tinglovchi qo'shish o'rniga joriy sahifa qayta yaratiladi.
+   * Ichki sahifa (/tools/:id, /knowledge/:id ...) eski tashkilotniki — o'sha bo'limning ro'yxatiga qaytamiz.
+   */
+  private reloadForOrg(): void {
+    const path = this.router.url.split(/[?#]/)[0];
+    const first = path.split('/').filter(Boolean)[0];
+    const target = first ? '/' + first : '/dashboard';
+    this.router.navigateByUrl('/reload', { skipLocationChange: true })
+      .then(() => this.router.navigateByUrl(target));
   }
 
   logout(): void {
