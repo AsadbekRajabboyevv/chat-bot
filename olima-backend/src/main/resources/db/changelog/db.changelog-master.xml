@@ -19,5 +19,6 @@
     <include file="db/changelog/012-widget-key.xml"/>
     <include file="db/changelog/013-widget-greeting.xml"/>
     <include file="db/changelog/013-telegram.xml"/>
+    <include file="db/changelog/014-remove-placeholder-law.xml"/>
 
 </databaseChangeLog>

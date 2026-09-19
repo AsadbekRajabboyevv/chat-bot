@@ -3,20 +3,18 @@
  * -----------------------------------------------------------------------------
  * Mijoz saytiga bitta qator bilan ulanadi:
  *
- *   <script src=".../widget.js"
- *           data-key="wk_live_..."           // hozircha data-org ishlatiladi
- *           data-org="550e8400-..."          // VAQTINCHA: tashkilot identifikatori
- *           data-api="http://localhost:8080" // backend manzili
- *           data-greeting="Salom! ..."        // ixtiyoriy: salomlashish matni, "off" — o'chirish
+ *   <script src="https://<olima-host>/widget.js"
+ *           data-key="wk_..."                 // tashkilot widget kaliti (admin panel → Ulanish ma'lumotlari)
  *           async></script>
  *
- * ⚠️ VAQTINCHA YECHIM: hozir tashkilot brauzerdan uzatilyapti (data-org).
- *    Bu ishlab chiqarishga YARAMAYDI — har kim boshqa tashkilot botiga murojaat
- *    qila oladi. To'g'ri yo'l: server `wk_...` kalitidan tashkilotni o'zi aniqlaydi
- *    va so'rov tanasidagi organizationId umuman e'tiborga olinmaydi.
+ * Ixtiyoriy: data-title, data-subtitle, data-accent, data-theme, data-greeting ("off" — o'chirish),
+ * data-suggest ("savol1|savol2"), data-side ("left"). data-api berilmasa, widget.js yuklangan origin olinadi.
  *
- * Widget iframe ichida ishlaydi: mijoz sahifasining CSS'i, DOM'i va cookie'lariga
- * tegmaydi, sahifa ham widget ichini ko'ra olmaydi.
+ * Xavfsizlik: tashkilot kalit orqali SERVER tomonda aniqlanadi (WidgetKeyFilter) — brauzerdan kelgan
+ * tashkilot identifikatoriga ishonilmaydi. data-org faqat eski ulanishlar bilan moslik uchun qabul qilinadi.
+ *
+ * Widget iframe ichida ishlaydi: mijoz sahifasining CSS'i, DOM'i va cookie'lariga tegmaydi,
+ * sahifa ham widget ichini ko'ra olmaydi.
  */
 (function () {
   "use strict";
